@@ -22,7 +22,7 @@ export default function Footer() {
           
           <div className="flex items-center gap-4">
             <a
-              href="https://github.com/mimiru-project"
+              href="https://github.com/Yuzuki-png/mimiru_frontend"
               target="_blank"
               rel="noopener noreferrer"
               className="text-gray-400 hover:text-white transition-colors"
