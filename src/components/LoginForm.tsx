@@ -18,7 +18,7 @@ export default function LoginForm() {
     
     // 入力チェック
     if (!email || !password) {
-      setClientError("メールアドレスとパスワードを入力してください");
+      setClientError("メールアドレスとパスワードを入力してくださaa");
       return;
     }
     
