@@ -20,7 +20,7 @@ export default function RegisterForm() {
     
     // パスワード確認チェック
     if (password !== confirmPassword) {
-      setClientError("パスワードが一致しません");
+      setClientError("パスワードが一致しません。");
       return;
     }
     
