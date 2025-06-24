@@ -1,12 +1,32 @@
 "use client";
 
 import { 
-  AnimatedButton, 
   AnimatedContainer, 
   AnimatedElement 
 } from '../../components/animations';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
 export default function PrivacyPolicy() {
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    // JWTトークンの有無で認証状態を判別
+    const token = localStorage.getItem('token');
+    setIsAuthenticated(!!token);
+  }, []);
+
+  const handleGoBack = () => {
+    // JWTトークンがある場合はダッシュボードに、ない場合はトップページに戻る
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    } else {
+      router.push('/');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black">
       <div className="container mx-auto py-20 px-6">
@@ -185,9 +205,15 @@ export default function PrivacyPolicy() {
           </AnimatedContainer>
           
           <div className="mt-12 text-center">
-            <AnimatedButton href="/">
-              トップページに戻る
-            </AnimatedButton>
+            <motion.button
+              onClick={handleGoBack}
+              className="border border-white text-white font-bold px-8 py-3 rounded-full transition-colors hover:bg-white hover:text-black"
+              initial={{ scale: 1 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {isAuthenticated ? 'ダッシュボードに戻る' : 'トップページに戻る'}
+            </motion.button>
           </div>
         </AnimatedElement>
       </div>

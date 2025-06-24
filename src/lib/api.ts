@@ -19,6 +19,8 @@ export const setAuthToken = (token: string) => {
   } else {
     delete api.defaults.headers.common['Authorization'];
     localStorage.removeItem('token');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userId');
   }
 };
 
@@ -51,30 +53,120 @@ api.interceptors.response.use(
 // 認証関連のAPI
 export const authApi = {
   // ユーザー登録
-  register: async (email: string, password: string, username?: string) => {
-    // バックエンドが期待する形式に整形
-    const userData = {
-      email: email,
-      password: password,
-      ...(username ? { username: username } : {}) // usernameがある場合のみ送信
-    };
+  register: async (email: string, password: string, name?: string) => {
+    const userData = { email, password, name };
     
-    console.log('Register request payload:', userData);
-    const response = await api.post('/auth/register', userData);
-    return response.data;
+    try {
+      const response = await api.post('/auth/register', userData);
+      console.log('Register API response:', response.data);
+      
+      // JWTトークンをレスポンスから取得して設定
+      if (response.data.access_token) {
+        setAuthToken(response.data.access_token);
+        
+        // ユーザー情報をローカルストレージに保存
+        localStorage.setItem('userEmail', email);
+      }
+      
+      return response.data;
+    } catch (error) {
+      console.error('Register error:', error);
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('予期しないエラーが発生しました');
+      }
+    }
   },
   
   // ログイン
   login: async (email: string, password: string) => {
     const loginData = { email, password };
-    console.log('Login request payload:', loginData);
-    const response = await api.post('/auth/login', loginData);
-    return response.data;
+    
+    try {
+      const response = await api.post('/auth/login', loginData);
+      console.log('Login API response:', response.data);
+      
+      // JWTトークンをレスポンスから取得して設定
+      if (response.data.access_token) {
+        setAuthToken(response.data.access_token);
+        
+        // ユーザー情報をローカルストレージに保存
+        localStorage.setItem('userEmail', email);
+      }
+      
+      return response.data;
+    } catch (error) {
+      console.error('Login error:', error);
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('予期しないエラーが発生しました');
+      }
+    }
   },
   
   // プロファイル取得
   getProfile: async () => {
-    const response = await api.get('/auth/profile');
+    try {
+      const response = await api.get('/auth/me');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to get profile from /auth/me:', error);
+      throw error;
+    }
+  },
+
+
+};
+
+// 音声コンテンツ関連のAPI
+export const audioContentApi = {
+  // 音声コンテンツ一覧取得
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+    category?: string;
+    search?: string;
+  }) => {
+    const response = await api.get('/audio-contents', { params });
+    return response.data;
+  },
+
+  // 特定の音声コンテンツ取得
+  getById: async (id: string) => {
+    const response = await api.get(`/audio-contents/${id}`);
+    return response.data;
+  },
+
+  // 音声コンテンツ投稿
+  create: async (audioData: {
+    title: string;
+    description: string;
+    category: string;
+    duration?: number;
+    audioFile: File;
+  }) => {
+    const formData = new FormData();
+    formData.append('title', audioData.title);
+    formData.append('description', audioData.description);
+    formData.append('category', audioData.category);
+    if (audioData.duration) {
+      formData.append('duration', audioData.duration.toString());
+    }
+    formData.append('audioFile', audioData.audioFile);
+
+    const response = await api.post('/audio-contents', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+
+  // いいね切り替え
+  toggleLike: async (id: string) => {
+    const response = await api.post(`/audio-contents/${id}/like`);
     return response.data;
   }
 };
