@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
+import ConditionalFooter from "../components/ConditionalFooter";
 import { AuthProvider } from "../contexts/AuthContext";
+import { ThemeProvider } from "../components/ThemeProvider";
+import ConditionalHeader from "../components/ConditionalHeader";
+import ConditionalMain from "../components/ConditionalMain";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,16 +28,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className="dark">
+    <html lang="ja" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white min-h-screen overscroll-y-none`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-black text-gray-900 dark:text-white min-h-screen overscroll-y-none`}
       >
         <AuthProvider>
-          <Header />
-          <main className="pt-16">
-            {children}
-          </main>
-          <Footer />
+          <ThemeProvider>
+            <ConditionalHeader />
+            <ConditionalMain>
+              {children}
+            </ConditionalMain>
+            <ConditionalFooter />
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>

@@ -26,9 +26,8 @@ export default function LoginForm() {
     
     try {
       await login(email, password);
-    } catch (err) {
-      // エラーはuseAuthで処理されるので何もしない
-      console.error("Login error:", err);
+    } catch {
+      // エラーはAuthContextで適切に処理されるため、ここでは何もしない
     } finally {
       setIsSubmitting(false);
     }

@@ -18,6 +18,13 @@ export default function RegisterForm() {
     e.preventDefault();
     setClientError(null);
     
+    // メールアドレスの形式チェック
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setClientError("有効なメールアドレスを入力してください（例: user@example.com）");
+      return;
+    }
+    
     // パスワード確認チェック
     if (password !== confirmPassword) {
       setClientError("パスワードが一致しません。");
@@ -25,8 +32,8 @@ export default function RegisterForm() {
     }
     
     // パスワードの強度チェック
-    if (password.length < 8) {
-      setClientError("パスワードは8文字以上である必要があります");
+    if (password.length < 6) {
+      setClientError("パスワードは6文字以上である必要があります");
       return;
     }
     
@@ -34,9 +41,8 @@ export default function RegisterForm() {
     
     try {
       await register(email, password, username || undefined);
-    } catch (err) {
-      // エラーはuseAuthで処理されるので何もしない
-      console.error("Registration error:", err);
+    } catch {
+      // エラーはAuthContextで処理される
     } finally {
       setIsSubmitting(false);
     }
@@ -77,7 +83,7 @@ export default function RegisterForm() {
             onChange={(e) => setEmail(e.target.value)}
             required
             className="w-full px-4 py-2 bg-gray-900/50 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white disabled:opacity-70"
-            placeholder="your@email.com"
+            placeholder="user@example.com"
             disabled={isSubmitting}
           />
         </AnimatedElement>
@@ -96,7 +102,7 @@ export default function RegisterForm() {
             placeholder="••••••••"
             disabled={isSubmitting}
           />
-          <p className="text-xs text-gray-400">8文字以上、英数字と記号を含む必要があります</p>
+          <p className="text-xs text-gray-400">6文字以上、英数字と記号を含む必要があります</p>
         </AnimatedElement>
 
         <AnimatedElement direction="right" delay={0.3} className="space-y-2">
