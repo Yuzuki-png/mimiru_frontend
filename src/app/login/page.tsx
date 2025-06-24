@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -8,7 +8,7 @@ import { AnimatedContainer, AnimatedElement } from "../../components/animations"
 import Modal from "../../components/Modal";
 import LoginForm from "../../components/LoginForm";
 
-export default function Login() {
+function LoginContent() {
   const [showRegisteredModal, setShowRegisteredModal] = useState(false);
   const searchParams = useSearchParams();
 
@@ -71,5 +71,17 @@ export default function Login() {
         </div>
       </Modal>
     </motion.div>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white">読み込み中...</div>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 } 
