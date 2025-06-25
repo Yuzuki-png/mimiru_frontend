@@ -23,7 +23,6 @@ export async function POST(request: NextRequest) {
     }
 
     const requestData = { email, password, username };
-    console.log('Next.js API Route - Sending to backend:', requestData);
 
     // NestJSバックエンドAPIにリクエストを送信
     const response = await fetch(`${config.apiBaseUrl}/auth/register`, {
@@ -35,7 +34,6 @@ export async function POST(request: NextRequest) {
     });
 
     const data = await response.json();
-    console.log('Next.js API Route - Backend response:', data);
     
     if (!response.ok) {
       return NextResponse.json(
@@ -44,7 +42,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 成功レスポンス
     return NextResponse.json({
       success: true,
       data: {
@@ -53,8 +50,7 @@ export async function POST(request: NextRequest) {
       }
     });
     
-  } catch (error) {
-    console.error('Next.js API Route - Error:', error);
+  } catch {
     return NextResponse.json(
       { success: false, message: 'サーバーエラーが発生しました' },
       { status: 500 }
