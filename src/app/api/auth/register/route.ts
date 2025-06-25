@@ -7,10 +7,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password, username } = body;
     
-    console.log('Next.js API Route - Received body:', body);
-    console.log('Next.js API Route - Extracted data:', { email, password: !!password, username });
-    
-    // バリデーション
     if (!email || !password) {
       return NextResponse.json(
         { success: false, message: 'メールアドレスとパスワードは必須です' },
