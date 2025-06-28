@@ -138,6 +138,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     router.push('/login');
   };
 
+  console.log('テスト');
+
   const value = {
     isAuthenticated: !!user,
     user,
@@ -147,6 +149,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     logout,
     error
   };
+
+  console.log('テスト');
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
