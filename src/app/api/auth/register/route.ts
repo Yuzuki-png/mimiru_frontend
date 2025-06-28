@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // パスワードの強度チェック
     if (password.length < 6) {
       return NextResponse.json(
         { success: false, message: 'パスワードは6文字以上である必要があります' },
@@ -24,7 +23,6 @@ export async function POST(request: NextRequest) {
 
     const requestData = { email, password, username };
 
-    // NestJSバックエンドAPIにリクエストを送信
     const response = await fetch(`${config.apiBaseUrl}/auth/register`, {
       method: 'POST',
       headers: {

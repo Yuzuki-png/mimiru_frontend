@@ -58,7 +58,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // APIからデータを取得
   useEffect(() => {
     const fetchAudioContents = async () => {
       try {
@@ -97,13 +96,11 @@ export default function Dashboard() {
         )
       );
     } catch {
-      // エラーハンドリング（必要に応じてユーザーに通知）
     }
   };
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -117,7 +114,6 @@ export default function Dashboard() {
         </p>
       </motion.div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -208,7 +204,6 @@ export default function Dashboard() {
         </motion.div>
       </div>
 
-      {/* Category Filter */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">カテゴリ</h3>
         <div className="flex flex-wrap gap-3">
@@ -228,7 +223,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Content Grid */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">おすすめコンテンツ</h3>

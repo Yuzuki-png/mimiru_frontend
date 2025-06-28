@@ -14,12 +14,10 @@ interface ModalProps {
 const Modal = ({ isOpen, onClose, title, children, closeButton = true }: ModalProps) => {
   const [isMounted, setIsMounted] = useState(false);
 
-  // hydration対策
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // ESCキーでモーダルを閉じる
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -34,7 +32,6 @@ const Modal = ({ isOpen, onClose, title, children, closeButton = true }: ModalPr
     };
   }, [isOpen, onClose]);
 
-  // モーダル外クリックで閉じる
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();

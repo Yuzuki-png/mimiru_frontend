@@ -16,7 +16,6 @@ export default function LoginForm() {
     e.preventDefault();
     setClientError(null);
     
-    // 入力チェック
     if (!email || !password) {
       setClientError("メールアドレスとパスワードを入力してくださaa");
       return;
@@ -27,7 +26,6 @@ export default function LoginForm() {
     try {
       await login(email, password);
     } catch {
-      // エラーはAuthContextで適切に処理されるため、ここでは何もしない
     } finally {
       setIsSubmitting(false);
     }

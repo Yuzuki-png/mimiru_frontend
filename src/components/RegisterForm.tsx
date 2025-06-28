@@ -18,20 +18,17 @@ export default function RegisterForm() {
     e.preventDefault();
     setClientError(null);
     
-    // メールアドレスの形式チェック
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setClientError("有効なメールアドレスを入力してください（例: user@example.com）");
       return;
     }
     
-    // パスワード確認チェック
     if (password !== confirmPassword) {
       setClientError("パスワードが一致しません。");
       return;
     }
     
-    // パスワードの強度チェック
     if (password.length < 6) {
       setClientError("パスワードは6文字以上である必要があります");
       return;
@@ -42,7 +39,6 @@ export default function RegisterForm() {
     try {
       await register(email, password, username || undefined);
     } catch {
-      // エラーはAuthContextで処理される
     } finally {
       setIsSubmitting(false);
     }

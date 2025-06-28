@@ -33,7 +33,6 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
 
-  // クライアントサイドでのみマウント状態を設定
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -66,7 +65,7 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
   };
 
   const toggleTheme = () => {
-    if (!mounted) return; // マウント前は何もしない
+    if (!mounted) return;
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
@@ -78,7 +77,6 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
         isCollapsed ? 'w-20' : 'w-64'
       } bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 shadow-lg flex flex-col`}
     >
-      {/* Header */}
       <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} p-4 border-b border-gray-200 dark:border-gray-700`}>
         {!isCollapsed && (
           <div className="flex items-center space-x-2">
@@ -105,7 +103,6 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
         )}
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 p-2">
         <div className={`${isCollapsed ? 'space-y-1' : 'space-y-2'}`}>
           {menuItems.map((item) => {
@@ -141,16 +138,13 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
         </div>
       </nav>
 
-      {/* Bottom Section */}
       <div className="p-2 border-t border-gray-200 dark:border-gray-700">
-        {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
           disabled={!mounted}
           className={`w-full flex ${isCollapsed ? 'flex-col items-center justify-center py-3 px-2' : 'items-center space-x-3 px-3 py-2.5'} rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mb-2 group relative ${!mounted ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           {!mounted ? (
-            // サーバーサイドレンダリング時のデフォルト表示
             <SunIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
           ) : theme === 'dark' ? (
             <SunIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
@@ -173,7 +167,6 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
           )}
         </button>
 
-        {/* Bottom Menu Items */}
         <div className={`${isCollapsed ? 'space-y-1' : 'space-y-2'} mb-2`}>
           {bottomItems.map((item) => {
             const Icon = item.icon;
@@ -207,7 +200,6 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
           })}
         </div>
 
-        {/* Legal Links */}
         <div className={`${isCollapsed ? 'space-y-1' : 'space-y-1'} border-t border-gray-200 dark:border-gray-700 pt-2`}>
           {legalItems.map((item) => {
             const Icon = item.icon;

@@ -14,12 +14,10 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // ページ遷移時にスクロール位置をリセット
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
 
-  // パスからアクティブタブを決定
   const getActiveTab = () => {
     if (pathname === '/dashboard') return 'dashboard';
     if (pathname.startsWith('/dashboard/discover')) return 'discover';
@@ -94,7 +92,6 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      {/* Sidebar */}
       <Sidebar 
         activeTab={getActiveTab()} 
         onTabChange={handleTabChange}
@@ -102,14 +99,12 @@ export default function DashboardLayout({
         onToggleCollapse={handleToggleCollapse}
       />
       
-      {/* Top Bar */}
       <TopBar 
         title={getPageTitle()} 
         subtitle={getPageSubtitle()}
         isCollapsed={isCollapsed}
       />
       
-      {/* Main Content */}
       <main className={`${isCollapsed ? 'ml-20' : 'ml-64'} pt-20 p-6 transition-all duration-300`}>
         <div className="max-w-7xl mx-auto">
           {children}

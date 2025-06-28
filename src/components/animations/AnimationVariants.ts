@@ -1,6 +1,5 @@
 import { Variants, Transition } from "framer-motion";
 
-// コンテナアニメーション
 export const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
@@ -12,7 +11,6 @@ export const containerVariants: Variants = {
   }
 };
 
-// 左からスライドイン
 export const slideInLeft: Variants = {
   hidden: { x: -100, opacity: 0 },
   visible: { 
@@ -26,7 +24,6 @@ export const slideInLeft: Variants = {
   }
 };
 
-// 右からスライドイン
 export const slideInRight: Variants = {
   hidden: { x: 100, opacity: 0 },
   visible: { 
@@ -40,7 +37,6 @@ export const slideInRight: Variants = {
   }
 };
 
-// ボタンアニメーション
 export const buttonVariants: Variants = {
   initial: { scale: 1 },
   hover: { 
@@ -51,7 +47,6 @@ export const buttonVariants: Variants = {
   tap: { scale: 0.95 }
 };
 
-// 白いボタンアニメーション
 export const whiteButtonVariants: Variants = {
   initial: { scale: 1 },
   hover: { 
@@ -62,7 +57,6 @@ export const whiteButtonVariants: Variants = {
   tap: { scale: 0.95 }
 };
 
-// カードアニメーション
 export const cardVariants: Variants = {
   hidden: { y: 20, opacity: 0 },
   visible: { 
@@ -86,7 +80,6 @@ export const cardVariants: Variants = {
   }
 };
 
-// カードの表示トランジション
 const cardVisibleTransition: Transition = {
   delay: 0.5,
   type: "spring",
@@ -94,7 +87,6 @@ const cardVisibleTransition: Transition = {
   stiffness: 100
 };
 
-// 順番に現れるカードのバリアント作成関数
 export const createSequentialCardVariant = (delay: number): Variants => {
   return {
     ...cardVariants,
