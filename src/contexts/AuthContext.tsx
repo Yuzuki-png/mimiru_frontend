@@ -148,6 +148,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     error
   };
 
+  console.log('テスト');
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
