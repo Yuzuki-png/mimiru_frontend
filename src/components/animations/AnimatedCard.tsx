@@ -17,7 +17,6 @@ const AnimatedCard: React.FC<AnimatedCardProps> = ({
   baseDelay = 0.5,
   delayIncrement = 0.2
 }) => {
-  // インデックスに応じて遅延を計算
   const delay = baseDelay + (index * delayIncrement);
   const variants = index ? createSequentialCardVariant(delay) : cardVariants;
 

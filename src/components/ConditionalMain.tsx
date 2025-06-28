@@ -10,7 +10,6 @@ interface ConditionalMainProps {
 export default function ConditionalMain({ children }: ConditionalMainProps) {
   const pathname = usePathname();
   
-  // ダッシュボードページ（/dashboardで始まるすべてのパス）では上部パディングを削除
   if (pathname.startsWith('/dashboard')) {
     return <main>{children}</main>;
   }

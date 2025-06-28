@@ -30,7 +30,6 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
       className={`fixed top-0 ${isCollapsed ? 'left-20' : 'left-64'} right-0 z-30 h-16 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 transition-all duration-300`}
     >
       <div className="flex items-center justify-between px-6 py-3 h-full">
-        {/* Left Section - Title */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>
           {subtitle && (
@@ -38,7 +37,6 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
           )}
         </div>
 
-        {/* Center Section - Search */}
         <div className="flex-1 max-w-md mx-8">
           <div className="relative">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -52,15 +50,12 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
           </div>
         </div>
 
-        {/* Right Section - Actions */}
         <div className="flex items-center space-x-4">
-          {/* Notifications */}
           <button className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
             <BellIcon className="h-6 w-6" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
 
-          {/* User Menu */}
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
@@ -76,7 +71,6 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
               <ChevronDownIcon className="h-4 w-4" />
             </button>
 
-            {/* Dropdown Menu */}
             {showUserMenu && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}

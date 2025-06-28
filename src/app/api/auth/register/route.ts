@@ -7,10 +7,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password, username } = body;
     
-    console.log('Next.js API Route - Received body:', body);
-    console.log('Next.js API Route - Extracted data:', { email, password: !!password, username });
-    
-    // バリデーション
     if (!email || !password) {
       return NextResponse.json(
         { success: false, message: 'メールアドレスとパスワードは必須です' },
@@ -18,7 +14,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // パスワードの強度チェック
     if (password.length < 6) {
       return NextResponse.json(
         { success: false, message: 'パスワードは6文字以上である必要があります' },
@@ -27,9 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     const requestData = { email, password, username };
-    console.log('Next.js API Route - Sending to backend:', requestData);
 
-    // NestJSバックエンドAPIにリクエストを送信
     const response = await fetch(`${config.apiBaseUrl}/auth/register`, {
       method: 'POST',
       headers: {
@@ -39,7 +32,6 @@ export async function POST(request: NextRequest) {
     });
 
     const data = await response.json();
-    console.log('Next.js API Route - Backend response:', data);
     
     if (!response.ok) {
       return NextResponse.json(
@@ -48,7 +40,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 成功レスポンス
     return NextResponse.json({
       success: true,
       data: {
@@ -57,8 +48,7 @@ export async function POST(request: NextRequest) {
       }
     });
     
-  } catch (error) {
-    console.error('Next.js API Route - Error:', error);
+  } catch {
     return NextResponse.json(
       { success: false, message: 'サーバーエラーが発生しました' },
       { status: 500 }

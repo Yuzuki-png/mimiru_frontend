@@ -19,7 +19,6 @@ const AnimatedElement: React.FC<AnimatedElementProps> = ({
   customVariants,
   delay = 0
 }) => {
-  // 方向に基づいてバリアントを選択
   let variants = customVariants;
   
   if (!variants) {
