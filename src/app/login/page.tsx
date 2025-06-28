@@ -12,7 +12,6 @@ function LoginContent() {
   const [showRegisteredModal, setShowRegisteredModal] = useState(false);
   const searchParams = useSearchParams();
 
-  // 新規登録後のリダイレクトチェック
   useEffect(() => {
     if (searchParams?.get("registered") === "true") {
       setShowRegisteredModal(true);
@@ -54,7 +53,6 @@ function LoginContent() {
         </div>
       </div>
 
-      {/* 新規登録完了モーダル */}
       <Modal
         isOpen={showRegisteredModal}
         onClose={() => setShowRegisteredModal(false)}

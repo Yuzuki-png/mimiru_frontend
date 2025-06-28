@@ -28,7 +28,6 @@ export default function ProfilePage() {
 
   const handleSave = () => {
     setIsEditing(false);
-    // プロフィール更新のAPI呼び出し
   };
 
   const handleCancel = () => {
@@ -43,7 +42,6 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -59,9 +57,7 @@ export default function ProfilePage() {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Profile Information */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Basic Info Card */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -98,7 +94,6 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {/* Profile Picture */}
             <div className="flex items-center space-x-6 mb-6">
               <div className="relative">
                 <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
@@ -116,7 +111,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Form Fields */}
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -175,7 +169,6 @@ export default function ProfilePage() {
             </div>
           </motion.div>
 
-          {/* Account Settings */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -185,7 +178,6 @@ export default function ProfilePage() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">アカウント設定</h3>
             
             <div className="space-y-4">
-              {/* Theme Toggle */}
               <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center space-x-3">
                   {theme === 'dark' ? (
@@ -214,7 +206,6 @@ export default function ProfilePage() {
                 </button>
               </div>
 
-              {/* Notifications */}
               <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <BellIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -230,7 +221,6 @@ export default function ProfilePage() {
                 </button>
               </div>
 
-              {/* Language */}
               <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center space-x-3">
                   <GlobeAltIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -247,9 +237,7 @@ export default function ProfilePage() {
           </motion.div>
         </div>
 
-        {/* Stats Sidebar */}
         <div className="space-y-6">
-          {/* Activity Stats */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -273,7 +261,6 @@ export default function ProfilePage() {
             </div>
           </motion.div>
 
-          {/* Security */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -299,7 +286,6 @@ export default function ProfilePage() {
             </div>
           </motion.div>
 
-          {/* Danger Zone */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

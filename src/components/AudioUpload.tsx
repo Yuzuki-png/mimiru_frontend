@@ -62,7 +62,6 @@ export default function AudioUpload({ isOpen, onClose, onSubmit }: AudioUploadPr
       setMediaRecorder(recorder);
       setIsRecording(true);
       
-      // 録音時間のカウント
       timerRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
@@ -107,7 +106,6 @@ export default function AudioUpload({ isOpen, onClose, onSubmit }: AudioUploadPr
 
     onSubmit(audioData);
     
-    // フォームリセット
     setTitle("");
     setDescription("");
     setCategory("ビジネス");
@@ -147,7 +145,6 @@ export default function AudioUpload({ isOpen, onClose, onSubmit }: AudioUploadPr
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* タイトル */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               タイトル *
@@ -162,7 +159,6 @@ export default function AudioUpload({ isOpen, onClose, onSubmit }: AudioUploadPr
             />
           </div>
 
-          {/* 説明 */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               説明 *
@@ -177,7 +173,6 @@ export default function AudioUpload({ isOpen, onClose, onSubmit }: AudioUploadPr
             />
           </div>
 
-          {/* カテゴリ */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
               カテゴリ
@@ -193,14 +188,12 @@ export default function AudioUpload({ isOpen, onClose, onSubmit }: AudioUploadPr
             </select>
           </div>
 
-          {/* 音声録音・アップロード */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-4">
               音声ファイル *
             </label>
             
             <div className="space-y-4">
-              {/* 録音機能 */}
               <div className="bg-gray-800 rounded-lg p-4">
                 <h3 className="text-white font-medium mb-3">直接録音</h3>
                 <div className="flex items-center space-x-4">
@@ -235,7 +228,6 @@ export default function AudioUpload({ isOpen, onClose, onSubmit }: AudioUploadPr
                 </p>
               </div>
 
-              {/* ファイルアップロード */}
               <div className="bg-gray-800 rounded-lg p-4">
                 <h3 className="text-white font-medium mb-3">ファイルアップロード</h3>
                 <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center">
@@ -259,7 +251,6 @@ export default function AudioUpload({ isOpen, onClose, onSubmit }: AudioUploadPr
                 </div>
               </div>
 
-              {/* 選択されたファイル表示 */}
               {audioFile && (
                 <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
                   <div className="flex items-center justify-between">
@@ -282,7 +273,6 @@ export default function AudioUpload({ isOpen, onClose, onSubmit }: AudioUploadPr
             </div>
           </div>
 
-          {/* 送信ボタン */}
           <div className="flex justify-end space-x-4 pt-4">
             <button
               type="button"

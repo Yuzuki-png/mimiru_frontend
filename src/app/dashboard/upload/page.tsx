@@ -45,12 +45,10 @@ export default function UploadPage() {
       setMediaRecorder(recorder);
       setIsRecording(true);
       
-      // 録音時間のカウント
       const timer = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
 
-      // 15分で自動停止
       setTimeout(() => {
         if (recorder.state === 'recording') {
           recorder.stop();
@@ -126,7 +124,6 @@ export default function UploadPage() {
 
   return (
     <div className="max-w-4xl mx-auto">
-          {/* Back Button */}
           <motion.button
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -137,7 +134,6 @@ export default function UploadPage() {
             <span>ダッシュボードに戻る</span>
           </motion.button>
 
-          {/* Upload Form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -153,7 +149,6 @@ export default function UploadPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
-              {/* タイトル */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   タイトル *
@@ -168,7 +163,6 @@ export default function UploadPage() {
                 />
               </div>
 
-              {/* 説明 */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   説明 *
@@ -183,7 +177,6 @@ export default function UploadPage() {
                 />
               </div>
 
-              {/* カテゴリ */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   カテゴリ
@@ -199,14 +192,12 @@ export default function UploadPage() {
                 </select>
               </div>
 
-              {/* 音声録音・アップロード */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
                   音声ファイル *
                 </label>
                 
                 <div className="grid md:grid-cols-2 gap-6">
-                  {/* 録音機能 */}
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
                     <h3 className="text-gray-900 dark:text-white font-medium mb-4 flex items-center">
                       <MicrophoneIcon className="h-5 w-5 mr-2" />
@@ -244,7 +235,6 @@ export default function UploadPage() {
                     </div>
                   </div>
 
-                  {/* ファイルアップロード */}
                   <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
                     <h3 className="text-gray-900 dark:text-white font-medium mb-4 flex items-center">
                       <CloudArrowUpIcon className="h-5 w-5 mr-2" />
@@ -272,7 +262,6 @@ export default function UploadPage() {
                   </div>
                 </div>
 
-                {/* 選択されたファイル表示 */}
                 {audioFile && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -298,7 +287,6 @@ export default function UploadPage() {
                 )}
               </div>
 
-              {/* 送信ボタン */}
               <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200 dark:border-gray-700">
                 <button
                   type="button"

@@ -59,14 +59,11 @@ export default function LibraryPage() {
 
   const categories = ["all", "ビジネス", "ライフスタイル", "テクノロジー", "教育", "健康"];
 
-  // 自分のコンテンツを取得
   useEffect(() => {
     const fetchMyContents = async () => {
       try {
         setLoading(true);
-        // 実際のAPIでは、ユーザーIDでフィルタリングする必要があります
         const result: PaginatedResult = await audioContentApi.getAll({});
-        // 現在はすべてのコンテンツを取得していますが、実際にはユーザーのコンテンツのみを取得する必要があります
         setMyContents(result.data);
         setError(null);
       } catch {
@@ -99,21 +96,16 @@ export default function LibraryPage() {
         )
       );
     } catch {
-      // エラーハンドリング
     }
   };
 
   const handleEdit = () => {
-    // 編集機能は今後実装
   };
 
   const handleDelete = async () => {
     if (window.confirm('このコンテンツを削除しますか？')) {
       try {
-        // 削除API呼び出し（今後実装）
-        // setMyContents(prev => prev.filter(content => content.id !== contentId));
       } catch {
-        // エラーハンドリング
       }
     }
   };
@@ -168,7 +160,7 @@ export default function LibraryPage() {
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-1 text-gray-500 dark:text-gray-400">
             <EyeIcon className="h-4 w-4" />
-            <span className="text-sm">0</span> {/* 再生回数は今後実装 */}
+            <span className="text-sm">0</span>
           </div>
           <span className="text-gray-500 dark:text-gray-400 text-xs">
             {new Date(content.createdAt).toLocaleDateString('ja-JP')}
@@ -229,7 +221,6 @@ export default function LibraryPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -254,7 +245,6 @@ export default function LibraryPage() {
         </div>
       </motion.div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -312,7 +302,6 @@ export default function LibraryPage() {
         </motion.div>
       </div>
 
-      {/* Category Filter */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -337,7 +326,6 @@ export default function LibraryPage() {
         </div>
       </motion.div>
 
-      {/* Content Grid */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

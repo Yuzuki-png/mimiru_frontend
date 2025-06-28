@@ -13,16 +13,15 @@ import {
 } from "@heroicons/react/24/outline";
 
 export default function AnalyticsPage() {
-  // モックデータ（実際のAPIから取得する必要があります）
   const stats = {
-    totalListeningTime: 1245, // 分
+    totalListeningTime: 1245,
     completedContent: 24,
     streak: 7,
-    averageDaily: 89, // 分
+    averageDaily: 89,
     totalLikes: 156,
     totalViews: 2340,
     favoriteCategory: "ビジネス",
-    weeklyProgress: [65, 78, 92, 45, 123, 89, 156] // 過去7日間の学習時間（分）
+    weeklyProgress: [65, 78, 92, 45, 123, 89, 156]
   };
 
   const weekDays = ['月', '火', '水', '木', '金', '土', '日'];
@@ -74,7 +73,6 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -89,7 +87,6 @@ export default function AnalyticsPage() {
         </p>
       </motion.div>
 
-      {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="総学習時間"
@@ -132,7 +129,6 @@ export default function AnalyticsPage() {
         />
       </div>
 
-      {/* Weekly Progress Chart */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -168,7 +164,6 @@ export default function AnalyticsPage() {
         </div>
       </motion.div>
 
-      {/* Additional Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -264,7 +259,6 @@ export default function AnalyticsPage() {
         </motion.div>
       </div>
 
-      {/* Achievements */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

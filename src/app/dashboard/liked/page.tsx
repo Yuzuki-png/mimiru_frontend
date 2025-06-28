@@ -55,7 +55,6 @@ export default function LikedPage() {
 
   const categories = ["all", "ビジネス", "ライフスタイル", "テクノロジー", "教育", "健康"];
 
-  // いいねしたコンテンツを取得
   useEffect(() => {
     const fetchLikedContents = async () => {
       try {
@@ -96,7 +95,6 @@ export default function LikedPage() {
         ).filter(content => content.isLiked)
       );
     } catch {
-      // エラーハンドリング
     }
   };
 
@@ -187,7 +185,6 @@ export default function LikedPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -214,7 +211,6 @@ export default function LikedPage() {
         </div>
       </motion.div>
 
-      {/* Search Bar */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -233,7 +229,6 @@ export default function LikedPage() {
         </div>
       </motion.div>
 
-      {/* Category Filter */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -258,7 +253,6 @@ export default function LikedPage() {
         </div>
       </motion.div>
 
-      {/* Content Grid */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

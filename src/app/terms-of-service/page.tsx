@@ -13,13 +13,11 @@ export default function TermsOfService() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // JWTトークンの有無で認証状態を判別
     const token = localStorage.getItem('token');
     setIsAuthenticated(!!token);
   }, []);
 
   const handleGoBack = () => {
-    // JWTトークンがある場合はダッシュボードに、ない場合はトップページに戻る
     if (isAuthenticated) {
       router.push('/dashboard');
     } else {

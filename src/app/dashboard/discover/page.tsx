@@ -59,24 +59,20 @@ export default function DiscoverPage() {
 
   const categories = ["all", "ビジネス", "ライフスタイル", "テクノロジー", "教育", "健康"];
 
-  // APIからデータを取得
   useEffect(() => {
     const fetchContents = async () => {
       try {
         setLoading(true);
         
-        // 通常のコンテンツ
         const params = selectedCategory !== "all" ? { category: selectedCategory } : {};
         const result: PaginatedResult = await audioContentApi.getAll(params);
         setAudioContents(result.data);
         
-        // トレンドコンテンツ（いいね数順）
         const trendingResult: PaginatedResult = await audioContentApi.getAll({ 
           limit: 6 
         });
         setTrendingContents(trendingResult.data);
         
-        // 新着コンテンツ
         const newResult: PaginatedResult = await audioContentApi.getAll({ 
           limit: 6 
         });
@@ -112,7 +108,6 @@ export default function DiscoverPage() {
     try {
       const result = await audioContentApi.toggleLike(contentId.toString());
       
-      // 各配列を更新
       const updateContent = (content: AudioContent) => 
         content.id === contentId 
           ? { ...content, isLiked: result.isLiked, _count: { ...content._count, likes: result.totalLikes } }
@@ -122,7 +117,6 @@ export default function DiscoverPage() {
       setTrendingContents(prev => prev.map(updateContent));
       setNewContents(prev => prev.map(updateContent));
     } catch {
-      // エラーハンドリング
     }
   };
 
@@ -213,7 +207,6 @@ export default function DiscoverPage() {
 
   return (
     <div className="space-y-8">
-      {/* Search Bar */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -231,7 +224,6 @@ export default function DiscoverPage() {
         </div>
       </motion.div>
 
-      {/* Category Filter */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -256,7 +248,6 @@ export default function DiscoverPage() {
         </div>
       </motion.div>
 
-      {/* Trending Content */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -279,7 +270,6 @@ export default function DiscoverPage() {
         </div>
       </motion.div>
 
-      {/* New Content */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -302,7 +292,6 @@ export default function DiscoverPage() {
         </div>
       </motion.div>
 
-      {/* All Content */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -26,7 +26,7 @@ export default function SettingsPage() {
     newsletter: true
   });
   const [autoPlay, setAutoPlay] = useState(true);
-  const [dataUsage, setDataUsage] = useState('wifi'); // 'wifi', 'always', 'never'
+  const [dataUsage, setDataUsage] = useState('wifi');
 
   const handleNotificationChange = (key: string) => {
     setNotifications(prev => ({
@@ -41,7 +41,6 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -57,7 +56,6 @@ export default function SettingsPage() {
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Appearance Settings */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -67,7 +65,6 @@ export default function SettingsPage() {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">外観</h3>
           
           <div className="space-y-4">
-            {/* Theme Toggle */}
             <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="flex items-center space-x-3">
                 {theme === 'dark' ? (
@@ -96,7 +93,6 @@ export default function SettingsPage() {
               </button>
             </div>
 
-            {/* Language */}
             <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="flex items-center space-x-3">
                 <GlobeAltIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -113,7 +109,6 @@ export default function SettingsPage() {
           </div>
         </motion.div>
 
-        {/* Notification Settings */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -165,7 +160,6 @@ export default function SettingsPage() {
           </div>
         </motion.div>
 
-        {/* Audio Settings */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -175,7 +169,6 @@ export default function SettingsPage() {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">音声設定</h3>
           
           <div className="space-y-4">
-            {/* Auto Play */}
             <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="flex items-center space-x-3">
                 <SpeakerWaveIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -200,7 +193,6 @@ export default function SettingsPage() {
               </button>
             </div>
 
-            {/* Audio Quality */}
             <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="flex items-center space-x-3">
                 <SpeakerWaveIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -218,7 +210,6 @@ export default function SettingsPage() {
           </div>
         </motion.div>
 
-        {/* Data & Storage */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -228,7 +219,6 @@ export default function SettingsPage() {
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">データとストレージ</h3>
           
           <div className="space-y-4">
-            {/* Data Usage */}
             <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="flex items-center space-x-3 mb-3">
                 <DevicePhoneMobileIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -255,7 +245,6 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {/* Storage Info */}
             <div className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-3">
@@ -275,7 +264,6 @@ export default function SettingsPage() {
           </div>
         </motion.div>
 
-        {/* Privacy & Security */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
