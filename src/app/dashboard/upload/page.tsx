@@ -10,19 +10,22 @@ import {
   StopIcon,
   ArrowLeftIcon
 } from "@heroicons/react/24/outline";
+import { audioContentApi } from "../../../lib/api";
+import { useAuth } from "../../../contexts/AuthContext";
 
 export default function UploadPage() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("ビジネス");
+  const [category, setCategory] = useState("教育");
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const categories = ["ビジネス", "ライフスタイル", "テクノロジー", "教育", "健康"];
+  const categories = ["教育", "ライフスタイル", "テクノロジー", "健康", "エンターテイメント"];
 
   const startRecording = async () => {
     try {
@@ -80,6 +83,12 @@ export default function UploadPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!isAuthenticated) {
+      alert('ログインが必要です。');
+      router.push('/login');
+      return;
+    }
+    
     if (!title || !description || !audioFile) {
       alert('すべての必須項目を入力してください。');
       return;
@@ -88,29 +97,47 @@ export default function UploadPage() {
     setIsSubmitting(true);
 
     try {
-      const formData = new FormData();
-      formData.append('title', title);
-      formData.append('description', description);
-      formData.append('category', category);
-      formData.append('audio', audioFile);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        alert('音声が正常に投稿されました！');
-        setTitle('');
-        setDescription('');
-        setCategory('ビジネス');
-        setAudioFile(null);
-        router.push('/dashboard');
-      } else {
-        throw new Error('アップロードに失敗しました');
+      const audioData: {
+        title: string;
+        description: string;
+        category: string;
+        audioFile: File;
+        duration?: number;
+      } = {
+        title,
+        description,
+        category,
+        audioFile,
+      };
+      
+      // 録音時間が有効な場合のみdurationを追加（正の整数として）
+      if (recordingTime > 0 && !isNaN(recordingTime) && isFinite(recordingTime)) {
+        const validDuration = Math.max(1, Math.floor(recordingTime));
+        if (validDuration > 0) {
+          audioData.duration = validDuration;
+        }
       }
-    } catch {
-      alert('投稿に失敗しました。もう一度お試しください。');
+      
+      await audioContentApi.create(audioData);
+
+      alert('音声が正常に投稿されました！');
+      setTitle('');
+      setDescription('');
+      setCategory('教育');
+      setAudioFile(null);
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Upload error:', error);
+      if (error instanceof Error) {
+        // カテゴリエラーの場合は具体的な案内を表示
+        if (error.message.includes('カテゴリ') && error.message.includes('見つかりません')) {
+          alert(`選択されたカテゴリが無効です。利用可能なカテゴリから選択してください。`);
+        } else {
+          alert(`投稿に失敗しました: ${error.message}`);
+        }
+      } else {
+        alert('投稿に失敗しました。もう一度お試しください。');
+      }
     } finally {
       setIsSubmitting(false);
     }

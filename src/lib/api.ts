@@ -57,7 +57,9 @@ export const authApi = {
       
       return response.data;
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      } else if (error instanceof Error) {
         throw error;
       } else {
         throw new Error('予期しないエラーが発生しました');
@@ -77,7 +79,9 @@ export const authApi = {
       
       return response.data;
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      } else if (error instanceof Error) {
         throw error;
       } else {
         throw new Error('予期しないエラーが発生しました');
@@ -122,17 +126,28 @@ export const audioContentApi = {
     formData.append('title', audioData.title);
     formData.append('description', audioData.description);
     formData.append('category', audioData.category);
-    if (audioData.duration) {
+    
+    // durationを文字列として送信
+    if (audioData.duration !== undefined && audioData.duration > 0) {
       formData.append('duration', audioData.duration.toString());
     }
+    
     formData.append('audioFile', audioData.audioFile);
 
-    const response = await api.post('/audio-contents', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
+    try {
+      const response = await api.post('/audio-contents', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        console.error('Upload error details:', error.response.data);
+        throw new Error(error.response.data.message);
+      }
+      throw error;
+    }
   },
 
   toggleLike: async (id: string) => {
