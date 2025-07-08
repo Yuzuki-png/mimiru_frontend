@@ -1,6 +1,9 @@
 {
   "permissions": {
     "allow": [
+      "Bash(npm install:*)",
+      "Bash(mkdir:*)",
+      "Bash(npm test)"
     ],
     "deny": [
       "Bash(sudo:*)",
