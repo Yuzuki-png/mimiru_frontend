@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { motion } from "framer-motion";
 import { AnimatedElement } from "./animations";
@@ -11,8 +11,12 @@ export default function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [username, setUsername] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { register, error: authError } = useAuth();
+  const { register, error: authError, clearError } = useAuth();
   const [clientError, setClientError] = useState<string | null>(null);
+
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
