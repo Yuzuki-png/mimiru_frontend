@@ -20,6 +20,7 @@ interface AuthContextType {
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => void;
   error: string | null;
+  clearError: () => void;
 }
 
 const defaultAuthContext: AuthContextType = {
@@ -29,7 +30,8 @@ const defaultAuthContext: AuthContextType = {
   login: async () => { },
   register: async () => { },
   logout: () => { },
-  error: null
+  error: null,
+  clearError: () => { }
 };
 
 const AuthContext = createContext<AuthContextType>(defaultAuthContext);
@@ -138,6 +140,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     router.push('/login');
   };
 
+  const clearError = () => {
+    setError(null);
+  };
 
   const value = {
     isAuthenticated: !!user,
@@ -146,7 +151,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     login,
     register,
     logout,
-    error
+    error,
+    clearError
   };
 
 
