@@ -1,5 +1,5 @@
 export const config = {
-  apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003',
+  apiBaseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003',
   
   appName: 'Mimiru',
   

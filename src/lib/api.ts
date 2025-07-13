@@ -79,7 +79,6 @@ export const authApi = {
       
       return response.data;
     } catch (error) {
-      console.error('Login API error:', error);
       
       if (error instanceof AxiosError) {
         if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
