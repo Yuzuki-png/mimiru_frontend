@@ -79,13 +79,29 @@ export const authApi = {
       
       return response.data;
     } catch (error) {
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        throw new Error(error.response.data.message);
-      } else if (error instanceof Error) {
-        throw error;
-      } else {
-        throw new Error('予期しないエラーが発生しました');
+      console.error('Login API error:', error);
+      
+      if (error instanceof AxiosError) {
+        if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
+          throw new Error('サーバーに接続できません。バックエンドが起動していることを確認してください。');
+        }
+        
+        if (error.response?.status === 401) {
+          throw new Error('メールアドレスまたはパスワードが間違っています');
+        }
+        
+        if (error.response?.data?.message) {
+          throw new Error(error.response.data.message);
+        }
+        
+        throw new Error(`サーバーエラー: ${error.response?.status || 'Unknown'}`);
       }
+      
+      if (error instanceof Error) {
+        throw error;
+      }
+      
+      throw new Error('予期しないエラーが発生しました');
     }
   },
   
