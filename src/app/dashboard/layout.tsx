@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
+import { useSidebar } from "../../contexts/SidebarContext";
 import Sidebar from "../../components/Sidebar";
 import TopBar from "../../components/TopBar";
 
@@ -12,7 +13,7 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isCollapsed, setIsCollapsed } = useSidebar();
 
   useEffect(() => {
     window.scrollTo(0, 0);

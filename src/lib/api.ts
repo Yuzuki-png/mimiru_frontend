@@ -171,6 +171,38 @@ export const audioContentApi = {
   }
 };
 
+export const playbackApi = {
+  getStatus: async () => {
+    const response = await api.get('/playback/status');
+    return response.data;
+  },
+
+  play: async (audioContentId: string) => {
+    const response = await api.post(`/playback/play/${audioContentId}`);
+    return response.data;
+  },
+
+  pause: async () => {
+    const response = await api.post('/playback/pause');
+    return response.data;
+  },
+
+  stop: async () => {
+    const response = await api.post('/playback/stop');
+    return response.data;
+  },
+
+  seek: async (position: number) => {
+    const response = await api.post('/playback/seek', { position });
+    return response.data;
+  },
+
+  setVolume: async (volume: number) => {
+    const response = await api.post('/playback/volume', { volume });
+    return response.data;
+  }
+};
+
 export const isAuthenticated = (): boolean => {
   if (typeof window === 'undefined') return false;
   return !!localStorage.getItem('token');

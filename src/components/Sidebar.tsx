@@ -71,6 +71,7 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
 
   return (
     <motion.div
+      data-sidebar
       initial={{ x: -280 }}
       animate={{ x: 0 }}
       className={`fixed left-0 top-0 h-full z-40 transition-all duration-300 ${
