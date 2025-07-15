@@ -24,7 +24,6 @@ export default function DashboardLayout({
     if (pathname.startsWith('/dashboard/discover')) return 'discover';
     if (pathname.startsWith('/dashboard/library')) return 'library';
     if (pathname.startsWith('/dashboard/liked')) return 'liked';
-    if (pathname.startsWith('/dashboard/analytics')) return 'analytics';
     if (pathname.startsWith('/dashboard/upload')) return 'upload';
     if (pathname.startsWith('/dashboard/profile')) return 'profile';
     if (pathname.startsWith('/dashboard/settings')) return 'settings';
@@ -54,8 +53,6 @@ export default function DashboardLayout({
         return 'ライブラリ';
       case 'liked':
         return 'お気に入り';
-      case 'analytics':
-        return '分析';
       case 'upload':
         return '音声投稿';
       case 'profile':
@@ -78,8 +75,6 @@ export default function DashboardLayout({
         return 'あなたのコンテンツ';
       case 'liked':
         return 'お気に入りのコンテンツ';
-      case 'analytics':
-        return '学習の進捗を確認';
       case 'upload':
         return '新しい音声コンテンツを投稿しましょう';
       case 'profile':

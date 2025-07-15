@@ -67,9 +67,9 @@ export default function LikedPage() {
     const fetchLikedContents = async () => {
       try {
         setLoading(true);
-        const result: PaginatedResult = await audioContentApi.getAll({});
-        const liked = result.data.filter((content) => content.isLiked);
-        setLikedContents(liked);
+        // isLikedパラメータを追加してお気に入りのみ取得
+        const result: PaginatedResult = await audioContentApi.getAll({ isLiked: true });
+        setLikedContents(result.data);
       } catch {
         setError("いいねしたコンテンツの取得に失敗しました");
       } finally {

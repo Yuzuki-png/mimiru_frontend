@@ -120,6 +120,7 @@ export const audioContentApi = {
     limit?: number;
     category?: string;
     search?: string;
+    isLiked?: boolean;
   }) => {
     const response = await api.get('/audio-contents', { params });
     return response.data;
