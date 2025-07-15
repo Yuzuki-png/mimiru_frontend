@@ -1,19 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { audioContentApi } from "../../../lib/api";
-import { 
-  PlayIcon, 
-  PauseIcon, 
-  ClockIcon, 
+import { useAudioPlayer } from "../../../contexts/AudioPlayerContext";
+import {
+  PlayIcon,
+  PauseIcon,
+  ClockIcon,
   UserIcon,
   HeartIcon,
   ShareIcon,
   PencilIcon,
   TrashIcon,
   EyeIcon,
-  PlusIcon
+  PlusIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
@@ -51,13 +52,20 @@ interface PaginatedResult {
 
 export default function LibraryPage() {
   const router = useRouter();
-  const [currentPlaying, setCurrentPlaying] = useState<string | null>(null);
+  const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
   const [myContents, setMyContents] = useState<AudioContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const categories = ["all", "ビジネス", "ライフスタイル", "テクノロジー", "教育", "健康"];
+  const categories = [
+    "all",
+    "ビジネス",
+    "ライフスタイル",
+    "テクノロジー",
+    "教育",
+    "健康",
+  ];
 
   useEffect(() => {
     const fetchMyContents = async () => {
@@ -67,7 +75,7 @@ export default function LibraryPage() {
         setMyContents(result.data);
         setError(null);
       } catch {
-        setError('コンテンツの取得に失敗しました');
+        setError("コンテンツの取得に失敗しました");
         setMyContents([]);
       } finally {
         setLoading(false);
@@ -77,46 +85,98 @@ export default function LibraryPage() {
     fetchMyContents();
   }, []);
 
-  const filteredContents = selectedCategory === "all" 
-    ? myContents 
-    : myContents.filter(content => content.category.name === selectedCategory);
+  const filteredContents =
+    selectedCategory === "all"
+      ? myContents
+      : myContents.filter(
+          (content) => content.category.name === selectedCategory,
+        );
 
-  const togglePlay = (contentId: number) => {
-    setCurrentPlaying(currentPlaying === contentId.toString() ? null : contentId.toString());
-  };
+  const togglePlay = useCallback(
+    async (content: AudioContent) => {
+      const isCurrentlyPlaying =
+        audioPlayerState.currentAudio?.id === content.id.toString() &&
+        audioPlayerState.isPlaying;
 
-  const toggleLike = async (contentId: number) => {
-    try {
-      const result = await audioContentApi.toggleLike(contentId.toString());
-      setMyContents(prev => 
-        prev.map(content => 
-          content.id === contentId 
-            ? { ...content, isLiked: result.isLiked, _count: { ...content._count, likes: result.totalLikes } }
-            : content
-        )
-      );
-    } catch {
-    }
-  };
+      if (isCurrentlyPlaying) {
+        await pauseAudio();
+      } else {
+        // バックエンドサーバーのベースURLを使ってaudioUrlを構築
+        console.log("元のcontent.audioUrl:", content.audioUrl);
+        console.log("content全体:", content);
 
-  const handleEdit = () => {
-  };
+        // バックエンドサーバーのベースURLを使ってaudioUrlを構築
+        let audioUrl;
+
+        if (content.audioUrl && content.audioUrl.startsWith("http")) {
+          audioUrl = content.audioUrl;
+        } else if (content.audioUrl) {
+          // スラッシュが先頭にない場合は追加
+          const path = content.audioUrl.startsWith("/")
+            ? content.audioUrl
+            : `/${content.audioUrl}`;
+          audioUrl = `http://localhost:4003${path}`;
+        } else {
+          console.error("audioUrlが提供されていません:", content);
+          return; // audioUrlがない場合は再生を中止
+        }
+
+        const audioContent = {
+          id: content.id.toString(),
+          title: content.title,
+          description: content.description,
+          audioUrl: audioUrl,
+          duration: content.duration,
+        };
+
+        console.log("再生しようとしているオーディオURL:", audioUrl);
+        await playAudio(audioContent);
+      }
+    },
+    [
+      audioPlayerState.currentAudio,
+      audioPlayerState.isPlaying,
+      pauseAudio,
+      playAudio,
+    ],
+  );
+
+  const toggleLike = useCallback(
+    async (contentId: number) => {
+      try {
+        const result = await audioContentApi.toggleLike(contentId.toString());
+        setMyContents((prev) =>
+          prev.map((content) =>
+            content.id === contentId
+              ? {
+                  ...content,
+                  isLiked: result.isLiked,
+                  _count: { ...content._count, likes: result.totalLikes },
+                }
+              : content,
+          ),
+        );
+      } catch {}
+    },
+    [setMyContents],
+  );
+
+  const handleEdit = () => {};
 
   const handleDelete = async () => {
-    if (window.confirm('このコンテンツを削除しますか？')) {
+    if (window.confirm("このコンテンツを削除しますか？")) {
       try {
-      } catch {
-      }
+      } catch {}
     }
   };
 
-  const ContentCard = ({ content, index = 0 }: { content: AudioContent; index?: number }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.1 }}
-      className="bg-white dark:bg-gray-800 rounded-xl p-5 hover:shadow-md transition-all duration-200 border border-gray-200 dark:border-gray-700"
-    >
+  const ContentCard = ({
+    content,
+  }: {
+    content: AudioContent;
+    index?: number;
+  }) => (
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-5 hover:shadow-md transition-all duration-200 border border-gray-200 dark:border-gray-700">
       <div className="flex justify-between items-start mb-4">
         <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full">
           {content.category.name}
@@ -124,7 +184,8 @@ export default function LibraryPage() {
         <div className="flex items-center space-x-2">
           <span className="text-gray-500 dark:text-gray-400 text-sm flex items-center">
             <ClockIcon className="h-4 w-4 mr-1" />
-            {content.duration}分
+            {Math.floor(content.duration / 60)}:
+            {(content.duration % 60).toString().padStart(2, "0")}
           </span>
           <div className="flex items-center space-x-1">
             <button
@@ -155,7 +216,9 @@ export default function LibraryPage() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
           <UserIcon className="h-4 w-4 text-gray-400" />
-          <span className="text-gray-600 dark:text-gray-400 text-sm">{content.author.name}</span>
+          <span className="text-gray-600 dark:text-gray-400 text-sm">
+            {content.author.name}
+          </span>
         </div>
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-1 text-gray-500 dark:text-gray-400">
@@ -163,22 +226,32 @@ export default function LibraryPage() {
             <span className="text-sm">0</span>
           </div>
           <span className="text-gray-500 dark:text-gray-400 text-xs">
-            {new Date(content.createdAt).toLocaleDateString('ja-JP')}
+            {new Date(content.createdAt).toLocaleDateString("ja-JP")}
           </span>
         </div>
       </div>
 
       <div className="flex items-center justify-between">
         <button
-          onClick={() => togglePlay(content.id)}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors text-sm font-medium"
+          onClick={() => togglePlay(content)}
+          disabled={audioPlayerState.isLoading}
+          className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-lg transition-colors text-sm font-medium"
         >
-          {currentPlaying === content.id.toString() ? (
+          {audioPlayerState.isLoading &&
+          audioPlayerState.currentAudio?.id === content.id.toString() ? (
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+          ) : audioPlayerState.currentAudio?.id === content.id.toString() &&
+            audioPlayerState.isPlaying ? (
             <PauseIcon className="h-4 w-4" />
           ) : (
             <PlayIcon className="h-4 w-4" />
           )}
-          <span>{currentPlaying === content.id.toString() ? "停止" : "再生"}</span>
+          <span>
+            {audioPlayerState.currentAudio?.id === content.id.toString() &&
+            audioPlayerState.isPlaying
+              ? "一時停止"
+              : "再生"}
+          </span>
         </button>
 
         <div className="flex items-center space-x-3">
@@ -199,14 +272,16 @@ export default function LibraryPage() {
           </button>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        <span className="ml-3 text-gray-600 dark:text-gray-400">読み込み中...</span>
+        <span className="ml-3 text-gray-600 dark:text-gray-400">
+          読み込み中...
+        </span>
       </div>
     );
   }
@@ -236,7 +311,7 @@ export default function LibraryPage() {
             </p>
           </div>
           <button
-            onClick={() => router.push('/upload')}
+            onClick={() => router.push("/upload")}
             className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium"
           >
             <PlusIcon className="h-5 w-5" />
@@ -254,8 +329,12 @@ export default function LibraryPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">総投稿数</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{myContents.length}</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">
+                総投稿数
+              </p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                {myContents.length}
+              </p>
             </div>
             <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
               <PlayIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -271,9 +350,14 @@ export default function LibraryPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">総いいね数</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">
+                総いいね数
+              </p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                {myContents.reduce((total, content) => total + content._count.likes, 0)}
+                {myContents.reduce(
+                  (total, content) => total + content._count.likes,
+                  0,
+                )}
               </p>
             </div>
             <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
@@ -290,9 +374,17 @@ export default function LibraryPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">総再生時間</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">
+                総再生時間
+              </p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
-                {Math.floor(myContents.reduce((total, content) => total + content.duration, 0) / 60)}時間
+                {Math.floor(
+                  myContents.reduce(
+                    (total, content) => total + content.duration,
+                    0,
+                  ) / 60,
+                )}
+                時間
               </p>
             </div>
             <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
@@ -308,7 +400,9 @@ export default function LibraryPage() {
         transition={{ delay: 0.4 }}
         className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700"
       >
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">カテゴリフィルター</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          カテゴリフィルター
+        </h3>
         <div className="flex flex-wrap gap-3">
           {categories.map((category) => (
             <button
@@ -351,7 +445,7 @@ export default function LibraryPage() {
               最初のコンテンツを投稿して、あなたの知識を共有しましょう
             </p>
             <button
-              onClick={() => router.push('/upload')}
+              onClick={() => router.push("/upload")}
               className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium"
             >
               <PlusIcon className="h-5 w-5" />
@@ -368,4 +462,4 @@ export default function LibraryPage() {
       </motion.div>
     </div>
   );
-} 
+}
