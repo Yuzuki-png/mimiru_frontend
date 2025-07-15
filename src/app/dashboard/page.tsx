@@ -10,12 +10,7 @@ import {
   ClockIcon, 
   UserIcon,
   HeartIcon,
-  ShareIcon,
-  ChartBarIcon,
-  BookOpenIcon,
-  ArrowTrendingUpIcon,
-  FireIcon,
-  StarIcon
+  ShareIcon
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 
@@ -114,7 +109,7 @@ export default function Dashboard() {
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -123,17 +118,12 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">今日の学習時間</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">2時間 15分</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">総コンテンツ数</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{audioContents.length}</p>
             </div>
             <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-              <ClockIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+              <PlayIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             </div>
-          </div>
-          <div className="mt-4 flex items-center text-sm">
-            <ArrowTrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
-            <span className="text-green-600 dark:text-green-400 font-medium">+12%</span>
-            <span className="text-gray-600 dark:text-gray-400 ml-1">昨日より</span>
           </div>
         </motion.div>
 
@@ -145,17 +135,14 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">完了コンテンツ</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">24</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">総いいね数</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                {audioContents.reduce((total, content) => total + content._count.likes, 0)}
+              </p>
             </div>
-            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-              <BookOpenIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
+            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
+              <HeartIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
             </div>
-          </div>
-          <div className="mt-4 flex items-center text-sm">
-            <FireIcon className="h-4 w-4 text-orange-500 mr-1" />
-            <span className="text-orange-600 dark:text-orange-400 font-medium">3日連続</span>
-            <span className="text-gray-600 dark:text-gray-400 ml-1">達成中</span>
           </div>
         </motion.div>
 
@@ -167,45 +154,25 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">お気に入り</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">18</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">総再生時間</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+                {Math.floor(audioContents.reduce((total, content) => total + content.duration, 0) / 60)}時間
+              </p>
             </div>
-            <div className="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
-              <HeartIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
+            <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
+              <ClockIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
-          </div>
-          <div className="mt-4 flex items-center text-sm">
-            <StarIcon className="h-4 w-4 text-yellow-500 mr-1" />
-            <span className="text-yellow-600 dark:text-yellow-400 font-medium">高評価</span>
-            <span className="text-gray-600 dark:text-gray-400 ml-1">コンテンツ</span>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-600 dark:text-gray-400 text-sm font-medium">学習ストリーク</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">7日</p>
-            </div>
-            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-              <ChartBarIcon className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-center text-sm">
-            <ArrowTrendingUpIcon className="h-4 w-4 text-green-500 mr-1" />
-            <span className="text-green-600 dark:text-green-400 font-medium">継続中</span>
-            <span className="text-gray-600 dark:text-gray-400 ml-1">素晴らしい！</span>
           </div>
         </motion.div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">カテゴリ</h3>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700"
+      >
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">カテゴリフィルター</h3>
         <div className="flex flex-wrap gap-3">
           {categories.map((category) => (
             <button
@@ -221,26 +188,30 @@ export default function Dashboard() {
             </button>
           ))}
         </div>
-      </div>
+      </motion.div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">おすすめコンテンツ</h3>
-          <button className="text-blue-500 hover:text-blue-600 text-sm font-medium">
-            すべて見る
-          </button>
-            </div>
-
-        {loading ? (
-          <div className="flex justify-center items-center py-12">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700"
+      >
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">音声コンテンツ</h3>
+        
+        {loading && (
+          <div className="flex justify-center items-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
             <span className="ml-3 text-gray-600 dark:text-gray-400">読み込み中...</span>
           </div>
-        ) : error ? (
-          <div className="flex justify-center items-center py-12">
-            <div className="text-red-500 dark:text-red-400">{error}</div>
+        )}
+
+        {error && (
+          <div className="text-center py-8">
+            <p className="text-red-500 dark:text-red-400">{error}</p>
           </div>
-        ) : (
+        )}
+
+        {!loading && !error && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredContents.map((content, index) => (
               <motion.div
@@ -248,7 +219,7 @@ export default function Dashboard() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-gray-50 dark:bg-gray-700 rounded-xl p-5 hover:shadow-md transition-all duration-200 border border-gray-200 dark:border-gray-600"
+                className="bg-gray-50 dark:bg-gray-700 rounded-xl p-5 hover:shadow-md transition-all duration-200"
               >
                 <div className="flex justify-between items-start mb-4">
                   <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full">
@@ -256,7 +227,7 @@ export default function Dashboard() {
                   </span>
                   <span className="text-gray-500 dark:text-gray-400 text-sm flex items-center">
                     <ClockIcon className="h-4 w-4 mr-1" />
-                    {content.duration}分
+                    {Math.floor(content.duration / 60)}:{(content.duration % 60).toString().padStart(2, '0')}
                   </span>
                 </div>
 
@@ -287,7 +258,7 @@ export default function Dashboard() {
                     ) : (
                       <PlayIcon className="h-4 w-4" />
                     )}
-                    <span>{currentPlaying === content.id.toString() ? "停止" : "再生"}</span>
+                    <span>{currentPlaying === content.id.toString() ? "一時停止" : "再生"}</span>
                   </button>
 
                   <div className="flex items-center space-x-3">
@@ -306,13 +277,13 @@ export default function Dashboard() {
                     <button className="text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors">
                       <ShareIcon className="h-5 w-5" />
                     </button>
-              </div>
-        </div>
-      </motion.div>
+                  </div>
+                </div>
+              </motion.div>
             ))}
           </div>
         )}
-      </div>
+      </motion.div>
     </div>
   );
-} 
+}

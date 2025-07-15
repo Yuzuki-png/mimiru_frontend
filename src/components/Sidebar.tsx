@@ -8,7 +8,6 @@ import {
   HomeIcon,
   MicrophoneIcon,
   HeartIcon,
-  ChartBarIcon,
   Cog6ToothIcon,
   SpeakerWaveIcon,
   XMarkIcon,
@@ -42,7 +41,6 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
     { id: 'discover', label: '発見', icon: SpeakerWaveIcon },
     { id: 'library', label: 'ライブラリ', icon: BookOpenIcon },
     { id: 'liked', label: 'お気に入り', icon: HeartIcon },
-    { id: 'analytics', label: '分析', icon: ChartBarIcon },
     { id: 'upload', label: '投稿', icon: MicrophoneIcon },
   ];
 

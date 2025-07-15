@@ -53,6 +53,7 @@
 - src/lib/config.tsで設定されたAPIベースURL（デフォルト: http://localhost:3003）
 - バックエンド通信はaccess_token形式のJWTトークンを期待
 - 厳密モードが有効なTypeScript設定
+- 開発が終了した時点で必ずリントチェックを行なってください
 
 ### 開発メモ
 
