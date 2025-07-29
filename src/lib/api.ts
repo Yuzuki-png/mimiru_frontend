@@ -169,6 +169,65 @@ export const audioContentApi = {
   toggleLike: async (id: string) => {
     const response = await api.post(`/audio-contents/${id}/like`);
     return response.data;
+  },
+
+  delete: async (id: string) => {
+    const response = await api.delete(`/audio-contents/${id}`);
+    return response.data;
+  }
+};
+
+export const playlistApi = {
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+  }) => {
+    const response = await api.get('/playlists', { params });
+    return response.data;
+  },
+
+  getById: async (id: string) => {
+    const response = await api.get(`/playlists/${id}`);
+    return response.data;
+  },
+
+  create: async (playlistData: {
+    name: string;
+    description?: string;
+  }) => {
+    const response = await api.post('/playlists', playlistData);
+    return response.data;
+  },
+
+  update: async (id: string, playlistData: {
+    name: string;
+    description?: string;
+  }) => {
+    const response = await api.put(`/playlists/${id}`, playlistData);
+    return response.data;
+  },
+
+  delete: async (id: string) => {
+    const response = await api.delete(`/playlists/${id}`);
+    return response.data;
+  },
+
+  addItem: async (id: string, audioContentId: number, position?: number) => {
+    const response = await api.post(`/playlists/${id}/items`, {
+      audioContentId: audioContentId,
+      position
+    });
+    return response.data;
+  },
+
+  removeItem: async (id: string, itemId: string) => {
+    const response = await api.delete(`/playlists/${id}/items/${itemId}`);
+    return response.data;
+  },
+
+  reorderItems: async (id: string, items: { id: number; position: number }[]) => {
+    const response = await api.put(`/playlists/${id}/items/reorder`, { items });
+    return response.data;
   }
 };
 
