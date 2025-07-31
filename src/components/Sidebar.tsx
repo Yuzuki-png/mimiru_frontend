@@ -17,7 +17,8 @@ import {
   BookOpenIcon,
   PlayIcon,
   DocumentTextIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  ClockIcon
 } from "@heroicons/react/24/outline";
 
 interface SidebarProps {
@@ -41,6 +42,7 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
     { id: 'discover', label: '発見', icon: SpeakerWaveIcon },
     { id: 'library', label: 'ライブラリ', icon: BookOpenIcon },
     { id: 'liked', label: 'お気に入り', icon: HeartIcon },
+    { id: 'history', label: '視聴履歴', icon: ClockIcon },
     { id: 'upload', label: '投稿', icon: MicrophoneIcon },
   ];
 

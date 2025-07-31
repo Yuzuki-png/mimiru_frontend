@@ -1,7 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { playbackApi } from '../lib/api';
+import React, { createContext, useContext, useReducer, ReactNode, useRef, useEffect } from 'react';
+import { playbackApi, listenHistoryApi } from '../lib/api';
 
 interface AudioContent {
   id: string;
@@ -9,6 +9,7 @@ interface AudioContent {
   description: string;
   audioUrl: string;
   duration?: number;
+  startTime?: number; // 視聴履歴から開始する際の時間
 }
 
 interface PlaybackState {
@@ -97,6 +98,78 @@ interface AudioPlayerProviderProps {
 
 export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(audioPlayerReducer, initialState);
+  const historyRecordInterval = useRef<NodeJS.Timeout | null>(null);
+  const lastRecordedTime = useRef<number>(0);
+
+  // 視聴履歴を記録する関数
+  const recordListenHistory = async (audioContent: AudioContent, currentTime: number, duration?: number, completed = false) => {
+    try {
+      await listenHistoryApi.record({
+        audioContentId: parseInt(audioContent.id),
+        currentTime,
+        duration,
+        completed
+      });
+    } catch (error) {
+      console.error('視聴履歴の記録に失敗:', error);
+    }
+  };
+
+  // 視聴履歴の記録を開始する関数
+  const startHistoryRecording = (audioContent: AudioContent) => {
+    if (historyRecordInterval.current) {
+      clearInterval(historyRecordInterval.current);
+    }
+
+    historyRecordInterval.current = setInterval(() => {
+      if (state.currentAudio && state.isPlaying) {
+        const timeDiff = Math.abs(state.currentTime - lastRecordedTime.current);
+        // 5秒以上進んだら記録する
+        if (timeDiff >= 5) {
+          recordListenHistory(audioContent, state.currentTime, audioContent.duration);
+          lastRecordedTime.current = state.currentTime;
+        }
+      }
+    }, 5000); // 5秒間隔で記録
+  };
+
+  // 視聴履歴の記録を停止する関数
+  const stopHistoryRecording = () => {
+    if (historyRecordInterval.current) {
+      clearInterval(historyRecordInterval.current);
+      historyRecordInterval.current = null;
+    }
+  };
+
+  // コンポーネントのアンマウント時にクリーンアップ
+  useEffect(() => {
+    return () => {
+      stopHistoryRecording();
+    };
+  }, []);
+
+  // 再生状態の変化を監視して履歴記録を制御
+  useEffect(() => {
+    if (state.currentAudio) {
+      if (state.isPlaying) {
+        startHistoryRecording(state.currentAudio);
+      } else {
+        stopHistoryRecording();
+        // 停止時に現在の位置を記録
+        if (state.currentTime > 0) {
+          recordListenHistory(state.currentAudio, state.currentTime, state.currentAudio.duration);
+        }
+      }
+    }
+  }, [state.isPlaying, state.currentAudio]);
+
+  // 再生完了を監視
+  useEffect(() => {
+    if (state.currentAudio && state.currentAudio.duration && state.currentTime >= state.currentAudio.duration - 5) {
+      // 残り5秒以下で完了とみなす
+      recordListenHistory(state.currentAudio, state.currentTime, state.currentAudio.duration, true);
+    }
+  }, [state.currentTime, state.currentAudio]);
 
   const playAudio = async (audioContent: AudioContent) => {
     try {
@@ -107,6 +180,14 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
       
       dispatch({ type: 'SET_CURRENT_AUDIO', payload: audioContent });
       dispatch({ type: 'SET_PLAYING', payload: true });
+
+      // 履歴から開始時間が指定されている場合はシークする
+      if (audioContent.startTime && audioContent.startTime > 0) {
+        await seekTo(audioContent.startTime);
+      }
+
+      // 再生開始時に履歴を記録
+      recordListenHistory(audioContent, audioContent.startTime || 0, audioContent.duration);
     } catch (error) {
       console.error('再生開始エラー:', error);
       dispatch({ type: 'SET_ERROR', payload: '音声の再生開始に失敗しました' });
