@@ -11,7 +11,7 @@ import {
   ClockIcon,
   UserIcon,
   TrashIcon,
-  HistoryIcon,
+  BookOpenIcon,
   ChevronRightIcon,
 } from "@heroicons/react/24/outline";
 import { useRouter } from "next/navigation";
@@ -251,7 +251,7 @@ export default function HistoryPage() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 flex items-center">
-              <HistoryIcon className="h-8 w-8 mr-3 text-blue-500" />
+              <BookOpenIcon className="h-8 w-8 mr-3 text-blue-500" />
               視聴履歴
             </h2>
             <p className="text-gray-600 dark:text-gray-400">
@@ -286,7 +286,7 @@ export default function HistoryPage() {
 
         {history.length === 0 ? (
           <div className="text-center py-12">
-            <HistoryIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <BookOpenIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
               視聴履歴がありません
             </h4>
