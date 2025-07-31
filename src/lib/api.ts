@@ -121,8 +121,27 @@ export const audioContentApi = {
     category?: string;
     search?: string;
     isLiked?: boolean;
+    minDuration?: number;
+    maxDuration?: number;
+    sortBy?: string;
   }) => {
     const response = await api.get('/audio-contents', { params });
+    return response.data;
+  },
+
+  search: async (query: string, params?: {
+    page?: number;
+    limit?: number;
+    category?: string;
+    minDuration?: number;
+    maxDuration?: number;
+    sortBy?: string;
+  }) => {
+    const searchParams = {
+      search: query,
+      ...params
+    };
+    const response = await api.get('/audio-contents', { params: searchParams });
     return response.data;
   },
 
