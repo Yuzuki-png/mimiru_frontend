@@ -154,23 +154,10 @@ export default function LibraryPage() {
       if (isCurrentlyPlaying) {
         await pauseAudio();
       } else {
-        // バックエンドサーバーのベースURLを使ってaudioUrlを構築
-        console.log("元のcontent.audioUrl:", content.audioUrl);
-        console.log("content全体:", content);
-
-        // バックエンドサーバーのベースURLを使ってaudioUrlを構築
-        let audioUrl;
-
-        if (content.audioUrl && content.audioUrl.startsWith("http")) {
-          audioUrl = content.audioUrl;
-        } else if (content.audioUrl) {
-          // スラッシュが先頭にない場合は追加
-          const path = content.audioUrl.startsWith("/")
-            ? content.audioUrl
-            : `/${content.audioUrl}`;
-          audioUrl = `http://localhost:4003${path}`;
-        } else {
-          console.error("audioUrlが提供されていません:", content);
+        // S3署名付きURLまたはHTTPSのURLを直接使用
+        const audioUrl = content.audioUrl;
+        if (!audioUrl || !audioUrl.startsWith("http")) {
+          console.error("有効なaudioUrlが提供されていません:", content);
           return; // audioUrlがない場合は再生を中止
         }
 
