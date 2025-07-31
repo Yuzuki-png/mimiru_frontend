@@ -114,7 +114,7 @@ export default function PlaylistDetailPage() {
       // プレイリストに既に追加されているコンテンツを除外
       const existingContentIds = playlist?.items.map(item => item.audioContent.id) || [];
       const availableContents = result.data.filter(
-        content => !existingContentIds.includes(content.id)
+        (content: AudioContent) => !existingContentIds.includes(content.id)
       );
       setAvailableContents(availableContents);
     } catch {
@@ -237,28 +237,6 @@ export default function PlaylistDetailPage() {
     const firstItem = playlist.items[0];
     await togglePlay(firstItem.audioContent);
   };
-
-  const fetchAvailableContents = useCallback(async () => {
-    try {
-      setLoadingContents(true);
-      const result = await audioContentApi.getAll({});
-      // プレイリストに既に追加されているコンテンツを除外
-      const existingContentIds = playlist?.items.map(item => item.audioContent.id) || [];
-      const availableContents = result.data.filter(
-        content => !existingContentIds.includes(content.id)
-      );
-      setAvailableContents(availableContents);
-    } catch {
-      setError("コンテンツの取得に失敗しました");
-    } finally {
-      setLoadingContents(false);
-    }
-  }, [playlist]);
-
-  const handleOpenAddContentModal = useCallback(() => {
-    setShowAddContentModal(true);
-    fetchAvailableContents();
-  }, [fetchAvailableContents]);
 
   const handleAddContent = async (contentId: number) => {
     try {
