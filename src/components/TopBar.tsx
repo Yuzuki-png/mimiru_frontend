@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
 import SearchBar from "./SearchBar";
@@ -37,10 +37,12 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
         </div>
 
         <div className="flex-1 max-w-md mx-8">
-          <SearchBar 
-            placeholder="音声コンテンツを検索..."
-            showHistory={true}
-          />
+          <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-700 rounded-lg animate-pulse"></div>}>
+            <SearchBar 
+              placeholder="音声コンテンツを検索..."
+              showHistory={true}
+            />
+          </Suspense>
         </div>
 
         <div className="flex items-center space-x-4">
