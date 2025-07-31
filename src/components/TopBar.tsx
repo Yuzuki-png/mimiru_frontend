@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
+import SearchBar from "./SearchBar";
 import {
   BellIcon,
-  MagnifyingGlassIcon,
   UserCircleIcon,
   ChevronDownIcon,
   Cog6ToothIcon,
@@ -21,7 +21,6 @@ interface TopBarProps {
 export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   return (
     <motion.header
@@ -38,16 +37,12 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
         </div>
 
         <div className="flex-1 max-w-md mx-8">
-          <div className="relative">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input
-              type="text"
+          <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-700 rounded-lg animate-pulse"></div>}>
+            <SearchBar 
               placeholder="音声コンテンツを検索..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all"
+              showHistory={true}
             />
-          </div>
+          </Suspense>
         </div>
 
         <div className="flex items-center space-x-4">

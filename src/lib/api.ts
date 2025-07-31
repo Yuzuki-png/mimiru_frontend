@@ -121,8 +121,27 @@ export const audioContentApi = {
     category?: string;
     search?: string;
     isLiked?: boolean;
+    minDuration?: number;
+    maxDuration?: number;
+    sortBy?: string;
   }) => {
     const response = await api.get('/audio-contents', { params });
+    return response.data;
+  },
+
+  search: async (query: string, params?: {
+    page?: number;
+    limit?: number;
+    category?: string;
+    minDuration?: number;
+    maxDuration?: number;
+    sortBy?: string;
+  }) => {
+    const searchParams = {
+      search: query,
+      ...params
+    };
+    const response = await api.get('/audio-contents', { params: searchParams });
     return response.data;
   },
 
@@ -259,6 +278,36 @@ export const playbackApi = {
 
   setVolume: async (volume: number) => {
     const response = await api.post('/playback/volume', { volume });
+    return response.data;
+  }
+};
+
+export const listenHistoryApi = {
+  getAll: async (params?: {
+    page?: number;
+    limit?: number;
+  }) => {
+    const response = await api.get('/listen-history', { params });
+    return response.data;
+  },
+
+  getByContentId: async (audioContentId: number) => {
+    const response = await api.get(`/listen-history/content/${audioContentId}`);
+    return response.data;
+  },
+
+  record: async (historyData: {
+    audioContentId: number;
+    currentTime?: number;
+    duration?: number;
+    completed?: boolean;
+  }) => {
+    const response = await api.post('/listen-history', historyData);
+    return response.data;
+  },
+
+  delete: async (id: number) => {
+    const response = await api.delete(`/listen-history/${id}`);
     return response.data;
   }
 };
