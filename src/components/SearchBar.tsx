@@ -55,7 +55,7 @@ export default function SearchBar({
     if (searchQuery && searchQuery !== query) {
       setQuery(searchQuery);
     }
-  }, [searchParams]);
+  }, [searchParams, query]);
 
   // 外部クリックで候補を非表示
   useEffect(() => {

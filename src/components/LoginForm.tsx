@@ -17,7 +17,7 @@ export default function LoginForm() {
     setClientError(null);
     
     if (!email || !password) {
-      setClientError("メールアドレスとパスワードを入力してくださaa");
+      setClientError("メールアドレスとパスワードを入力してください");
       return;
     }
     
