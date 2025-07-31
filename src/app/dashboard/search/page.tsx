@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { audioContentApi } from "../../../lib/api";
 import SearchBar from "../../../components/SearchBar";
 import {
@@ -89,7 +90,7 @@ function SearchPageContent() {
       setQuery(searchQuery);
       performSearch(searchQuery, filters, 1);
     }
-  }, [searchParams]);
+  }, [searchParams, filters]);
 
   const performSearch = async (searchQuery: string, searchFilters: SearchFilters, page: number = 1) => {
     if (!searchQuery.trim()) return;
@@ -98,7 +99,7 @@ function SearchPageContent() {
     setError(null);
 
     try {
-      const params: any = {
+      const params: Record<string, string | number> = {
         search: searchQuery,
         page,
         limit: 20
@@ -375,9 +376,11 @@ function SearchPageContent() {
                     {/* サムネイル */}
                     <div className="relative aspect-video bg-gray-200 dark:bg-gray-700">
                       {content.thumbnailUrl ? (
-                        <img
+                        <Image
                           src={content.thumbnailUrl}
                           alt={content.title}
+                          width={400}
+                          height={225}
                           className="w-full h-full object-cover"
                         />
                       ) : (

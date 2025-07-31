@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, ReactNode, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useRef, useEffect, useCallback } from 'react';
 import { playbackApi, listenHistoryApi } from '../lib/api';
 
 interface AudioContent {
@@ -116,7 +116,7 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
   };
 
   // 視聴履歴の記録を開始する関数
-  const startHistoryRecording = (audioContent: AudioContent) => {
+  const startHistoryRecording = useCallback((audioContent: AudioContent) => {
     if (historyRecordInterval.current) {
       clearInterval(historyRecordInterval.current);
     }
@@ -131,7 +131,7 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
         }
       }
     }, 5000); // 5秒間隔で記録
-  };
+  }, [state.currentTime, state.isPlaying, state.currentAudio]);
 
   // 視聴履歴の記録を停止する関数
   const stopHistoryRecording = () => {
@@ -161,7 +161,7 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
         }
       }
     }
-  }, [state.isPlaying, state.currentAudio]);
+  }, [state.isPlaying, state.currentAudio, startHistoryRecording, state.currentTime]);
 
   // 再生完了を監視
   useEffect(() => {
