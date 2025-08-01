@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { audioContentApi, playlistApi } from "../../../lib/api";
+import { audioContentApi } from "../../../lib/api";
 import { useAudioPlayer } from "../../../contexts/AudioPlayerContext";
 import { useAuth } from "../../../contexts/AuthContext";
 import {
@@ -12,14 +12,10 @@ import {
   UserIcon,
   HeartIcon,
   ShareIcon,
-  PlusIcon,
-  PencilIcon,
-  TrashIcon,
   EyeIcon,
-  ListBulletIcon,
-  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
+import { useRouter } from "next/navigation";
 
 interface AudioContent {
   id: number;
@@ -44,28 +40,14 @@ interface AudioContent {
   isLiked: boolean;
 }
 
-
-interface Playlist {
-  id: number;
-  name: string;
-  description: string;
-  createdAt: string;
-  updatedAt: string;
-  _count: {
-    items: number;
-  };
-}
-
 export default function LikedPage() {
-  const { user } = useAuth();
+  const router = useRouter();
   const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
+  const { user } = useAuth();
   const [likedContents, setLikedContents] = useState<AudioContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [showAddToPlaylist, setShowAddToPlaylist] = useState<AudioContent | null>(null);
-  const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const categories = [
     "all",
@@ -77,30 +59,31 @@ export default function LikedPage() {
   ];
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchLikedContents = async () => {
       try {
         setLoading(true);
-        const [result, playlistsResult] = await Promise.all([
-          audioContentApi.getAll({ isLiked: true }),
-          playlistApi.getAll()
-        ]);
-        setLikedContents(result.data);
-        setPlaylists(playlistsResult.data);
+        // すべてのコンテンツを取得してクライアントサイドでいいね済みのものをフィルタリング
+        const result = await audioContentApi.getAll({});
+        const likedOnly = result.data.filter((content: AudioContent) => content.isLiked);
+        setLikedContents(likedOnly);
+        setError(null);
       } catch {
-        setError("データの取得に失敗しました");
+        setError("お気に入りコンテンツの取得に失敗しました");
+        setLikedContents([]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchLikedContents();
   }, []);
 
-  const filteredContents = likedContents.filter(
-    (content) =>
-      selectedCategory === "all" ||
-      content.category.name === selectedCategory
-  );
+  const filteredContents =
+    selectedCategory === "all"
+      ? likedContents
+      : likedContents.filter(
+          (content) => content.category.name === selectedCategory,
+        );
 
   const togglePlay = useCallback(
     async (content: AudioContent) => {
@@ -111,24 +94,10 @@ export default function LikedPage() {
       if (isCurrentlyPlaying) {
         await pauseAudio();
       } else {
-        // バックエンドサーバーのベースURLを使ってaudioUrlを構築
-        console.log("元のcontent.audioUrl:", content.audioUrl);
-        console.log("content全体:", content);
-
-        // バックエンドサーバーのベースURLを使ってaudioUrlを構築
-        let audioUrl;
-
-        if (content.audioUrl && content.audioUrl.startsWith("http")) {
-          audioUrl = content.audioUrl;
-        } else if (content.audioUrl) {
-          // スラッシュが先頭にない場合は追加
-          const path = content.audioUrl.startsWith("/")
-            ? content.audioUrl
-            : `/${content.audioUrl}`;
-          audioUrl = `http://localhost:4003${path}`;
-        } else {
-          console.error("audioUrlが提供されていません:", content);
-          return; // audioUrlがない場合は再生を中止
+        const audioUrl = content.audioUrl;
+        if (!audioUrl || !audioUrl.startsWith("http")) {
+          console.error("有効なaudioUrlが提供されていません:", content);
+          return;
         }
 
         const audioContent = {
@@ -139,7 +108,6 @@ export default function LikedPage() {
           duration: content.duration,
         };
 
-        console.log("再生しようとしているオーディオURL:", audioUrl);
         await playAudio(audioContent);
       }
     },
@@ -156,64 +124,20 @@ export default function LikedPage() {
       try {
         const result = await audioContentApi.toggleLike(contentId.toString());
         setLikedContents((prev) =>
-          prev
-            .map((content) =>
-              content.id === contentId
-                ? {
-                    ...content,
-                    isLiked: result.isLiked,
-                    _count: { ...content._count, likes: result.totalLikes },
-                  }
-                : content,
-            )
-            .filter((content) => content.isLiked),
+          prev.map((content) =>
+            content.id === contentId
+              ? {
+                  ...content,
+                  isLiked: result.isLiked,
+                  _count: { ...content._count, likes: result.totalLikes },
+                }
+              : content,
+          ).filter(content => content.id === contentId ? result.isLiked : true)
         );
       } catch {}
     },
     [setLikedContents],
   );
-
-  const handleAddToPlaylist = async (playlistId: number, audioContent: AudioContent) => {
-    try {
-      await playlistApi.addItem(playlistId.toString(), audioContent.id);
-      
-      setPlaylists(prev => prev.map(playlist => 
-        playlist.id === playlistId
-          ? { ...playlist, _count: { items: playlist._count.items + 1 } }
-          : playlist
-      ));
-      
-      setSuccessMessage(`「${audioContent.title}」をプレイリストに追加しました！`);
-      setTimeout(() => setSuccessMessage(null), 3000);
-      setShowAddToPlaylist(null);
-    } catch {
-      setError("プレイリストへの追加に失敗しました");
-    }
-  };
-
-  const handleShareContent = async (content: AudioContent) => {
-    try {
-      const contentUrl = `${window.location.origin}/content/${content.id}`;
-      await navigator.clipboard.writeText(contentUrl);
-      setSuccessMessage("コンテンツのURLをクリップボードにコピーしました！");
-      setTimeout(() => setSuccessMessage(null), 3000);
-    } catch {
-      setError("URLのコピーに失敗しました");
-    }
-  };
-
-  const handleDelete = async (content: AudioContent) => {
-    if (window.confirm("このコンテンツを削除しますか？")) {
-      try {
-        await audioContentApi.delete(content.id.toString());
-        setLikedContents(prev => prev.filter(c => c.id !== content.id));
-        setSuccessMessage(`「${content.title}」を削除しました`);
-        setTimeout(() => setSuccessMessage(null), 3000);
-      } catch {
-        setError("コンテンツの削除に失敗しました");
-      }
-    }
-  };
 
   const ContentCard = ({
     content,
@@ -232,38 +156,13 @@ export default function LikedPage() {
             {Math.floor(content.duration / 60)}:
             {(content.duration % 60).toString().padStart(2, "0")}
           </span>
-          <div className="flex items-center space-x-1">
-            <button
-              onClick={() => setShowAddToPlaylist(content)}
-              className="p-1 text-gray-400 hover:text-green-500 transition-colors"
-              title="プレイリストに追加"
-            >
-              <PlusIcon className="h-4 w-4" />
-            </button>
-            {/* 投稿者本人のみに編集・削除ボタンを表示 */}
-            {user && user.id === content.author.id.toString() && (
-              <>
-                <button
-                  onClick={() => {}}
-                  className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
-                  title="編集"
-                >
-                  <PencilIcon className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(content)}
-                  className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                  title="削除"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </button>
-              </>
-            )}
-          </div>
         </div>
       </div>
 
-      <h4 className="text-gray-900 dark:text-white text-lg font-semibold mb-2 line-clamp-2">
+      <h4 
+        className="text-gray-900 dark:text-white text-lg font-semibold mb-2 line-clamp-2 cursor-pointer hover:text-blue-500 transition-colors"
+        onClick={() => router.push(`/content/${content.id}`)}
+      >
         {content.title}
       </h4>
       <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
@@ -325,8 +224,12 @@ export default function LikedPage() {
           </button>
 
           <button 
-            onClick={() => handleShareContent(content)}
+            onClick={() => {
+              const url = `${window.location.origin}/content/${content.id}`;
+              navigator.clipboard.writeText(url);
+            }}
             className="text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors"
+            title="URLをコピー"
           >
             <ShareIcon className="h-5 w-5" />
           </button>
@@ -359,24 +262,29 @@ export default function LikedPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-red-500 to-pink-600 rounded-2xl p-8 text-white"
+        className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700"
       >
-        <div className="flex items-center space-x-3 mb-4">
-          <HeartSolidIcon className="h-8 w-8" />
-          <h2 className="text-3xl font-bold">お気に入り</h2>
-        </div>
-        <p className="text-red-100 text-lg">
-          あなたがいいねしたコンテンツをまとめて管理できます
-        </p>
-        <div className="mt-6 flex items-center space-x-6 text-red-100">
-          <div className="flex items-center space-x-2">
-            <span className="text-2xl font-bold">{likedContents.length}</span>
-            <span>コンテンツ</span>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              お気に入り
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400">
+              あなたがいいねしたコンテンツ一覧です
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+              {filteredContents.length}
+            </div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              お気に入り
+            </div>
           </div>
         </div>
       </motion.div>
 
-
+      {/* カテゴリフィルター */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -403,18 +311,7 @@ export default function LikedPage() {
         </div>
       </motion.div>
 
-      {/* 成功メッセージ */}
-      {successMessage && (
-        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center space-x-2">
-          <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center">
-            <svg className="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <span className="font-medium">{successMessage}</span>
-        </div>
-      )}
-
+      {/* メインコンテンツエリア */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -437,8 +334,14 @@ export default function LikedPage() {
               まだお気に入りがありません
             </h4>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              気に入ったコンテンツにいいねして、ここに保存しましょう
+              気になるコンテンツにいいねして、お気に入りに追加しましょう
             </p>
+            <button
+              onClick={() => router.push("/dashboard/discover")}
+              className="inline-flex items-center space-x-2 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors font-medium"
+            >
+              <span>コンテンツを探す</span>
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -448,55 +351,6 @@ export default function LikedPage() {
           </div>
         )}
       </motion.div>
-
-      {/* プレイリストに追加モーダル */}
-      {showAddToPlaylist && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md mx-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                プレイリストに追加
-              </h3>
-              <button
-                onClick={() => setShowAddToPlaylist(null)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-              >
-                <XMarkIcon className="h-6 w-6" />
-              </button>
-            </div>
-            
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                「{showAddToPlaylist.title}」を追加するプレイリストを選択してください
-              </p>
-            </div>
-            
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {playlists.map((playlist) => (
-                <button
-                  key={playlist.id}
-                  onClick={() => handleAddToPlaylist(playlist.id, showAddToPlaylist)}
-                  className="w-full text-left p-3 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                >
-                  <div className="flex items-center space-x-3">
-                    <ListBulletIcon className="h-5 w-5 text-gray-400" />
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{playlist.name}</p>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{playlist._count.items}アイテム</p>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-            
-            {playlists.length === 0 && (
-              <p className="text-center text-gray-500 dark:text-gray-400 py-8">
-                プレイリストがありません
-              </p>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

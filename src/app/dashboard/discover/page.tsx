@@ -317,7 +317,10 @@ export default function DiscoverPage() {
         </div>
       </div>
 
-      <h4 className="text-gray-900 dark:text-white text-lg font-semibold mb-2 line-clamp-2">
+      <h4 
+        className="text-gray-900 dark:text-white text-lg font-semibold mb-2 line-clamp-2 cursor-pointer hover:text-blue-500 transition-colors"
+        onClick={() => window.location.href = `/content/${content.id}`}
+      >
         {content.title}
       </h4>
       <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">

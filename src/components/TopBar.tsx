@@ -1,9 +1,8 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
-import SearchBar from "./SearchBar";
 import {
   BellIcon,
   UserCircleIcon,
@@ -36,14 +35,6 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
           )}
         </div>
 
-        <div className="flex-1 max-w-md mx-8">
-          <Suspense fallback={<div className="h-10 bg-gray-100 dark:bg-gray-700 rounded-lg animate-pulse"></div>}>
-            <SearchBar 
-              placeholder="音声コンテンツを検索..."
-              showHistory={true}
-            />
-          </Suspense>
-        </div>
 
         <div className="flex items-center space-x-4">
           <button className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">

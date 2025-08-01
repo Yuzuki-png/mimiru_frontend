@@ -322,7 +322,10 @@ export default function LibraryPage() {
         </div>
       </div>
 
-      <h4 className="text-gray-900 dark:text-white text-lg font-semibold mb-2 line-clamp-2">
+      <h4 
+        className="text-gray-900 dark:text-white text-lg font-semibold mb-2 line-clamp-2 cursor-pointer hover:text-blue-500 transition-colors"
+        onClick={() => router.push(`/content/${content.id}`)}
+      >
         {content.title}
       </h4>
       <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
@@ -383,7 +386,14 @@ export default function LibraryPage() {
             <span className="text-sm">{content._count.likes}</span>
           </button>
 
-          <button className="text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors">
+          <button 
+            onClick={() => {
+              const url = `${window.location.origin}/content/${content.id}`;
+              navigator.clipboard.writeText(url);
+            }}
+            className="text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors"
+            title="URLをコピー"
+          >
             <ShareIcon className="h-5 w-5" />
           </button>
         </div>

@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import {
   HomeIcon,
   MicrophoneIcon,
-  HeartIcon,
   Cog6ToothIcon,
   SpeakerWaveIcon,
   XMarkIcon,
@@ -18,7 +17,7 @@ import {
   PlayIcon,
   DocumentTextIcon,
   ShieldCheckIcon,
-  ClockIcon
+  HeartIcon
 } from "@heroicons/react/24/outline";
 
 interface SidebarProps {
@@ -38,17 +37,14 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
   }, []);
 
   const menuItems = [
-    { id: 'dashboard', label: 'ダッシュボード', icon: HomeIcon },
     { id: 'discover', label: '発見', icon: SpeakerWaveIcon },
     { id: 'library', label: 'ライブラリ', icon: BookOpenIcon },
     { id: 'liked', label: 'お気に入り', icon: HeartIcon },
-    { id: 'history', label: '視聴履歴', icon: ClockIcon },
     { id: 'upload', label: '投稿', icon: MicrophoneIcon },
   ];
 
   const bottomItems = [
-    { id: 'profile', label: 'プロフィール', icon: UserIcon },
-    { id: 'settings', label: '設定', icon: Cog6ToothIcon },
+    { id: 'profile', label: 'プロフィール・設定', icon: UserIcon },
   ];
 
   const legalItems = [

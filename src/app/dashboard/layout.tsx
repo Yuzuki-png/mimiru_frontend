@@ -20,22 +20,17 @@ export default function DashboardLayout({
   }, [pathname]);
 
   const getActiveTab = () => {
-    if (pathname === '/dashboard') return 'dashboard';
+    if (pathname === '/dashboard') return 'discover';
     if (pathname.startsWith('/dashboard/discover')) return 'discover';
     if (pathname.startsWith('/dashboard/library')) return 'library';
     if (pathname.startsWith('/dashboard/liked')) return 'liked';
     if (pathname.startsWith('/dashboard/upload')) return 'upload';
     if (pathname.startsWith('/dashboard/profile')) return 'profile';
-    if (pathname.startsWith('/dashboard/settings')) return 'settings';
-    return 'dashboard';
+    return 'discover';
   };
 
   const handleTabChange = (tab: string) => {
-    if (tab === 'dashboard') {
-      router.push('/dashboard');
-    } else {
-      router.push(`/dashboard/${tab}`);
-    }
+    router.push(`/dashboard/${tab}`);
   };
 
   const handleToggleCollapse = () => {
@@ -45,8 +40,6 @@ export default function DashboardLayout({
   const getPageTitle = () => {
     const activeTab = getActiveTab();
     switch (activeTab) {
-      case 'dashboard':
-        return 'ダッシュボード';
       case 'discover':
         return '発見';
       case 'library':
@@ -56,19 +49,15 @@ export default function DashboardLayout({
       case 'upload':
         return '音声投稿';
       case 'profile':
-        return 'プロフィール';
-      case 'settings':
-        return '設定';
+        return 'プロフィール・設定';
       default:
-        return 'ダッシュボード';
+        return '発見';
     }
   };
 
   const getPageSubtitle = () => {
     const activeTab = getActiveTab();
     switch (activeTab) {
-      case 'dashboard':
-        return '今日も学習を続けましょう';
       case 'discover':
         return '新しいコンテンツを見つけよう';
       case 'library':
@@ -78,9 +67,7 @@ export default function DashboardLayout({
       case 'upload':
         return '新しい音声コンテンツを投稿しましょう';
       case 'profile':
-        return 'プロフィール設定';
-      case 'settings':
-        return 'アプリケーション設定';
+        return 'プロフィール情報とアプリケーション設定';
       default:
         return '';
     }

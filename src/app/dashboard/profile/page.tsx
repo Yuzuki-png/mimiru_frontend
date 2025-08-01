@@ -14,9 +14,9 @@ import {
   XMarkIcon,
   SunIcon,
   MoonIcon,
-  BellIcon,
   GlobeAltIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  TrashIcon
 } from "@heroicons/react/24/outline";
 
 export default function ProfilePage() {
@@ -39,6 +39,7 @@ export default function ProfilePage() {
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
+
 
   return (
     <div className="space-y-8">
@@ -206,20 +207,6 @@ export default function ProfilePage() {
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <BellIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">通知</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      新しいコンテンツやいいねの通知
-                    </p>
-                  </div>
-                </div>
-                <button className="relative inline-flex h-6 w-11 items-center rounded-full bg-blue-600">
-                  <span className="inline-block h-4 w-4 transform rounded-full bg-white translate-x-6" />
-                </button>
-              </div>
 
               <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center space-x-3">
@@ -238,64 +225,50 @@ export default function ProfilePage() {
         </div>
 
         <div className="space-y-6">
+
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700"
           >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">アクティビティ</h3>
-            <div className="space-y-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">24</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">投稿数</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">156</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">獲得いいね</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">7</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">連続学習日数</div>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700"
-          >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">セキュリティ</h3>
-            <div className="space-y-3">
-              <button className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">プライバシーとセキュリティ</h3>
+            
+            <div className="grid grid-cols-1 gap-4">
+              <button className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                 <div className="flex items-center space-x-3">
                   <ShieldCheckIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                  <span className="text-gray-900 dark:text-white">パスワード変更</span>
+                  <div className="text-left">
+                    <p className="font-medium text-gray-900 dark:text-white">パスワード変更</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">アカウントのパスワードを変更</p>
+                  </div>
                 </div>
                 <span className="text-gray-400">›</span>
               </button>
-              <button className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
+
+              <button className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
                 <div className="flex items-center space-x-3">
                   <ShieldCheckIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                  <span className="text-gray-900 dark:text-white">二段階認証</span>
+                  <div className="text-left">
+                    <p className="font-medium text-gray-900 dark:text-white">二段階認証</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">セキュリティを強化</p>
+                  </div>
                 </div>
                 <span className="text-gray-400">›</span>
               </button>
-            </div>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-red-200 dark:border-red-700"
-          >
-            <h3 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-4">危険な操作</h3>
-            <button className="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors">
-              アカウントを削除
-            </button>
+              <button className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">
+                <div className="flex items-center space-x-3">
+                  <TrashIcon className="h-5 w-5 text-red-600 dark:text-red-400" />
+                  <div className="text-left">
+                    <p className="font-medium text-red-600 dark:text-red-400">アカウント削除</p>
+                    <p className="text-sm text-red-500 dark:text-red-400">アカウントを完全に削除</p>
+                  </div>
+                </div>
+                <span className="text-red-400">›</span>
+              </button>
+            </div>
           </motion.div>
         </div>
       </div>
