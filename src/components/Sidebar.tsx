@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import {
-  HomeIcon,
   MicrophoneIcon,
-  Cog6ToothIcon,
   SpeakerWaveIcon,
   XMarkIcon,
   SunIcon,
