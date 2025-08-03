@@ -120,7 +120,7 @@ export const audioContentApi = {
     limit?: number;
     category?: string;
     search?: string;
-    isLiked?: boolean;
+    isLiked?: string;
     minDuration?: number;
     maxDuration?: number;
     sortBy?: string;

@@ -5,6 +5,7 @@ import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { playlistApi, audioContentApi } from "../../../../../lib/api";
 import { useAudioPlayer } from "../../../../../contexts/AudioPlayerContext";
+import { useLike } from "../../../../../contexts/LikeContext";
 import {
   PlayIcon,
   PauseIcon,
@@ -74,6 +75,7 @@ export default function PlaylistDetailPage() {
   const searchParams = useSearchParams();
   const playlistId = params.id as string;
   const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
+  const { isLiked, toggleLike } = useLike();
   
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [loading, setLoading] = useState(true);
@@ -87,6 +89,8 @@ export default function PlaylistDetailPage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
+  const [likeLoading, setLikeLoading] = useState<number | null>(null);
+  const [likeError, setLikeError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPlaylist = async () => {
@@ -177,10 +181,15 @@ export default function PlaylistDetailPage() {
     [audioPlayerState.currentAudio, audioPlayerState.isPlaying, pauseAudio, playAudio]
   );
 
-  const toggleLike = useCallback(
+  const handleToggleLike = useCallback(
     async (contentId: number) => {
+      setLikeLoading(contentId);
+      setLikeError(null);
+      
       try {
-        const result = await audioContentApi.toggleLike(contentId.toString());
+        const result = await toggleLike(contentId);
+        
+        // ローカルstateのいいね数を更新
         setPlaylist(prev => prev ? {
           ...prev,
           items: prev.items.map(item =>
@@ -196,9 +205,15 @@ export default function PlaylistDetailPage() {
               : item
           )
         } : null);
-      } catch {}
+      } catch (error) {
+        console.error('いいねの更新に失敗しました:', error);
+        setLikeError('いいねの更新に失敗しました。もう一度お試しください。');
+        setTimeout(() => setLikeError(null), 5000);
+      } finally {
+        setLikeLoading(null);
+      }
     },
-    [setPlaylist]
+    [toggleLike]
   );
 
   const handleRemoveFromPlaylist = async (itemId: number) => {
@@ -350,10 +365,13 @@ export default function PlaylistDetailPage() {
 
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => toggleLike(item.audioContent.id)}
-            className="flex items-center space-x-1 text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors"
+            onClick={() => handleToggleLike(item.audioContent.id)}
+            disabled={likeLoading === item.audioContent.id}
+            className="flex items-center space-x-1 text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
           >
-            {item.audioContent.isLiked ? (
+            {likeLoading === item.audioContent.id ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
+            ) : isLiked(item.audioContent.id) ? (
               <HeartSolidIcon className="h-5 w-5 text-red-500" />
             ) : (
               <HeartIcon className="h-5 w-5" />
@@ -414,6 +432,29 @@ export default function PlaylistDetailPage() {
             </svg>
           </div>
           <span className="font-medium">{successMessage}</span>
+        </motion.div>
+      )}
+
+      {/* エラーメッセージ */}
+      {likeError && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center space-x-2"
+        >
+          <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center">
+            <svg className="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <span className="font-medium">{likeError}</span>
+          <button 
+            onClick={() => setLikeError(null)}
+            className="ml-2 text-white hover:text-gray-200"
+          >
+            <XMarkIcon className="h-4 w-4" />
+          </button>
         </motion.div>
       )}
 
