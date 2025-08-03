@@ -271,8 +271,8 @@ export const playbackApi = {
     return response.data;
   },
 
-  seek: async (position: number) => {
-    const response = await api.post('/playback/seek', { position });
+  seek: async (time: number) => {
+    const response = await api.post('/playback/seek', { time });
     return response.data;
   },
 
@@ -282,35 +282,7 @@ export const playbackApi = {
   }
 };
 
-export const listenHistoryApi = {
-  getAll: async (params?: {
-    page?: number;
-    limit?: number;
-  }) => {
-    const response = await api.get('/listen-history', { params });
-    return response.data;
-  },
-
-  getByContentId: async (audioContentId: number) => {
-    const response = await api.get(`/listen-history/content/${audioContentId}`);
-    return response.data;
-  },
-
-  record: async (historyData: {
-    audioContentId: number;
-    currentTime?: number;
-    duration?: number;
-    completed?: boolean;
-  }) => {
-    const response = await api.post('/listen-history', historyData);
-    return response.data;
-  },
-
-  delete: async (id: number) => {
-    const response = await api.delete(`/listen-history/${id}`);
-    return response.data;
-  }
-};
+// listenHistoryApiは削除 - playbackApiを使用
 
 export const isAuthenticated = (): boolean => {
   if (typeof window === 'undefined') return false;
