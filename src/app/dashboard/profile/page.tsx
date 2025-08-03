@@ -1,7 +1,6 @@
 "use client";
 
 import { useAuth } from "../../../contexts/AuthContext";
-import { useTheme } from "next-themes";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
@@ -12,19 +11,18 @@ import {
   PencilIcon,
   CheckIcon,
   XMarkIcon,
-  SunIcon,
-  MoonIcon,
   GlobeAltIcon,
   ShieldCheckIcon,
   TrashIcon
 } from "@heroicons/react/24/outline";
+import DeleteAccountModal from "../../../components/DeleteAccountModal";
 
 export default function ProfilePage() {
   const { user } = useAuth();
-  const { theme, setTheme } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(user?.name || "");
   const [editedBio, setEditedBio] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleSave = () => {
     setIsEditing(false);
@@ -34,10 +32,6 @@ export default function ProfilePage() {
     setEditedName(user?.name || "");
     setEditedBio("");
     setIsEditing(false);
-  };
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
 
@@ -181,35 +175,6 @@ export default function ProfilePage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center space-x-3">
-                  {theme === 'dark' ? (
-                    <MoonIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                  ) : (
-                    <SunIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                  )}
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">テーマ</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {theme === 'dark' ? 'ダークモード' : 'ライトモード'}
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={toggleTheme}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    theme === 'dark' ? 'bg-blue-600' : 'bg-gray-300'
-                  }`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      theme === 'dark' ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </div>
-
-
-              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <div className="flex items-center space-x-3">
                   <GlobeAltIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">言語</p>
@@ -258,7 +223,10 @@ export default function ProfilePage() {
                 <span className="text-gray-400">›</span>
               </button>
 
-              <button className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors">
+              <button 
+                onClick={() => setShowDeleteModal(true)}
+                className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+              >
                 <div className="flex items-center space-x-3">
                   <TrashIcon className="h-5 w-5 text-red-600 dark:text-red-400" />
                   <div className="text-left">
@@ -272,6 +240,11 @@ export default function ProfilePage() {
           </motion.div>
         </div>
       </div>
+
+      <DeleteAccountModal 
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 } 

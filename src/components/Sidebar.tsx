@@ -2,14 +2,10 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
 import {
   MicrophoneIcon,
   SpeakerWaveIcon,
   XMarkIcon,
-  SunIcon,
-  MoonIcon,
   UserIcon,
   BookOpenIcon,
   PlayIcon,
@@ -26,13 +22,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleCollapse }: SidebarProps) {
-  const { theme, setTheme } = useTheme();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const menuItems = [
     { id: 'discover', label: '発見', icon: SpeakerWaveIcon },
@@ -57,12 +47,6 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
   const handleLegalClick = (href: string) => {
     router.push(href);
   };
-
-  const toggleTheme = () => {
-    if (!mounted) return;
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
   return (
     <motion.div
       data-sidebar
@@ -134,34 +118,6 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
       </nav>
 
       <div className="p-2 border-t border-gray-200 dark:border-gray-700">
-        <button
-          onClick={toggleTheme}
-          disabled={!mounted}
-          className={`w-full flex ${isCollapsed ? 'flex-col items-center justify-center py-3 px-2' : 'items-center space-x-3 px-3 py-2.5'} rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors mb-2 group relative ${!mounted ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          {!mounted ? (
-            <SunIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
-          ) : theme === 'dark' ? (
-            <SunIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
-          ) : (
-            <MoonIcon className="h-6 w-6 text-gray-600 dark:text-gray-300" />
-          )}
-          {isCollapsed ? (
-            <span className="text-xs mt-1 font-medium text-gray-600 dark:text-gray-300">
-              {!mounted ? 'テーマ' : theme === 'dark' ? 'ライト' : 'ダーク'}
-            </span>
-          ) : (
-            <span className="font-medium">
-              {!mounted ? 'テーマ切替' : theme === 'dark' ? 'ライトモード' : 'ダークモード'}
-            </span>
-          )}
-          {isCollapsed && (
-            <div className="absolute left-20 bg-gray-900 dark:bg-gray-700 text-white px-2 py-1 rounded-md text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-              {!mounted ? 'テーマ切替' : theme === 'dark' ? 'ライトモード' : 'ダークモード'}
-            </div>
-          )}
-        </button>
-
         <div className={`${isCollapsed ? 'space-y-1' : 'space-y-2'} mb-2`}>
           {bottomItems.map((item) => {
             const Icon = item.icon;

@@ -114,6 +114,38 @@ export const authApi = {
   },
 };
 
+export const userApi = {
+  updateProfile: async (profileData: { name?: string; profile?: string }) => {
+    try {
+      const response = await api.put('/users/profile', profileData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  deleteAccount: async () => {
+    try {
+      const response = await api.delete('/users/account');
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error('アカウント削除に失敗しました');
+    }
+  },
+
+  getLearningStats: async () => {
+    try {
+      const response = await api.get('/users/stats');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+};
+
 export const audioContentApi = {
   getAll: async (params?: {
     page?: number;
