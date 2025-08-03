@@ -4,7 +4,6 @@ import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { audioContentApi } from "../../../lib/api";
 import { useAudioPlayer } from "../../../contexts/AudioPlayerContext";
-import { useAuth } from "../../../contexts/AuthContext";
 import {
   PlayIcon,
   PauseIcon,
@@ -43,7 +42,6 @@ interface AudioContent {
 export default function LikedPage() {
   const router = useRouter();
   const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
-  const { user } = useAuth();
   const [likedContents, setLikedContents] = useState<AudioContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

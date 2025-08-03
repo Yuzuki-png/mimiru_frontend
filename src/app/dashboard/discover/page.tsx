@@ -136,59 +136,19 @@ export default function DiscoverPage() {
       if (isCurrentlyPlaying) {
         await pauseAudio();
       } else {
-        // バックエンドサーバーのベースURLを使ってaudioUrlを構築
-        let audioUrl;
-
-        console.log("コンテンツのaudioUrl:", content.audioUrl);
-
-        if (content.audioUrl && content.audioUrl.startsWith("http")) {
-          audioUrl = content.audioUrl;
-        } else if (content.audioUrl) {
-          // スラッシュが先頭にない場合は追加
-          const path = content.audioUrl.startsWith("/")
-            ? content.audioUrl
-            : `/${content.audioUrl}`;
-          audioUrl = `http://localhost:4003${path}`;
-        } else {
+        // audioUrlが提供されているかチェック
+        if (!content.audioUrl) {
           console.error("audioUrlが提供されていません:", content);
-          return; // audioUrlがない場合は再生を中止
-        }
-
-        console.log("構築されたaudioURL:", audioUrl);
-
-        // ファイルの存在とアクセス可能性をチェック
-        try {
-          const response = await fetch(audioUrl, {
-            method: "HEAD",
-            mode: "cors",
-          });
-          console.log(
-            "ファイルアクセステスト:",
-            response.status,
-            response.headers.get("content-type"),
-          );
-          if (!response.ok) {
-            console.error(`ファイルにアクセスできません: ${response.status}`);
-            if (response.status === 404) {
-              alert(
-                "音声ファイルが見つかりません。バックエンドの静的ファイル配信設定を確認してください。",
-              );
-              return;
-            }
-          }
-        } catch (error) {
-          console.error("ファイルアクセスエラー:", error);
-          alert(
-            "音声ファイルにアクセスできません。バックエンドサーバーの設定を確認してください。",
-          );
+          alert("音声ファイルのURLが取得できません。");
           return;
         }
+
 
         const audioContent = {
           id: content.id.toString(),
           title: content.title,
           description: content.description,
-          audioUrl: audioUrl,
+          audioUrl: content.audioUrl,
           duration: content.duration,
         };
         await playAudio(audioContent);
