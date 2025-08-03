@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { audioContentApi } from "../../../lib/api";
 import { useAudioPlayer } from "../../../contexts/AudioPlayerContext";
+import { useLike } from "../../../contexts/LikeContext";
 import {
   PlayIcon,
   PauseIcon,
@@ -12,6 +13,7 @@ import {
   HeartIcon,
   ShareIcon,
   EyeIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
@@ -42,10 +44,13 @@ interface AudioContent {
 export default function LikedPage() {
   const router = useRouter();
   const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
+  const { isLiked, toggleLike, refreshLikedContents } = useLike();
   const [likedContents, setLikedContents] = useState<AudioContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [likeLoading, setLikeLoading] = useState<number | null>(null);
+  const [likeError, setLikeError] = useState<string | null>(null);
 
   const categories = [
     "all",
@@ -60,10 +65,13 @@ export default function LikedPage() {
     const fetchLikedContents = async () => {
       try {
         setLoading(true);
-        // すべてのコンテンツを取得してクライアントサイドでいいね済みのものをフィルタリング
-        const result = await audioContentApi.getAll({});
-        const likedOnly = result.data.filter((content: AudioContent) => content.isLiked);
-        setLikedContents(likedOnly);
+        // バックエンドのisLikedパラメータを使用してサーバーサイドでフィルタリング
+        const result = await audioContentApi.getAll({ isLiked: 'true' });
+        setLikedContents(result.data);
+        
+        // LikeContextにいいねしたコンテンツIDを初期化
+        await refreshLikedContents();
+        
         setError(null);
       } catch {
         setError("お気に入りコンテンツの取得に失敗しました");
@@ -74,7 +82,7 @@ export default function LikedPage() {
     };
 
     fetchLikedContents();
-  }, []);
+  }, [refreshLikedContents]);
 
   const filteredContents =
     selectedCategory === "all"
@@ -117,24 +125,51 @@ export default function LikedPage() {
     ],
   );
 
-  const toggleLike = useCallback(
+  const handleToggleLike = useCallback(
     async (contentId: number) => {
+      setLikeLoading(contentId);
+      setLikeError(null);
+      
+      // 現在のコンテンツ状態を保存（エラー時の復元用）
+      const currentContent = likedContents.find(content => content.id === contentId);
+      if (!currentContent) return;
+      
+      // 楽観的更新（いいねを外した場合はリストから削除）
+      setLikedContents(prev => {
+        return prev.filter(content => content.id !== contentId);
+      });
+
       try {
-        const result = await audioContentApi.toggleLike(contentId.toString());
-        setLikedContents((prev) =>
-          prev.map((content) =>
-            content.id === contentId
-              ? {
-                  ...content,
-                  isLiked: result.isLiked,
-                  _count: { ...content._count, likes: result.totalLikes },
-                }
-              : content,
-          ).filter(content => content.id === contentId ? result.isLiked : true)
-        );
-      } catch {}
+        const result = await toggleLike(contentId);
+        
+        // APIが成功した場合、実際の結果に基づいて更新
+        if (result.isLiked) {
+          // いいねが追加された場合、リストに復元
+          setLikedContents(prev => [
+            ...prev,
+            {
+              ...currentContent,
+              isLiked: result.isLiked,
+              _count: { ...currentContent._count, likes: result.totalLikes }
+            }
+          ]);
+        }
+        // いいねが削除された場合は既にリストから削除済みなので何もしない
+      } catch (error) {
+        // エラー時は元のコンテンツをリストに復元
+        setLikedContents(prev => [
+          ...prev,
+          currentContent
+        ]);
+        
+        console.error('いいねの更新に失敗しました:', error);
+        setLikeError('いいねの更新に失敗しました。もう一度お試しください。');
+        setTimeout(() => setLikeError(null), 5000);
+      } finally {
+        setLikeLoading(null);
+      }
     },
-    [setLikedContents],
+    [likedContents, toggleLike]
   );
 
   const ContentCard = ({
@@ -210,10 +245,13 @@ export default function LikedPage() {
 
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => toggleLike(content.id)}
-            className="flex items-center space-x-1 text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors"
+            onClick={() => handleToggleLike(content.id)}
+            disabled={likeLoading === content.id}
+            className="flex items-center space-x-1 text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
           >
-            {content.isLiked ? (
+            {likeLoading === content.id ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
+            ) : isLiked(content.id) ? (
               <HeartSolidIcon className="h-5 w-5 text-red-500" />
             ) : (
               <HeartIcon className="h-5 w-5" />
@@ -257,6 +295,29 @@ export default function LikedPage() {
 
   return (
     <div className="space-y-8">
+      {/* エラーメッセージ */}
+      {likeError && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center space-x-2"
+        >
+          <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center">
+            <svg className="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <span className="font-medium">{likeError}</span>
+          <button 
+            onClick={() => setLikeError(null)}
+            className="ml-2 text-white hover:text-gray-200"
+          >
+            <XMarkIcon className="h-4 w-4" />
+          </button>
+        </motion.div>
+      )}
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

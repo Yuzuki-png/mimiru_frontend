@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { audioContentApi, playlistApi } from "../../../lib/api";
 import { useAudioPlayer } from "../../../contexts/AudioPlayerContext";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useLike } from "../../../contexts/LikeContext";
 import {
   PlayIcon,
   PauseIcon,
@@ -67,6 +68,7 @@ interface Playlist {
 export default function DiscoverPage() {
   const { user } = useAuth();
   const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
+  const { isLiked, toggleLike } = useLike();
   const [audioContents, setAudioContents] = useState<AudioContent[]>([]);
   const [trendingContents, setTrendingContents] = useState<AudioContent[]>([]);
   const [newContents, setNewContents] = useState<AudioContent[]>([]);
@@ -76,6 +78,8 @@ export default function DiscoverPage() {
   const [showAddToPlaylist, setShowAddToPlaylist] = useState<AudioContent | null>(null);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [likeLoading, setLikeLoading] = useState<number | null>(null);
+  const [likeError, setLikeError] = useState<string | null>(null);
 
   const categories = [
     "all",
@@ -162,11 +166,16 @@ export default function DiscoverPage() {
     ],
   );
 
-  const toggleLike = useCallback(
+  const handleToggleLike = useCallback(
     async (contentId: number) => {
+      setLikeLoading(contentId);
+      setLikeError(null);
+      
       try {
-        const result = await audioContentApi.toggleLike(contentId.toString());
-
+        const result = await toggleLike(contentId);
+        
+        // グローバルstateは既にLikeContextで管理されているため、
+        // ローカルstateのいいね数を更新
         const updateContent = (content: AudioContent) =>
           content.id === contentId
             ? {
@@ -176,12 +185,18 @@ export default function DiscoverPage() {
               }
             : content;
 
-        setAudioContents((prev) => prev.map(updateContent));
-        setTrendingContents((prev) => prev.map(updateContent));
-        setNewContents((prev) => prev.map(updateContent));
-      } catch {}
+        setAudioContents(prev => prev.map(updateContent));
+        setTrendingContents(prev => prev.map(updateContent));
+        setNewContents(prev => prev.map(updateContent));
+      } catch (error) {
+        console.error('いいねの更新に失敗しました:', error);
+        setLikeError('いいねの更新に失敗しました。もう一度お試しください。');
+        setTimeout(() => setLikeError(null), 5000);
+      } finally {
+        setLikeLoading(null);
+      }
     },
-    [setAudioContents, setTrendingContents, setNewContents],
+    [toggleLike]
   );
 
   const handleAddToPlaylist = async (playlistId: number, audioContent: AudioContent) => {
@@ -330,10 +345,13 @@ export default function DiscoverPage() {
 
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => toggleLike(content.id)}
-            className="flex items-center space-x-1 text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors"
+            onClick={() => handleToggleLike(content.id)}
+            disabled={likeLoading === content.id}
+            className="flex items-center space-x-1 text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
           >
-            {content.isLiked ? (
+            {likeLoading === content.id ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
+            ) : isLiked(content.id) ? (
               <HeartSolidIcon className="h-5 w-5 text-red-500" />
             ) : (
               <HeartIcon className="h-5 w-5" />
@@ -382,6 +400,24 @@ export default function DiscoverPage() {
             </svg>
           </div>
           <span className="font-medium">{successMessage}</span>
+        </div>
+      )}
+
+      {/* エラーメッセージ */}
+      {likeError && (
+        <div className="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center space-x-2">
+          <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center">
+            <svg className="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <span className="font-medium">{likeError}</span>
+          <button 
+            onClick={() => setLikeError(null)}
+            className="ml-2 text-white hover:text-gray-200"
+          >
+            <XMarkIcon className="h-4 w-4" />
+          </button>
         </div>
       )}
 

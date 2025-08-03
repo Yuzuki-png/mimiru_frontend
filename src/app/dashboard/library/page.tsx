@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { audioContentApi, playlistApi } from "../../../lib/api";
 import { useAudioPlayer } from "../../../contexts/AudioPlayerContext";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useLike } from "../../../contexts/LikeContext";
 import {
   PlayIcon,
   PauseIcon,
@@ -72,6 +73,7 @@ export default function LibraryPage() {
   const router = useRouter();
   const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
   const { user } = useAuth();
+  const { isLiked, toggleLike } = useLike();
   const [myContents, setMyContents] = useState<AudioContent[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState(true);
@@ -83,6 +85,8 @@ export default function LibraryPage() {
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const [newPlaylistDescription, setNewPlaylistDescription] = useState('');
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [likeLoading, setLikeLoading] = useState<number | null>(null);
+  const [likeError, setLikeError] = useState<string | null>(null);
 
   const categories = [
     "all",
@@ -181,24 +185,34 @@ export default function LibraryPage() {
     ],
   );
 
-  const toggleLike = useCallback(
+  const handleToggleLike = useCallback(
     async (contentId: number) => {
+      setLikeLoading(contentId);
+      setLikeError(null);
+      
       try {
-        const result = await audioContentApi.toggleLike(contentId.toString());
-        setMyContents((prev) =>
-          prev.map((content) =>
-            content.id === contentId
-              ? {
-                  ...content,
-                  isLiked: result.isLiked,
-                  _count: { ...content._count, likes: result.totalLikes },
-                }
-              : content,
-          ),
-        );
-      } catch {}
+        const result = await toggleLike(contentId);
+        
+        // ローカルstateのいいね数を更新
+        const updateContent = (content: AudioContent) =>
+          content.id === contentId
+            ? {
+                ...content,
+                isLiked: result.isLiked,
+                _count: { ...content._count, likes: result.totalLikes },
+              }
+            : content;
+
+        setMyContents(prev => prev.map(updateContent));
+      } catch (error) {
+        console.error('いいねの更新に失敗しました:', error);
+        setLikeError('いいねの更新に失敗しました。もう一度お試しください。');
+        setTimeout(() => setLikeError(null), 5000);
+      } finally {
+        setLikeLoading(null);
+      }
     },
-    [setMyContents],
+    [toggleLike]
   );
 
   const handleEdit = () => {};
@@ -375,10 +389,13 @@ export default function LibraryPage() {
 
         <div className="flex items-center space-x-3">
           <button
-            onClick={() => toggleLike(content.id)}
-            className="flex items-center space-x-1 text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors"
+            onClick={() => handleToggleLike(content.id)}
+            disabled={likeLoading === content.id}
+            className="flex items-center space-x-1 text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
           >
-            {content.isLiked ? (
+            {likeLoading === content.id ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
+            ) : isLiked(content.id) ? (
               <HeartSolidIcon className="h-5 w-5 text-red-500" />
             ) : (
               <HeartIcon className="h-5 w-5" />
@@ -436,6 +453,29 @@ export default function LibraryPage() {
             </svg>
           </div>
           <span className="font-medium">{successMessage}</span>
+        </motion.div>
+      )}
+
+      {/* エラーメッセージ */}
+      {likeError && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center space-x-2"
+        >
+          <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center">
+            <svg className="w-3 h-3 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <span className="font-medium">{likeError}</span>
+          <button 
+            onClick={() => setLikeError(null)}
+            className="ml-2 text-white hover:text-gray-200"
+          >
+            <XMarkIcon className="h-4 w-4" />
+          </button>
         </motion.div>
       )}
 
