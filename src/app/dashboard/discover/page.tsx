@@ -143,7 +143,6 @@ export default function DiscoverPage() {
           return;
         }
 
-        console.log("再生するaudioUrl:", content.audioUrl);
 
         const audioContent = {
           id: content.id.toString(),
