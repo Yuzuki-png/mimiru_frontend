@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "../../../contexts/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { 
   UserIcon,
@@ -16,6 +16,17 @@ import {
   TrashIcon
 } from "@heroicons/react/24/outline";
 import DeleteAccountModal from "../../../components/DeleteAccountModal";
+import ChangePasswordModal from "../../../components/ChangePasswordModal";
+import { userApi } from "../../../lib/api";
+
+interface UserProfile {
+  id: number;
+  email: string;
+  name: string | null;
+  profile: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -23,14 +34,56 @@ export default function ProfilePage() {
   const [editedName, setEditedName] = useState(user?.name || "");
   const [editedBio, setEditedBio] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSave = () => {
-    setIsEditing(false);
+  useEffect(() => {
+    loadUserProfile();
+  }, );
+
+  const loadUserProfile = async () => {
+    try {
+      const profile = await userApi.getProfile();
+      setUserProfile(profile);
+      setEditedName(profile.name || "");
+      setEditedBio(profile.profile || "");
+    } catch {
+      // エラーの場合は、既存のユーザー情報をフォールバックとして使用
+      if (user) {
+        const fallbackProfile: UserProfile = {
+          id: 0,
+          email: user.email,
+          name: user.name || null,
+          profile: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        setUserProfile(fallbackProfile);
+        setEditedName(user.name || "");
+        setEditedBio("");
+      }
+    }
+  };
+
+  const handleSave = async () => {
+    setIsLoading(true);
+    try {
+      await userApi.updateProfile({
+        name: editedName,
+        profile: editedBio,
+      });
+      await loadUserProfile();
+      setIsEditing(false);
+    } catch {
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
-    setEditedName(user?.name || "");
-    setEditedBio("");
+    setEditedName(userProfile?.name || user?.name || "");
+    setEditedBio(userProfile?.profile || "");
     setIsEditing(false);
   };
 
@@ -73,10 +126,11 @@ export default function ProfilePage() {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={handleSave}
-                    className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                    disabled={isLoading}
+                    className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors disabled:opacity-50"
                   >
                     <CheckIcon className="h-4 w-4" />
-                    <span>保存</span>
+                    <span>{isLoading ? "保存中..." : "保存"}</span>
                   </button>
                   <button
                     onClick={handleCancel}
@@ -100,7 +154,7 @@ export default function ProfilePage() {
               </div>
               <div>
                 <h4 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  {user?.name || user?.email?.split('@')[0]}
+                  {userProfile?.name || user?.name || user?.email?.split('@')[0]}
                 </h4>
                 <p className="text-gray-600 dark:text-gray-400">メンバー</p>
               </div>
@@ -119,7 +173,7 @@ export default function ProfilePage() {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   />
                 ) : (
-                  <p className="text-gray-900 dark:text-white">{user?.name || "未設定"}</p>
+                  <p className="text-gray-900 dark:text-white">{userProfile?.name || user?.name || "未設定"}</p>
                 )}
               </div>
 
@@ -147,7 +201,7 @@ export default function ProfilePage() {
                   />
                 ) : (
                   <p className="text-gray-900 dark:text-white">
-                    {editedBio || "自己紹介が設定されていません"}
+                    {userProfile?.profile || "自己紹介が設定されていません"}
                   </p>
                 )}
               </div>
@@ -158,7 +212,9 @@ export default function ProfilePage() {
                 </label>
                 <div className="flex items-center space-x-2">
                   <CalendarDaysIcon className="h-5 w-5 text-gray-400" />
-                  <p className="text-gray-900 dark:text-white">2024年6月14日</p>
+                  <p className="text-gray-900 dark:text-white">
+                    {userProfile?.createdAt ? new Date(userProfile.createdAt).toLocaleDateString('ja-JP') : '2024年6月14日'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -201,7 +257,10 @@ export default function ProfilePage() {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">プライバシーとセキュリティ</h3>
             
             <div className="grid grid-cols-1 gap-4">
-              <button className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
+              <button 
+                onClick={() => setShowPasswordModal(true)}
+                className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
+              >
                 <div className="flex items-center space-x-3">
                   <ShieldCheckIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                   <div className="text-left">
@@ -244,6 +303,11 @@ export default function ProfilePage() {
       <DeleteAccountModal 
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
+      />
+
+      <ChangePasswordModal 
+        isOpen={showPasswordModal}
+        onClose={() => setShowPasswordModal(false)}
       />
     </div>
   );
