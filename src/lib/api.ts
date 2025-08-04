@@ -115,12 +115,33 @@ export const authApi = {
 };
 
 export const userApi = {
+  getProfile: async () => {
+    try {
+      const response = await api.get('/users/profile');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   updateProfile: async (profileData: { name?: string; profile?: string }) => {
     try {
       const response = await api.put('/users/profile', profileData);
       return response.data;
     } catch (error) {
       throw error;
+    }
+  },
+
+  changePassword: async (passwordData: { currentPassword: string; newPassword: string }) => {
+    try {
+      const response = await api.put('/users/password', passwordData);
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error('パスワード変更に失敗しました');
     }
   },
 
