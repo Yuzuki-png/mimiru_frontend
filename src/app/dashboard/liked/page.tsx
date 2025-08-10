@@ -55,10 +55,11 @@ export default function LikedPage() {
   const categories = [
     "all",
     "ビジネス",
-    "ライフスタイル",
-    "テクノロジー",
     "教育",
+    "エンターテイメント",
+    "ニュース",
     "健康",
+    "テクノロジー",
   ];
 
   useEffect(() => {

@@ -35,7 +35,7 @@ export default function AudioUpload({ isOpen, onClose, onSubmit }: AudioUploadPr
   const audioChunksRef = useRef<BlobPart[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const categories = ["ビジネス", "ライフスタイル", "テクノロジー", "教育", "健康"];
+  const categories = ["ビジネス", "教育", "エンターテイメント", "ニュース", "健康", "テクノロジー"];
 
   const startRecording = async () => {
     try {

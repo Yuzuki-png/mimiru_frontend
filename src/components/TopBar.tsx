@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
+import { useNotifications } from "../contexts/NotificationContext";
+import Link from "next/link";
 import {
   BellIcon,
   UserCircleIcon,
@@ -19,6 +21,7 @@ interface TopBarProps {
 
 export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
   const { user, logout } = useAuth();
+  const { state } = useNotifications();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   return (
@@ -37,10 +40,17 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
 
 
         <div className="flex items-center space-x-4">
-          <button className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
+          <Link
+            href="/dashboard/notifications"
+            className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
             <BellIcon className="h-6 w-6" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          </button>
+            {state.unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-medium rounded-full flex items-center justify-center px-1">
+                {state.unreadCount > 99 ? '99+' : state.unreadCount}
+              </span>
+            )}
+          </Link>
 
           <div className="relative">
             <button

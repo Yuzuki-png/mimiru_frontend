@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { playlistApi, audioContentApi } from "../../../../../lib/api";
+import { config } from "../../../../../lib/config";
 import { useAudioPlayer } from "../../../../../contexts/AudioPlayerContext";
 import { useLike } from "../../../../../contexts/LikeContext";
 import {
@@ -161,7 +162,11 @@ export default function PlaylistDetailPage() {
           const path = content.audioUrl.startsWith("/")
             ? content.audioUrl
             : `/${content.audioUrl}`;
-          audioUrl = `http://localhost:4003${path}`;
+          // 開発環境では現在のホスト（localhost:4000）を使用、本番環境では環境変数を使用
+          const baseUrl = process.env.NODE_ENV === 'development' 
+            ? `${window.location.protocol}//${window.location.host}`
+            : config.apiBaseUrl;
+          audioUrl = `${baseUrl}${path}`;
         } else {
           console.error("audioUrlが提供されていません:", content);
           return;
