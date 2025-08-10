@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { Play, Pause, Square, Volume2, VolumeX, X } from "lucide-react";
+import { Play, Pause, Square, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAudioPlayer } from "../contexts/AudioPlayerContext";
 import { useSidebar } from "../contexts/SidebarContext";
@@ -15,8 +15,8 @@ const GlobalAudioPlayer: React.FC = () => {
     pauseAudio,
     stopAudio,
     seekTo,
-    setVolume: setPlayerVolume,
     setCurrentTime,
+    setDuration,
     clearError,
   } = useAudioPlayer();
 
@@ -27,9 +27,6 @@ const GlobalAudioPlayer: React.FC = () => {
   const { isCollapsed } = useSidebar();
 
   const audioRef = useRef<HTMLAudioElement>(null);
-  const [volume, setVolume] = React.useState(1);
-  const [isMuted, setIsMuted] = React.useState(false);
-  const [duration, setDuration] = React.useState(0);
 
   // キーボードショートカットを有効化
   useKeyboardShortcuts();
@@ -38,8 +35,29 @@ const GlobalAudioPlayer: React.FC = () => {
     const audio = audioRef.current;
     if (!audio || !state.currentAudio) return;
 
+    const handleLoadedMetadata = () => {
+      console.log('📀 loadedmetadataイベント発火 - duration:', audio?.duration);
+      if (audio && isFinite(audio.duration) && audio.duration > 0) {
+        console.log('✅ durationを設定:', audio.duration);
+        setDuration(audio.duration);
+      } else {
+        console.warn('⚠️ duration取得失敗:', audio?.duration, 'オーディオ状態:', {
+          readyState: audio?.readyState,
+          networkState: audio?.networkState,
+          src: audio?.src
+        });
+        setDuration(0);
+      }
+    };
+
     const handleLoadedData = () => {
-      setDuration(audio.duration);
+      console.log('📀 loadeddataイベント発火 - duration:', audio?.duration);
+      // loadeddataでもdurationを再確認
+      if (audio && isFinite(audio.duration) && audio.duration > 0 && state.duration === 0) {
+        console.log('🔄 loadeddataでdurationを再設定:', audio.duration);
+        setDuration(audio.duration);
+      }
+      
       // 音声の実際の長さをstateに設定
       if (state.currentAudio) {
         setCurrentTime(0);
@@ -47,7 +65,14 @@ const GlobalAudioPlayer: React.FC = () => {
     };
 
     const handleTimeUpdate = () => {
+      console.log('⏱️ timeupdate - currentTime:', audio.currentTime, 'duration:', audio.duration, 'state.duration:', state.duration);
       setCurrentTime(audio.currentTime);
+      
+      // durationがまだ設定されていない場合は再試行
+      if (audio && isFinite(audio.duration) && audio.duration > 0 && state.duration === 0) {
+        console.log('🔄 timeupdateでdurationを設定:', audio.duration);
+        setDuration(audio.duration);
+      }
     };
 
     const handleEnded = () => {
@@ -69,38 +94,48 @@ const GlobalAudioPlayer: React.FC = () => {
       });
     };
 
-    const handleLoadStart = () => {
-      // オーディオ読み込み開始
+    const handleCanPlay = () => {
+      console.log('📀 canplayイベント発火 - duration:', audio?.duration);
+      if (audio && isFinite(audio.duration) && audio.duration > 0 && state.duration === 0) {
+        console.log('✅ canplayでdurationを設定:', audio.duration);
+        setDuration(audio.duration);
+      }
     };
 
+    const handleLoadStart = () => {
+      console.log('📀 loadstartイベント発火');
+    };
+
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata);
     audio.addEventListener("loadeddata", handleLoadedData);
+    audio.addEventListener("canplay", handleCanPlay);
     audio.addEventListener("timeupdate", handleTimeUpdate);
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("error", handleError);
     audio.addEventListener("loadstart", handleLoadStart);
 
     return () => {
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
       audio.removeEventListener("loadeddata", handleLoadedData);
+      audio.removeEventListener("canplay", handleCanPlay);
       audio.removeEventListener("timeupdate", handleTimeUpdate);
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("error", handleError);
       audio.removeEventListener("loadstart", handleLoadStart);
     };
-  }, [state.currentAudio, setCurrentTime, stopAudio]);
+  }, [state.currentAudio, state.duration, setCurrentTime, setDuration, stopAudio]);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-
-    // 音量を設定
-    audio.volume = volume;
 
     if (state.isPlaying) {
       audio.play().catch(console.error);
     } else {
       audio.pause();
     }
-  }, [state.isPlaying, volume]);
+  }, [state.isPlaying]);
+
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -114,34 +149,7 @@ const GlobalAudioPlayer: React.FC = () => {
     seekTo(newTime);
   };
 
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseFloat(e.target.value);
-    setVolume(newVolume);
-    setPlayerVolume(newVolume);
 
-    const audio = audioRef.current;
-    if (audio) {
-      audio.volume = newVolume;
-    }
-
-    setIsMuted(newVolume === 0);
-  };
-
-  const toggleMute = () => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (isMuted) {
-      const newVolume = volume > 0 ? volume : 0.5;
-      audio.volume = newVolume;
-      setPlayerVolume(newVolume);
-      setIsMuted(false);
-    } else {
-      audio.volume = 0;
-      setPlayerVolume(0);
-      setIsMuted(true);
-    }
-  };
 
   const handlePlayPause = () => {
     if (state.isPlaying) {
@@ -172,10 +180,12 @@ const GlobalAudioPlayer: React.FC = () => {
         className={`fixed bottom-0 ${isDashboard ? (isCollapsed ? 'left-20' : 'left-64') : 'left-0'} right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg z-20 transition-all duration-300`}
       >
         {state.currentAudio && (
-          <audio ref={audioRef} preload="metadata" controls={false}>
-            <source src={state.currentAudio.audioUrl} type="audio/mpeg" />
-            <source src={state.currentAudio.audioUrl} type="audio/wav" />
-            <source src={state.currentAudio.audioUrl} type="audio/ogg" />
+          <audio 
+            ref={audioRef} 
+            preload="metadata" 
+            controls={false}
+            src={state.currentAudio.audioUrl}
+          >
             お使いのブラウザは音声の再生をサポートしていません。
           </audio>
         )}
@@ -240,7 +250,7 @@ const GlobalAudioPlayer: React.FC = () => {
                   </span>
                   <span className="text-xs text-gray-400">/</span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {formatTime(duration)}
+                    {formatTime(state.duration)}
                   </span>
                 </div>
               </div>
@@ -249,7 +259,7 @@ const GlobalAudioPlayer: React.FC = () => {
               <input
                 type="range"
                 min="0"
-                max={duration || 0}
+                max={state.duration || 0}
                 value={state.currentTime}
                 onChange={handleSeek}
                 className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 
@@ -258,28 +268,6 @@ const GlobalAudioPlayer: React.FC = () => {
               />
             </div>
 
-            {/* 音量コントロール */}
-            <div className="flex items-center space-x-2 w-32">
-              <button
-                onClick={toggleMute}
-                className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-                aria-label={isMuted ? "ミュート解除" : "ミュート"}
-              >
-                {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-              </button>
-
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={isMuted ? 0 : volume}
-                onChange={handleVolumeChange}
-                className="flex-1 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700
-                         [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-2 [&::-webkit-slider-thumb]:h-2 
-                         [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-500"
-              />
-            </div>
 
             {/* 閉じるボタン */}
             <button

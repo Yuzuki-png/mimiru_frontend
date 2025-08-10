@@ -55,10 +55,15 @@ export default function ContentPage() {
       try {
         setLoading(true);
         const result = await audioContentApi.getById(contentId);
-        setContent(result.data);
+        setContent(result);
         setError(null);
-      } catch {
-        setError("コンテンツの取得に失敗しました");
+      } catch (error) {
+        console.error('Content fetch error:', error);
+        if (error instanceof Error) {
+          setError(`コンテンツの取得に失敗しました: ${error.message}`);
+        } else {
+          setError("コンテンツの取得に失敗しました");
+        }
         setContent(null);
       } finally {
         setLoading(false);

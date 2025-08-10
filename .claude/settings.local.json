@@ -47,7 +47,9 @@
       "Bash(git commit:*)",
       "Bash(gh pr list:*)",
       "Bash(gh pr checks:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(npx prisma db seed:*)",
+      "Bash(npx prisma:*)"
     ],
     "deny": []
   },

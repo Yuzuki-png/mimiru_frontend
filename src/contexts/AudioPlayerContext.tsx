@@ -1,7 +1,6 @@
 'use client';
 
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { playbackApi } from '../lib/api';
 
 interface AudioContent {
   id: string;
@@ -17,6 +16,7 @@ interface PlaybackState {
   isPlaying: boolean;
   isPaused: boolean;
   currentTime: number;
+  duration: number;
   volume: number;
   isMuted: boolean;
   isLoading: boolean;
@@ -28,6 +28,7 @@ type AudioPlayerAction =
   | { type: 'SET_PLAYING'; payload: boolean }
   | { type: 'SET_PAUSED'; payload: boolean }
   | { type: 'SET_CURRENT_TIME'; payload: number }
+  | { type: 'SET_DURATION'; payload: number }
   | { type: 'SET_VOLUME'; payload: number }
   | { type: 'SET_MUTED'; payload: boolean }
   | { type: 'SET_LOADING'; payload: boolean }
@@ -39,6 +40,7 @@ const initialState: PlaybackState = {
   isPlaying: false,
   isPaused: false,
   currentTime: 0,
+  duration: 0,
   volume: 1,
   isMuted: false,
   isLoading: false,
@@ -55,6 +57,8 @@ function audioPlayerReducer(state: PlaybackState, action: AudioPlayerAction): Pl
       return { ...state, isPaused: action.payload, isPlaying: !action.payload };
     case 'SET_CURRENT_TIME':
       return { ...state, currentTime: action.payload };
+    case 'SET_DURATION':
+      return { ...state, duration: action.payload };
     case 'SET_VOLUME':
       return { ...state, volume: action.payload, isMuted: action.payload === 0 };
     case 'SET_MUTED':
@@ -78,6 +82,7 @@ interface AudioPlayerContextType {
   seekTo: (time: number) => Promise<void>;
   setVolume: (volume: number) => Promise<void>;
   setCurrentTime: (time: number) => void;
+  setDuration: (duration: number) => void;
   setError: (error: string | null) => void;
   clearError: () => void;
 }
@@ -103,9 +108,8 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'SET_ERROR', payload: null });
-
-      await playbackApi.play(audioContent.id);
       
+      // ローカル実装: フロントエンドで直接音声を設定
       dispatch({ type: 'SET_CURRENT_AUDIO', payload: audioContent });
       dispatch({ type: 'SET_PLAYING', payload: true });
 
@@ -123,47 +127,31 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
   };
 
   const pauseAudio = async () => {
-    try {
-      await playbackApi.pause();
-      dispatch({ type: 'SET_PAUSED', payload: true });
-    } catch (error) {
-      console.error('一時停止エラー:', error);
-      dispatch({ type: 'SET_ERROR', payload: '音声の一時停止に失敗しました' });
-    }
+    // ローカル実装: フロントエンドで直接停止状態を設定
+    dispatch({ type: 'SET_PAUSED', payload: true });
   };
 
   const stopAudio = async () => {
-    try {
-      await playbackApi.stop();
-      dispatch({ type: 'RESET_PLAYER' });
-    } catch (error) {
-      console.error('停止エラー:', error);
-      dispatch({ type: 'SET_ERROR', payload: '音声の停止に失敗しました' });
-    }
+    // ローカル実装: フロントエンドで直接プレーヤーをリセット
+    dispatch({ type: 'RESET_PLAYER' });
   };
 
   const seekTo = async (time: number) => {
-    try {
-      await playbackApi.seek(time);
-      dispatch({ type: 'SET_CURRENT_TIME', payload: time });
-    } catch (error) {
-      console.error('シーク エラー:', error);
-      dispatch({ type: 'SET_ERROR', payload: '再生位置の変更に失敗しました' });
-    }
+    // ローカル実装: フロントエンドで直接時間を設定
+    dispatch({ type: 'SET_CURRENT_TIME', payload: time });
   };
 
   const setVolume = async (volume: number) => {
-    try {
-      await playbackApi.setVolume(volume);
-      dispatch({ type: 'SET_VOLUME', payload: volume });
-    } catch (error) {
-      console.error('音量変更エラー:', error);
-      dispatch({ type: 'SET_ERROR', payload: '音量の変更に失敗しました' });
-    }
+    // ローカル実装: フロントエンドで直接音量を設定
+    dispatch({ type: 'SET_VOLUME', payload: volume });
   };
 
   const setCurrentTime = (time: number) => {
     dispatch({ type: 'SET_CURRENT_TIME', payload: time });
+  };
+
+  const setDuration = (duration: number) => {
+    dispatch({ type: 'SET_DURATION', payload: duration });
   };
 
   const setError = (error: string | null) => {
@@ -182,6 +170,7 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
     seekTo,
     setVolume,
     setCurrentTime,
+    setDuration,
     setError,
     clearError,
   };

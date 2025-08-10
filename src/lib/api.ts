@@ -335,7 +335,32 @@ export const playbackApi = {
   }
 };
 
-// listenHistoryApiは削除 - playbackApiを使用
+export const notificationApi = {
+  getAll: async (params?: { page?: number; limit?: number; unreadOnly?: boolean }) => {
+    const response = await api.get('/notifications', { params });
+    return response.data;
+  },
+
+  markAsRead: async (id: string) => {
+    const response = await api.put(`/notifications/${id}/read`);
+    return response.data;
+  },
+
+  markAllAsRead: async () => {
+    const response = await api.put('/notifications/read-all');
+    return response.data;
+  },
+
+  delete: async (id: string) => {
+    const response = await api.delete(`/notifications/${id}`);
+    return response.data;
+  },
+
+  getUnreadCount: async () => {
+    const response = await api.get('/notifications/unread-count');
+    return response.data;
+  }
+};
 
 export const isAuthenticated = (): boolean => {
   if (typeof window === 'undefined') return false;

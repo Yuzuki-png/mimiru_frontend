@@ -84,10 +84,11 @@ export default function DiscoverPage() {
   const categories = [
     "all",
     "ビジネス",
-    "ライフスタイル",
-    "テクノロジー",
     "教育",
+    "エンターテイメント",
+    "ニュース",
     "健康",
+    "テクノロジー",
   ];
 
   useEffect(() => {
@@ -97,13 +98,14 @@ export default function DiscoverPage() {
 
         const params =
           selectedCategory !== "all" ? { category: selectedCategory } : {};
+        console.log('Fetching with params:', params);
         const result: PaginatedResult = await audioContentApi.getAll(params);
 
         setAudioContents(result.data);
 
         const [trendingResult, newResult, playlistsResult] = await Promise.all([
-          audioContentApi.getAll({ limit: 6 }),
-          audioContentApi.getAll({ limit: 6 }),
+          audioContentApi.getAll({ ...params, limit: 6 }),
+          audioContentApi.getAll({ ...params, limit: 6 }),
           playlistApi.getAll()
         ]);
         setTrendingContents(trendingResult.data);
@@ -125,11 +127,8 @@ export default function DiscoverPage() {
     fetchContents();
   }, [selectedCategory]);
 
-  const filteredContents = audioContents.filter(
-    (content) =>
-      selectedCategory === "all" ||
-      content.category.name === selectedCategory
-  );
+  // APIからのデータはすでにフィルタリング済み
+  const filteredContents = audioContents;
 
   const togglePlay = useCallback(
     async (content: AudioContent) => {
@@ -486,11 +485,21 @@ export default function DiscoverPage() {
             {filteredContents.length}件
           </span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredContents.map((content, index) => (
-            <ContentCard key={content.id} content={content} index={index} />
-          ))}
-        </div>
+        {filteredContents.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500 dark:text-gray-400">
+              {selectedCategory === "all" 
+                ? "コンテンツがありません" 
+                : `「${selectedCategory}」カテゴリのコンテンツがありません`}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredContents.map((content, index) => (
+              <ContentCard key={content.id} content={content} index={index} />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* プレイリスト選択モーダル */}

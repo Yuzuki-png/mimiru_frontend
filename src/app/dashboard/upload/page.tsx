@@ -25,7 +25,7 @@ export default function UploadPage() {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const categories = ["教育", "ライフスタイル", "テクノロジー", "健康", "エンターテイメント"];
+  const categories = ["ビジネス", "教育", "エンターテイメント", "ニュース", "健康", "テクノロジー"];
 
   const startRecording = async () => {
     try {
@@ -80,6 +80,26 @@ export default function UploadPage() {
     }
   };
 
+  // 音声ファイルのduration取得関数
+  const getAudioDuration = (file: File): Promise<number> => {
+    return new Promise((resolve, reject) => {
+      const audio = new Audio();
+      const objectUrl = URL.createObjectURL(file);
+      
+      audio.addEventListener('loadedmetadata', () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(Math.floor(audio.duration));
+      });
+      
+      audio.addEventListener('error', () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('音声ファイルのdurationを取得できませんでした'));
+      });
+      
+      audio.src = objectUrl;
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -110,11 +130,19 @@ export default function UploadPage() {
         audioFile,
       };
       
-      // 録音時間が有効な場合のみdurationを追加（正の整数として）
-      if (recordingTime > 0 && !isNaN(recordingTime) && isFinite(recordingTime)) {
-        const validDuration = Math.max(1, Math.floor(recordingTime));
-        if (validDuration > 0) {
-          audioData.duration = validDuration;
+      // 音声ファイルから実際のdurationを取得
+      try {
+        const actualDuration = await getAudioDuration(audioFile);
+        audioData.duration = actualDuration;
+        console.log('取得したduration:', actualDuration);
+      } catch (error) {
+        console.error('Duration取得エラー:', error);
+        // 録音時間が有効な場合のみdurationを追加（フォールバック）
+        if (recordingTime > 0 && !isNaN(recordingTime) && isFinite(recordingTime)) {
+          const validDuration = Math.max(1, Math.floor(recordingTime));
+          if (validDuration > 0) {
+            audioData.duration = validDuration;
+          }
         }
       }
       
