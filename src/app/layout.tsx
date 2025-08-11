@@ -6,6 +6,7 @@ import { AuthProvider } from "../contexts/AuthContext";
 import { AudioPlayerProvider } from "../contexts/AudioPlayerContext";
 import { SidebarProvider } from "../contexts/SidebarContext";
 import { LikeProvider } from "../contexts/LikeContext";
+import { FollowProvider } from "../contexts/FollowContext";
 import { NotificationProvider } from "../contexts/NotificationContext";
 import { ThemeProvider } from "../components/ThemeProvider";
 import ConditionalHeader from "../components/ConditionalHeader";
@@ -41,16 +42,18 @@ export default function RootLayout({
           <SidebarProvider>
             <AudioPlayerProvider>
               <LikeProvider>
-                <NotificationProvider>
-                  <ThemeProvider>
-                  <ConditionalHeader />
-                  <ConditionalMain>
-                    {children}
-                  </ConditionalMain>
-                  <ConditionalFooter />
-                  <GlobalAudioPlayer />
-                  </ThemeProvider>
-                </NotificationProvider>
+                <FollowProvider>
+                  <NotificationProvider>
+                    <ThemeProvider>
+                    <ConditionalHeader />
+                    <ConditionalMain>
+                      {children}
+                    </ConditionalMain>
+                    <ConditionalFooter />
+                    <GlobalAudioPlayer />
+                    </ThemeProvider>
+                  </NotificationProvider>
+                </FollowProvider>
               </LikeProvider>
             </AudioPlayerProvider>
           </SidebarProvider>

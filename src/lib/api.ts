@@ -165,6 +165,40 @@ export const userApi = {
       throw error;
     }
   },
+
+  getById: async (id: string) => {
+    const response = await api.get(`/users/${id}`);
+    return response.data;
+  },
+
+  toggleFollow: async (userId: string) => {
+    const response = await api.post(`/users/${userId}/follow`);
+    return response.data;
+  },
+
+  getFollowing: async (userId?: string, params?: { page?: number; limit?: number }) => {
+    const endpoint = userId ? `/users/${userId}/following` : '/users/me/following';
+    const response = await api.get(endpoint, { params });
+    return response.data;
+  },
+
+  getFollowers: async (userId?: string, params?: { page?: number; limit?: number }) => {
+    const endpoint = userId ? `/users/${userId}/followers` : '/users/me/followers';
+    const response = await api.get(endpoint, { params });
+    return response.data;
+  },
+
+  search: async (query: string, params?: { page?: number; limit?: number }) => {
+    const response = await api.get('/users/search', { 
+      params: { q: query, ...params }
+    });
+    return response.data;
+  },
+
+  getContents: async (userId: string, params?: { page?: number; limit?: number }) => {
+    const response = await api.get(`/users/${userId}/contents`, { params });
+    return response.data;
+  },
 };
 
 export const audioContentApi = {
@@ -231,7 +265,6 @@ export const audioContentApi = {
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError && error.response?.data?.message) {
-        console.error('Upload error details:', error.response.data);
         throw new Error(error.response.data.message);
       }
       throw error;
@@ -366,5 +399,6 @@ export const isAuthenticated = (): boolean => {
   if (typeof window === 'undefined') return false;
   return !!localStorage.getItem('token');
 };
+
 
 export default api; 

@@ -103,7 +103,6 @@ export default function LikedPage() {
       } else {
         const audioUrl = content.audioUrl;
         if (!audioUrl || !audioUrl.startsWith("http")) {
-          console.error("有効なaudioUrlが提供されていません:", content);
           return;
         }
 
@@ -156,14 +155,13 @@ export default function LikedPage() {
           ]);
         }
         // いいねが削除された場合は既にリストから削除済みなので何もしない
-      } catch (error) {
+      } catch {
         // エラー時は元のコンテンツをリストに復元
         setLikedContents(prev => [
           ...prev,
           currentContent
         ]);
         
-        console.error('いいねの更新に失敗しました:', error);
         setLikeError('いいねの更新に失敗しました。もう一度お試しください。');
         setTimeout(() => setLikeError(null), 5000);
       } finally {

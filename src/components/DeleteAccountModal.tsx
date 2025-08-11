@@ -35,7 +35,6 @@ const DeleteAccountModal = ({ isOpen, onClose }: DeleteAccountModalProps) => {
       logout();
       window.location.href = '/';
     } catch (error) {
-      console.error('アカウント削除エラー:', error);
       setError(error instanceof Error ? error.message : 'アカウント削除に失敗しました');
     } finally {
       setIsDeleting(false);

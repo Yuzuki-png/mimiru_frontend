@@ -168,7 +168,6 @@ export default function PlaylistDetailPage() {
             : config.apiBaseUrl;
           audioUrl = `${baseUrl}${path}`;
         } else {
-          console.error("audioUrlが提供されていません:", content);
           return;
         }
 
@@ -210,8 +209,7 @@ export default function PlaylistDetailPage() {
               : item
           )
         } : null);
-      } catch (error) {
-        console.error('いいねの更新に失敗しました:', error);
+      } catch {
         setLikeError('いいねの更新に失敗しました。もう一度お試しください。');
         setTimeout(() => setLikeError(null), 5000);
       } finally {

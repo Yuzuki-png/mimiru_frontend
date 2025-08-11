@@ -52,9 +52,19 @@ function audioPlayerReducer(state: PlaybackState, action: AudioPlayerAction): Pl
     case 'SET_CURRENT_AUDIO':
       return { ...state, currentAudio: action.payload, error: null };
     case 'SET_PLAYING':
-      return { ...state, isPlaying: action.payload, isPaused: !action.payload };
+      return { 
+        ...state, 
+        isPlaying: action.payload, 
+        isPaused: !action.payload,
+        isLoading: action.payload ? false : state.isLoading // 再生開始時はローディング解除
+      };
     case 'SET_PAUSED':
-      return { ...state, isPaused: action.payload, isPlaying: !action.payload };
+      return { 
+        ...state, 
+        isPaused: action.payload, 
+        isPlaying: !action.payload,
+        isLoading: action.payload ? false : state.isLoading // 一時停止時はローディング解除
+      };
     case 'SET_CURRENT_TIME':
       return { ...state, currentTime: action.payload };
     case 'SET_DURATION':
@@ -84,6 +94,7 @@ interface AudioPlayerContextType {
   setCurrentTime: (time: number) => void;
   setDuration: (duration: number) => void;
   setError: (error: string | null) => void;
+  setLoading: (loading: boolean) => void;
   clearError: () => void;
 }
 
@@ -118,8 +129,7 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
         await seekTo(audioContent.startTime);
       }
 
-    } catch (error) {
-      console.error('再生開始エラー:', error);
+    } catch {
       dispatch({ type: 'SET_ERROR', payload: '音声の再生開始に失敗しました' });
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
@@ -158,6 +168,10 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
     dispatch({ type: 'SET_ERROR', payload: error });
   };
 
+  const setLoading = (loading: boolean) => {
+    dispatch({ type: 'SET_LOADING', payload: loading });
+  };
+
   const clearError = () => {
     dispatch({ type: 'SET_ERROR', payload: null });
   };
@@ -172,6 +186,7 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
     setCurrentTime,
     setDuration,
     setError,
+    setLoading,
     clearError,
   };
 

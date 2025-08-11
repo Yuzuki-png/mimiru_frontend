@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { audioContentApi, playlistApi } from "../../../lib/api";
+import { audioContentApi, playlistApi, userApi } from "../../../lib/api";
 import { useAudioPlayer } from "../../../contexts/AudioPlayerContext";
 import { useAuth } from "../../../contexts/AuthContext";
 import { useLike } from "../../../contexts/LikeContext";
+import UserCard from "../../../components/UserCard";
 import {
   PlayIcon,
   PauseIcon,
@@ -77,6 +78,20 @@ export default function DiscoverPage() {
   const [error, setError] = useState<string | null>(null);
   const [showAddToPlaylist, setShowAddToPlaylist] = useState<AudioContent | null>(null);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [suggestedUsers, setSuggestedUsers] = useState<{
+    id: string;
+    name: string;
+    email: string;
+    bio?: string;
+    location?: string;
+    website?: string;
+    createdAt: string;
+    _count: {
+      followers: number;
+      following: number;
+      audioContents: number;
+    };
+  }[]>([]);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [likeLoading, setLikeLoading] = useState<number | null>(null);
   const [likeError, setLikeError] = useState<string | null>(null);
@@ -98,19 +113,82 @@ export default function DiscoverPage() {
 
         const params =
           selectedCategory !== "all" ? { category: selectedCategory } : {};
-        console.log('Fetching with params:', params);
         const result: PaginatedResult = await audioContentApi.getAll(params);
 
         setAudioContents(result.data);
 
         const [trendingResult, newResult, playlistsResult] = await Promise.all([
-          audioContentApi.getAll({ ...params, limit: 6 }),
-          audioContentApi.getAll({ ...params, limit: 6 }),
+          audioContentApi.getAll({ ...params, limit: 20, sortBy: 'likes' }),
+          audioContentApi.getAll({ ...params, limit: 6, sortBy: 'createdAt' }),
           playlistApi.getAll()
         ]);
-        setTrendingContents(trendingResult.data);
-        setNewContents(newResult.data);
+        
+        // フロントエンド側でいいね数順にソート＆5個に制限
+        const sortedTrending = trendingResult.data
+          .sort((a: AudioContent, b: AudioContent) => b._count.likes - a._count.likes)
+          .slice(0, 5);
+        
+        // フロントエンド側で新しい順にソート
+        const sortedNew = newResult.data
+          .sort((a: AudioContent, b: AudioContent) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        
+        setTrendingContents(sortedTrending);
+        setNewContents(sortedNew);
         setPlaylists(playlistsResult.data);
+
+        // バックエンドAPIから実際のユーザーデータを取得
+        try {
+          const usersSearchResult = await userApi.search('', { limit: 6 });
+          const usersData = usersSearchResult.data || [];
+          
+          // 現在のユーザーを除外
+          const filteredUsers = usersData.filter((u: { id: string }) => u.id !== user?.id);
+          setSuggestedUsers(filteredUsers.slice(0, 3));
+        } catch {
+          // APIエラーの場合のみmockデータを使用
+          const mockUsers = [
+            {
+              id: "2",
+              name: "田中太郎",
+              email: "tanaka@example.com",
+              bio: "教育系コンテンツを中心に投稿している教師です。わかりやすい解説を心がけています。",
+              location: "東京",
+              website: "tanaka-sensei.com",
+              createdAt: "2024-01-15T00:00:00Z",
+              _count: {
+                followers: 120,
+                following: 45,
+                audioContents: 23
+              }
+            },
+            {
+              id: "3", 
+              name: "山田花子",
+              email: "yamada@example.com",
+              bio: "ビジネス・自己啓発系の音声コンテンツをお届けします。",
+              location: "大阪",
+              createdAt: "2024-02-20T00:00:00Z",
+              _count: {
+                followers: 89,
+                following: 67,
+                audioContents: 15
+              }
+            },
+            {
+              id: "4",
+              name: "佐藤一郎",
+              email: "sato@example.com", 
+              bio: "テクノロジーの最新トレンドを音声で解説します。",
+              createdAt: "2024-03-10T00:00:00Z",
+              _count: {
+                followers: 156,
+                following: 34,
+                audioContents: 31
+              }
+            }
+          ];
+          setSuggestedUsers(mockUsers);
+        }
 
         setError(null);
       } catch {
@@ -119,13 +197,14 @@ export default function DiscoverPage() {
         setTrendingContents([]);
         setNewContents([]);
         setPlaylists([]);
+        setSuggestedUsers([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchContents();
-  }, [selectedCategory]);
+  }, [selectedCategory, user?.id]);
 
   // APIからのデータはすでにフィルタリング済み
   const filteredContents = audioContents;
@@ -141,7 +220,6 @@ export default function DiscoverPage() {
       } else {
         // audioUrlが提供されているかチェック
         if (!content.audioUrl) {
-          console.error("audioUrlが提供されていません:", content);
           alert("音声ファイルのURLが取得できません。");
           return;
         }
@@ -187,8 +265,7 @@ export default function DiscoverPage() {
         setAudioContents(prev => prev.map(updateContent));
         setTrendingContents(prev => prev.map(updateContent));
         setNewContents(prev => prev.map(updateContent));
-      } catch (error) {
-        console.error('いいねの更新に失敗しました:', error);
+      } catch {
         setLikeError('いいねの更新に失敗しました。もう一度お試しください。');
         setTimeout(() => setLikeError(null), 5000);
       } finally {
@@ -472,6 +549,31 @@ export default function DiscoverPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {newContents.map((content, index) => (
             <ContentCard key={content.id} content={content} index={index} />
+          ))}
+        </div>
+      </div>
+
+      {/* おすすめユーザーセクション */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+            <UserIcon className="h-5 w-5 text-purple-500 mr-2" />
+            おすすめユーザー
+          </h3>
+          <button className="text-blue-500 hover:text-blue-600 text-sm font-medium">
+            もっと見る
+          </button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {suggestedUsers.map((user) => (
+            <UserCard
+              key={user.id}
+              user={user}
+              variant="compact"
+              showBio={false}
+              showStats={true}
+              showFollowButton={true}
+            />
           ))}
         </div>
       </div>
