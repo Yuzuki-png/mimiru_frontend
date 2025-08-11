@@ -1,63 +1,70 @@
 ---
 allowed-tools: Bash(gh:*), Bash(git:*)
-description: Generate PR description and automatically create pull request on GitHub
+description: PR説明を生成し、GitHubでプルリクエストを自動作成
 ---
 
-## Context
+## コンテキスト
 
-- Current git status: !`git status`
-- Changes in this PR: !`git diff master...HEAD`
-- Commits in this PR: !`git log --oneline master..HEAD`
-- PR template: @.github/pull_request_template.md
+- 現在のgitステータス: !`git status`
+- このPRの変更内容: !`git diff master...HEAD`
+- このPRのコミット: !`git log --oneline master..HEAD`
+- PRテンプレート: @.github/pull_request_template.md
 
-## Your task
+## タスク
 
-Based on the provided option, perform one of the following actions:
+提供されたオプションに基づいて、以下のアクションのいずれかを実行します：
+現在のブランチがfeatureブランチではない場合は必ずfeatureブランチを切ってから実行すること。
 
-### Options:
+### オプション:
 
-- **No option or default**: Generate PR description and create pull request
-- **-p**: Push current branch and create pull request
-- **-u**: Update existing pull request description only
+- **オプションなしまたはデフォルト**: PR説明を生成してプルリクエストを作成
+- **-p**: 現在のブランチをプッシュしてプルリクエストを作成
+- **-a**: 現在のブランチにプッシュするのみ
+- **-u**: 既存のプルリクエストの説明のみを更新
 
-### Default behavior (no option):
+### デフォルト動作（オプションなし）:
 
-1. Create a PR description following the **exact format** of the PR template in Japanese
-2. **Add a Mermaid diagram** that visualizes the changes made in this PR
-3. Execute `gh pr create --draft` with the generated title and description
+1. 現在のブランチがdevelopブランチなら新しくfeatureブランチを作成
+2. PRテンプレートの**正確な形式**に従って日本語でPR説明を作成
+3. このPRで行われた変更を可視化する**Mermaid図**を追加
+4. 生成されたタイトルと説明で`gh pr create --draft`を実行
 
-### With -p option:
+### -pオプション付き:
 
-1. Push current branch to remote repository using `git push -u origin <current-branch>`
-2. Create a PR description following the **exact format** of the PR template in Japanese
-3. **Add a Mermaid diagram** that visualizes the changes made in this PR
-4. Execute `gh pr create --draft` with the generated title and description
+1. `git push -u origin <current-branch>`を使用して現在のブランチをリモートリポジトリにプッシュ
+2. PRテンプレートの**正確な形式**に従って日本語でPR説明を作成
+3. このPRで行われた変更を可視化する**Mermaid図**を追加
+4. 生成されたタイトルと説明で`gh pr create --draft`を実行
 
-### With -u option:
+### -pオプション付き:
 
-1. Create a PR description following the **exact format** of the PR template in Japanese
-2. **Add a Mermaid diagram** that visualizes the changes made in this PR
-3. Update existing pull request description using `gh pr edit --body <description>`
+1. `git push -u origin <current-branch>`を使用して現在のブランチをリモートリポジトリにプッシュ
 
-### Requirements:
+### -uオプション付き:
 
-1. Follow the template structure exactly
-2. Use Japanese for all content
-3. Include specific implementation details
-4. List concrete testing steps
-5. Always include a Mermaid diagram that shows:
-   - Architecture changes (if any)
-   - Data flow modifications
-   - Component relationships
-   - Process flows affected by the changes
-6. Be comprehensive but concise
+1. PRテンプレートの**正確な形式**に従って日本語でPR説明を作成
+2. このPRで行われた変更を可視化する**Mermaid図**を追加
+3. `gh pr edit --body <description>`を使用して既存のプルリクエストの説明を更新
 
-### Mermaid Diagram Guidelines:
+### 要件:
 
-- Use appropriate diagram types (flowchart, sequence, class, etc.)
-- Show before/after states if applicable
-- Highlight new or modified components
-- Use consistent styling and colors
-- Add the diagram in a dedicated section of the PR description
+1. テンプレート構造に厳密に従う
+2. すべての内容に日本語を使用
+3. 具体的な実装詳細を含める
+4. 具体的なテスト手順をリスト化
+5. 常に以下を示すMermaid図を含める：
+   - アーキテクチャの変更（ある場合）
+   - データフローの修正
+   - コンポーネントの関係
+   - 変更によって影響を受けるプロセスフロー
+6. 包括的でありながら簡潔に
 
-**Generate the PR description and create the pull request automatically.**
+### Mermaid図のガイドライン:
+
+- 適切な図のタイプを使用（フローチャート、シーケンス、クラス図など）
+- 該当する場合は変更前/変更後の状態を表示
+- 新規または修正されたコンポーネントをハイライト
+- 一貫したスタイリングと色を使用
+- PR説明の専用セクションに図を追加
+
+**PR説明を生成し、プルリクエストを自動的に作成します。**

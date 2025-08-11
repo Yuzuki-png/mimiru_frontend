@@ -58,7 +58,6 @@ export default function ContentPage() {
         setContent(result);
         setError(null);
       } catch (error) {
-        console.error('Content fetch error:', error);
         if (error instanceof Error) {
           setError(`コンテンツの取得に失敗しました: ${error.message}`);
         } else {
@@ -86,7 +85,6 @@ export default function ContentPage() {
       } else {
         const audioUrl = content.audioUrl;
         if (!audioUrl || !audioUrl.startsWith("http")) {
-          console.error("有効なaudioUrlが提供されていません:", content);
           return;
         }
 

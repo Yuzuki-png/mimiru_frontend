@@ -162,7 +162,6 @@ export default function LibraryPage() {
         // S3署名付きURLまたはHTTPSのURLを直接使用
         const audioUrl = content.audioUrl;
         if (!audioUrl || !audioUrl.startsWith("http")) {
-          console.error("有効なaudioUrlが提供されていません:", content);
           return; // audioUrlがない場合は再生を中止
         }
 
@@ -174,7 +173,6 @@ export default function LibraryPage() {
           duration: content.duration,
         };
 
-        console.log("再生しようとしているオーディオURL:", audioUrl);
         await playAudio(audioContent);
       }
     },
@@ -205,8 +203,7 @@ export default function LibraryPage() {
             : content;
 
         setMyContents(prev => prev.map(updateContent));
-      } catch (error) {
-        console.error('いいねの更新に失敗しました:', error);
+      } catch {
         setLikeError('いいねの更新に失敗しました。もう一度お試しください。');
         setTimeout(() => setLikeError(null), 5000);
       } finally {

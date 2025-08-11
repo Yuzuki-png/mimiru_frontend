@@ -41,7 +41,6 @@ export const LikeProvider: React.FC<LikeProviderProps> = ({ children }) => {
 
       return result;
     } catch (error) {
-      console.error('いいねの更新に失敗しました:', error);
       throw error;
     }
   }, []);
@@ -52,8 +51,8 @@ export const LikeProvider: React.FC<LikeProviderProps> = ({ children }) => {
       const result = await audioContentApi.getAll({ isLiked: 'true' });
       const likedIds = result.data.map((content: AudioContent) => content.id);
       setLikedContents(new Set(likedIds));
-    } catch (error) {
-      console.error('お気に入りコンテンツの取得に失敗しました:', error);
+    } catch {
+      // Silent error handling
     }
   }, []);
 

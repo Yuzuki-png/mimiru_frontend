@@ -2,55 +2,90 @@
 
 import React, { createContext, useContext, useReducer, useEffect, useCallback, ReactNode } from 'react';
 import { notificationApi, isAuthenticated } from '../lib/api';
+import { useAuth } from './AuthContext';
+import websocketService from '../lib/websocket';
 
-interface Notification {
-  id: number;
+export interface Notification {
+  id: string | number;
   title: string;
   message: string;
-  type: 'LIKE' | 'FOLLOW' | 'CONTENT' | 'COMMENT' | 'SYSTEM' | 'SUCCESS' | 'WARNING' | 'ERROR';
+  type: string;
   isRead: boolean;
   createdAt: string;
-  data?: { contentId?: number; [key: string]: unknown }; // 追加データ（コンテンツIDなど）
+  data?: { contentId?: number } | unknown; // バックエンドの実装に合わせて
 }
 
 interface NotificationState {
   notifications: Notification[];
+  realtimeNotifications: Notification[];
   unreadCount: number;
   loading: boolean;
   error: string | null;
+  isWebSocketConnected: boolean;
 }
 
 type NotificationAction =
   | { type: 'SET_NOTIFICATIONS'; payload: Notification[] }
+  | { type: 'SET_REALTIME_NOTIFICATIONS'; payload: Notification[] }
+  | { type: 'ADD_REALTIME_NOTIFICATION'; payload: Notification }
+  | { type: 'CLEAR_REALTIME_NOTIFICATIONS' }
   | { type: 'SET_UNREAD_COUNT'; payload: number }
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
-  | { type: 'MARK_AS_READ'; payload: number }
+  | { type: 'SET_WEBSOCKET_CONNECTION'; payload: boolean }
+  | { type: 'MARK_AS_READ'; payload: string | number }
+  | { type: 'MARK_REALTIME_AS_READ'; payload: string | number }
   | { type: 'MARK_ALL_AS_READ' }
-  | { type: 'DELETE_NOTIFICATION'; payload: number }
+  | { type: 'DELETE_NOTIFICATION'; payload: string | number }
   | { type: 'ADD_NOTIFICATION'; payload: Notification };
 
 const initialState: NotificationState = {
   notifications: [],
+  realtimeNotifications: [],
   unreadCount: 0,
   loading: false,
   error: null,
+  isWebSocketConnected: false,
 };
 
 function notificationReducer(state: NotificationState, action: NotificationAction): NotificationState {
   switch (action.type) {
     case 'SET_NOTIFICATIONS':
       return { ...state, notifications: action.payload };
+    case 'SET_REALTIME_NOTIFICATIONS':
+      return { ...state, realtimeNotifications: action.payload };
+    case 'ADD_REALTIME_NOTIFICATION':
+      // 重複チェック：同じIDの通知がリアルタイム通知にすでに存在しないか確認
+      const exists = state.realtimeNotifications.some(n => n.id === action.payload.id);
+      if (exists) {
+        return state;
+      }
+      return { 
+        ...state, 
+        realtimeNotifications: [action.payload, ...state.realtimeNotifications.slice(0, 9)]
+      };
+    case 'CLEAR_REALTIME_NOTIFICATIONS':
+      return { ...state, realtimeNotifications: [] };
     case 'SET_UNREAD_COUNT':
       return { ...state, unreadCount: action.payload };
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
     case 'SET_ERROR':
       return { ...state, error: action.payload, loading: false };
+    case 'SET_WEBSOCKET_CONNECTION':
+      return { ...state, isWebSocketConnected: action.payload };
     case 'MARK_AS_READ':
       return {
         ...state,
         notifications: state.notifications.map(n =>
+          n.id === action.payload ? { ...n, isRead: true } : n
+        ),
+        unreadCount: Math.max(0, state.unreadCount - 1),
+      };
+    case 'MARK_REALTIME_AS_READ':
+      return {
+        ...state,
+        realtimeNotifications: state.realtimeNotifications.map(n =>
           n.id === action.payload ? { ...n, isRead: true } : n
         ),
         unreadCount: Math.max(0, state.unreadCount - 1),
@@ -84,10 +119,14 @@ function notificationReducer(state: NotificationState, action: NotificationActio
 interface NotificationContextType {
   state: NotificationState;
   fetchNotifications: () => Promise<void>;
-  markAsRead: (id: number) => Promise<void>;
+  markAsRead: (id: string | number) => Promise<void>;
+  markRealtimeAsRead: (id: string | number) => void;
   markAllAsRead: () => Promise<void>;
-  deleteNotification: (id: number) => Promise<void>;
+  deleteNotification: (id: string | number) => Promise<void>;
   fetchUnreadCount: () => Promise<void>;
+  clearRealtimeNotifications: () => void;
+  connectWebSocket: () => Promise<void>;
+  disconnectWebSocket: () => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -106,6 +145,7 @@ interface NotificationProviderProps {
 
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(notificationReducer, initialState);
+  const { user, isAuthenticated: authIsAuthenticated } = useAuth();
 
   const fetchNotifications = useCallback(async () => {
     // 認証されていない場合は処理をスキップ
@@ -123,14 +163,20 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       const result = await notificationApi.getAll({ limit: 50 });
       
       // APIレスポンスがメタ情報付きの場合と配列直接の場合を処理
-      const notifications = result.data || result || [];
-      dispatch({ type: 'SET_NOTIFICATIONS', payload: notifications });
+      const allNotifications = result.data || result || [];
       
-      // 未読数を計算
-      const unreadCount = notifications.filter((n: Notification) => !n.isRead).length;
+      // リアルタイム通知と重複するものを除外
+      const realtimeIds = state.realtimeNotifications.map(n => n.id);
+      const filteredNotifications = allNotifications.filter((n: Notification) => 
+        !realtimeIds.includes(n.id)
+      );
+      
+      dispatch({ type: 'SET_NOTIFICATIONS', payload: filteredNotifications });
+      
+      // 未読数を計算（フィルタリング後の通知で）
+      const unreadCount = filteredNotifications.filter((n: Notification) => !n.isRead).length;
       dispatch({ type: 'SET_UNREAD_COUNT', payload: unreadCount });
-    } catch (error) {
-      console.error('通知の取得に失敗しました:', error);
+    } catch {
       dispatch({ type: 'SET_ERROR', payload: '通知の取得に失敗しました。バックエンドサーバーが起動しているか確認してください。' });
       
       // エラー時は空の配列を設定
@@ -139,7 +185,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     } finally {
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  }, []);
+  }, [state.realtimeNotifications]);
 
   const fetchUnreadCount = useCallback(async () => {
     // 認証されていない場合は処理をスキップ
@@ -158,7 +204,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     }
   }, [state.notifications]);
 
-  const markAsRead = async (id: number) => {
+  const markAsRead = async (id: string | number) => {
     try {
       await notificationApi.markAsRead(id.toString());
     } catch {
@@ -178,7 +224,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     dispatch({ type: 'MARK_ALL_AS_READ' });
   };
 
-  const deleteNotification = async (id: number) => {
+  const deleteNotification = async (id: string | number) => {
     try {
       await notificationApi.delete(id.toString());
     } catch {
@@ -188,11 +234,107 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     dispatch({ type: 'DELETE_NOTIFICATION', payload: id });
   };
 
-  // 初回読み込み
+  // リアルタイム通知用の関数
+  const markRealtimeAsRead = useCallback((id: string | number) => {
+    dispatch({ type: 'MARK_REALTIME_AS_READ', payload: id });
+  }, []);
+
+  const clearRealtimeNotifications = useCallback(() => {
+    dispatch({ type: 'CLEAR_REALTIME_NOTIFICATIONS' });
+  }, []);
+
+  // WebSocket接続
+  const connectWebSocket = useCallback(async () => {
+    if (!authIsAuthenticated || !user) {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      return;
+    }
+
+    try {
+      await websocketService.connect(token);
+      dispatch({ type: 'SET_WEBSOCKET_CONNECTION', payload: true });
+
+      // ユーザールームに参加（数値IDに変換）
+      websocketService.joinUserRoom(parseInt(user.id));
+
+      // リアルタイム通知イベントリスナーを設定
+      websocketService.on('notification', (notification: Notification) => {
+        dispatch({ type: 'ADD_REALTIME_NOTIFICATION', payload: notification });
+      });
+
+      websocketService.on('like_notification', (data: {
+        id: string;
+        type: 'like';
+        title: string;
+        message: string;
+        data: unknown;
+        isRead: boolean;
+        createdAt: string;
+      }) => {
+        dispatch({ type: 'ADD_REALTIME_NOTIFICATION', payload: data });
+      });
+
+      websocketService.on('follow_notification', (data: {
+        id: string;
+        type: 'follow';
+        title: string;
+        message: string;
+        data: unknown;
+        isRead: boolean;
+        createdAt: string;
+      }) => {
+        dispatch({ type: 'ADD_REALTIME_NOTIFICATION', payload: data });
+      });
+
+      websocketService.on('system_notification', (data: {
+        title: string;
+        message: string;
+        type: string;
+      }) => {
+        const notification: Notification = {
+          id: Date.now().toString(),
+          title: data.title,
+          message: data.message,
+          type: data.type,
+          isRead: false,
+          createdAt: new Date().toISOString(),
+        };
+        dispatch({ type: 'ADD_REALTIME_NOTIFICATION', payload: notification });
+      });
+
+    } catch {
+      dispatch({ type: 'SET_WEBSOCKET_CONNECTION', payload: false });
+    }
+  }, [authIsAuthenticated, user]);
+
+  // WebSocket切断
+  const disconnectWebSocket = useCallback(() => {
+    if (user) {
+      websocketService.leaveUserRoom(parseInt(user.id));
+    }
+    websocketService.disconnect();
+    dispatch({ type: 'SET_WEBSOCKET_CONNECTION', payload: false });
+    dispatch({ type: 'CLEAR_REALTIME_NOTIFICATIONS' });
+  }, [user]);
+
+  // 初回読み込みとWebSocket接続
   useEffect(() => {
     fetchNotifications();
+    if (authIsAuthenticated && user) {
+      connectWebSocket();
+    }
+    
+    return () => {
+      if (state.isWebSocketConnected) {
+        disconnectWebSocket();
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [authIsAuthenticated, user]);
 
   // 定期的に未読数を更新（30秒ごと）
   useEffect(() => {
@@ -200,13 +342,31 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     return () => clearInterval(interval);
   }, [fetchUnreadCount]);
 
+  // テスト用の模擬通知リスナー（開発用）
+  useEffect(() => {
+    const handleMockNotification = (event: CustomEvent) => {
+      const notification = event.detail;
+      dispatch({ type: 'ADD_REALTIME_NOTIFICATION', payload: notification });
+    };
+
+    window.addEventListener('mockNotification', handleMockNotification as EventListener);
+
+    return () => {
+      window.removeEventListener('mockNotification', handleMockNotification as EventListener);
+    };
+  }, []);
+
   const contextValue: NotificationContextType = {
     state,
     fetchNotifications,
     markAsRead,
+    markRealtimeAsRead,
     markAllAsRead,
     deleteNotification,
     fetchUnreadCount,
+    clearRealtimeNotifications,
+    connectWebSocket,
+    disconnectWebSocket,
   };
 
   return (
