@@ -121,6 +121,13 @@ class WebSocketService {
     }
   }
 
+  // ユーザールームから退出
+  leaveUserRoom(userId: number): void {
+    if (this.socket?.connected) {
+      this.socket.emit('leave_user_room', { userId });
+    }
+  }
+
   // イベントリスナーを追加
   on<K extends keyof SocketEvents>(event: K, callback: SocketEvents[K]): void {
     const eventStr = event as string;

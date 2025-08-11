@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../contexts/AuthContext";
-import { useNotifications } from "../contexts/NotificationContext";
+import { useNotifications, type Notification } from "../contexts/NotificationContext";
 import Link from "next/link";
 import {
   BellIcon,
@@ -65,11 +65,11 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
     }
   };
 
-  const handleNotificationClick = (notification: { id: number; data?: { contentId?: number }; isRead: boolean }) => {
+  const handleNotificationClick = (notification: Notification) => {
     markRealtimeAsRead(notification.id);
     
-    if (notification.data?.contentId) {
-      window.location.href = `/content/${notification.data.contentId}`;
+    if (notification.data && typeof notification.data === 'object' && 'contentId' in notification.data) {
+      window.location.href = `/content/${(notification.data as { contentId: number }).contentId}`;
     }
   };
 

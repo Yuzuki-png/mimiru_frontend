@@ -5,14 +5,14 @@ import { notificationApi, isAuthenticated } from '../lib/api';
 import { useAuth } from './AuthContext';
 import websocketService from '../lib/websocket';
 
-interface Notification {
+export interface Notification {
   id: string | number;
   title: string;
   message: string;
   type: string;
   isRead: boolean;
   createdAt: string;
-  data?: unknown; // バックエンドの実装に合わせて
+  data?: { contentId?: number } | unknown; // バックエンドの実装に合わせて
 }
 
 interface NotificationState {
@@ -119,10 +119,10 @@ function notificationReducer(state: NotificationState, action: NotificationActio
 interface NotificationContextType {
   state: NotificationState;
   fetchNotifications: () => Promise<void>;
-  markAsRead: (id: number) => Promise<void>;
-  markRealtimeAsRead: (id: number) => void;
+  markAsRead: (id: string | number) => Promise<void>;
+  markRealtimeAsRead: (id: string | number) => void;
   markAllAsRead: () => Promise<void>;
-  deleteNotification: (id: number) => Promise<void>;
+  deleteNotification: (id: string | number) => Promise<void>;
   fetchUnreadCount: () => Promise<void>;
   clearRealtimeNotifications: () => void;
   connectWebSocket: () => Promise<void>;
@@ -314,7 +314,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   // WebSocket切断
   const disconnectWebSocket = useCallback(() => {
     if (user) {
-      websocketService.leaveUserRoom(user.id);
+      websocketService.leaveUserRoom(parseInt(user.id));
     }
     websocketService.disconnect();
     dispatch({ type: 'SET_WEBSOCKET_CONNECTION', payload: false });

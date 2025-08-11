@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useNotifications } from "../../../contexts/NotificationContext";
+import { useNotifications, type Notification } from "../../../contexts/NotificationContext";
 import {
   BellIcon,
   HeartIcon,
@@ -96,14 +96,14 @@ export default function NotificationsPage() {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  const handleNotificationClick = async (notification: { id: number; isRead: boolean; data?: { contentId?: number } }) => {
+  const handleNotificationClick = async (notification: Notification) => {
     if (!notification.isRead) {
       await markAsRead(notification.id);
     }
 
     // 通知のタイプに応じてナビゲーション
-    if (notification.data?.contentId) {
-      window.location.href = `/content/${notification.data.contentId}`;
+    if (notification.data && typeof notification.data === 'object' && 'contentId' in notification.data) {
+      window.location.href = `/content/${(notification.data as { contentId: number }).contentId}`;
     }
   };
 
