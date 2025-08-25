@@ -44,7 +44,7 @@ interface AudioContent {
 export default function LikedPage() {
   const router = useRouter();
   const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
-  const { isLiked, toggleLike, refreshLikedContents } = useLike();
+  const { toggleLike, refreshLikedContents } = useLike();
   const [likedContents, setLikedContents] = useState<AudioContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -250,12 +250,14 @@ export default function LikedPage() {
           >
             {likeLoading === content.id ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
-            ) : isLiked(content.id) ? (
+            ) : content.isLiked ? (
               <HeartSolidIcon className="h-5 w-5 text-red-500" />
             ) : (
-              <HeartIcon className="h-5 w-5" />
+              <HeartIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             )}
-            <span className="text-sm">{content._count.likes}</span>
+            <span className={`text-sm ${content.isLiked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}>
+              {content._count.likes}
+            </span>
           </button>
 
           <button 

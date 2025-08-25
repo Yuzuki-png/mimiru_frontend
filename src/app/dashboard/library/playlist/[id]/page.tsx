@@ -76,7 +76,7 @@ export default function PlaylistDetailPage() {
   const searchParams = useSearchParams();
   const playlistId = params.id as string;
   const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
-  const { isLiked, toggleLike } = useLike();
+  const { toggleLike } = useLike();
   
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [loading, setLoading] = useState(true);
@@ -374,12 +374,14 @@ export default function PlaylistDetailPage() {
           >
             {likeLoading === item.audioContent.id ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
-            ) : isLiked(item.audioContent.id) ? (
+            ) : item.audioContent.isLiked ? (
               <HeartSolidIcon className="h-5 w-5 text-red-500" />
             ) : (
-              <HeartIcon className="h-5 w-5" />
+              <HeartIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             )}
-            <span className="text-sm">{item.audioContent._count.likes}</span>
+            <span className={`text-sm ${item.audioContent.isLiked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}>
+              {item.audioContent._count.likes}
+            </span>
           </button>
 
           <button className="text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors">
