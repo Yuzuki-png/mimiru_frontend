@@ -281,7 +281,7 @@ const GlobalAudioPlayer: React.FC = () => {
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
-        className={`fixed bottom-0 ${isDashboard ? (isCollapsed ? 'left-20' : 'left-64') : 'left-0'} right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg z-20 transition-all duration-300`}
+        className={`fixed ${isDashboard ? 'bottom-20 lg:bottom-0' : 'bottom-0'} ${isDashboard ? `${isCollapsed ? 'lg:left-20' : 'lg:left-64'}` : 'left-0'} right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-lg z-20 transition-all duration-300`}
       >
         {state.currentAudio && (
           <audio 
