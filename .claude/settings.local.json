@@ -50,7 +50,8 @@
       "WebFetch(domain:github.com)",
       "Bash(npx prisma db seed:*)",
       "Bash(npx prisma:*)",
-      "Bash(npm run test:*)"
+      "Bash(npm run test:*)",
+      "Bash(npm test:*)"
     ],
     "deny": []
   },
