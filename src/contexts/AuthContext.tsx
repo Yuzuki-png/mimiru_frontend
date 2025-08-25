@@ -16,7 +16,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (emailOrToken: string, password?: string) => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => void;
   error: string | null;
@@ -81,20 +81,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (emailOrToken: string, password?: string) => {
     setError(null);
     try {
-      const data = await authApi.login(email, password);
-
-      if (data.access_token) {
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('userEmail', email);
-        setAuthToken(data.access_token);
-        await loadUserProfile();
-        router.push('/dashboard');
+      let token: string;
+      
+      if (password) {
+        const data = await authApi.login(emailOrToken, password);
+        if (data.access_token) {
+          token = data.access_token;
+          localStorage.setItem('userEmail', emailOrToken);
+        } else {
+          throw new Error('トークンが取得できませんでした');
+        }
       } else {
-        throw new Error('トークンが取得できませんでした');
+        token = emailOrToken;
       }
+
+      localStorage.setItem('token', token);
+      setAuthToken(token);
+      await loadUserProfile();
+      router.push('/dashboard');
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
