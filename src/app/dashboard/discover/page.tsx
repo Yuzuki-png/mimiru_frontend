@@ -212,7 +212,7 @@ export default function DiscoverPage() {
   const togglePlay = useCallback(
     async (content: AudioContent) => {
       const isCurrentlyPlaying =
-        audioPlayerState.currentAudio?.id === content.id.toString() &&
+        String(audioPlayerState.currentAudio?.id) === String(content.id) &&
         audioPlayerState.isPlaying;
 
       if (isCurrentlyPlaying) {
@@ -326,12 +326,12 @@ export default function DiscoverPage() {
     content: AudioContent;
     index?: number;
   }) => (
-    <div className="bg-white dark:bg-gray-800 rounded-xl p-5 hover:shadow-md transition-all duration-200 border border-gray-200 dark:border-gray-700">
-      <div className="flex justify-between items-start mb-4">
+    <div className="bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 lg:p-5 hover:shadow-md transition-all duration-200 border border-gray-200 dark:border-gray-700">
+      <div className="flex flex-col sm:flex-row justify-between items-start mb-4 space-y-2 sm:space-y-0">
         <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-medium rounded-full">
           {content.category.name}
         </span>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 self-start sm:self-auto">
           <span className="text-gray-500 dark:text-gray-400 text-sm flex items-center">
             <ClockIcon className="h-4 w-4 mr-1" />
             {Math.floor(content.duration / 60)}:
@@ -400,23 +400,17 @@ export default function DiscoverPage() {
         <button
           onClick={() => togglePlay(content)}
           disabled={audioPlayerState.isLoading}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-lg transition-colors text-sm font-medium"
+          className="flex items-center justify-center w-12 h-12 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-full transition-colors shadow-lg"
         >
           {audioPlayerState.isLoading &&
-          audioPlayerState.currentAudio?.id === content.id.toString() ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          ) : audioPlayerState.currentAudio?.id === content.id.toString() &&
+          String(audioPlayerState.currentAudio?.id) === String(content.id) ? (
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+          ) : String(audioPlayerState.currentAudio?.id) === String(content.id) &&
             audioPlayerState.isPlaying ? (
-            <PauseIcon className="h-4 w-4" />
+            <PauseIcon className="h-5 w-5" />
           ) : (
-            <PlayIcon className="h-4 w-4" />
+            <PlayIcon className="h-5 w-5 ml-0.5" />
           )}
-          <span>
-            {audioPlayerState.currentAudio?.id === content.id.toString() &&
-            audioPlayerState.isPlaying
-              ? "一時停止"
-              : "再生"}
-          </span>
         </button>
 
         <div className="flex items-center space-x-3">
@@ -427,12 +421,14 @@ export default function DiscoverPage() {
           >
             {likeLoading === content.id ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
-            ) : isLiked(content.id) ? (
+            ) : content.isLiked ? (
               <HeartSolidIcon className="h-5 w-5 text-red-500" />
             ) : (
-              <HeartIcon className="h-5 w-5" />
+              <HeartIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             )}
-            <span className="text-sm">{content._count.likes}</span>
+            <span className={`text-sm ${content.isLiked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}>
+              {content._count.likes}
+            </span>
           </button>
 
           <button 
@@ -466,7 +462,7 @@ export default function DiscoverPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* 成功メッセージ */}
       {successMessage && (
         <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center space-x-2">
@@ -498,8 +494,8 @@ export default function DiscoverPage() {
       )}
 
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">
           カテゴリ
         </h3>
         <div className="flex flex-wrap gap-3">
@@ -519,8 +515,8 @@ export default function DiscoverPage() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
             <FireIcon className="h-5 w-5 text-orange-500 mr-2" />
             トレンド
@@ -529,15 +525,15 @@ export default function DiscoverPage() {
             すべて見る
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {trendingContents.map((content, index) => (
             <ContentCard key={content.id} content={content} index={index} />
           ))}
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
             <SparklesIcon className="h-5 w-5 text-green-500 mr-2" />
             新着
@@ -546,7 +542,7 @@ export default function DiscoverPage() {
             すべて見る
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {newContents.map((content, index) => (
             <ContentCard key={content.id} content={content} index={index} />
           ))}
@@ -554,8 +550,8 @@ export default function DiscoverPage() {
       </div>
 
       {/* おすすめユーザーセクション */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
             <UserIcon className="h-5 w-5 text-purple-500 mr-2" />
             おすすめユーザー
@@ -578,8 +574,8 @@ export default function DiscoverPage() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
             すべてのコンテンツ
           </h3>
@@ -596,7 +592,7 @@ export default function DiscoverPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filteredContents.map((content, index) => (
               <ContentCard key={content.id} content={content} index={index} />
             ))}

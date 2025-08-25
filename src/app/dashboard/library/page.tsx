@@ -393,12 +393,14 @@ export default function LibraryPage() {
           >
             {likeLoading === content.id ? (
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
-            ) : isLiked(content.id) ? (
+            ) : content.isLiked ? (
               <HeartSolidIcon className="h-5 w-5 text-red-500" />
             ) : (
-              <HeartIcon className="h-5 w-5" />
+              <HeartIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
             )}
-            <span className="text-sm">{content._count.likes}</span>
+            <span className={`text-sm ${content.isLiked ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}>
+              {content._count.likes}
+            </span>
           </button>
 
           <button 
