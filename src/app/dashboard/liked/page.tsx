@@ -44,7 +44,7 @@ interface AudioContent {
 export default function LikedPage() {
   const router = useRouter();
   const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
-  const { isLiked, toggleLike, refreshLikedContents } = useLike();
+  const { toggleLike, refreshLikedContents } = useLike();
   const [likedContents, setLikedContents] = useState<AudioContent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

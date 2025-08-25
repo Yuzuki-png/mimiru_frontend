@@ -73,7 +73,7 @@ export default function LibraryPage() {
   const router = useRouter();
   const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
   const { user } = useAuth();
-  const { isLiked, toggleLike } = useLike();
+  const { toggleLike } = useLike();
   const [myContents, setMyContents] = useState<AudioContent[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState(true);

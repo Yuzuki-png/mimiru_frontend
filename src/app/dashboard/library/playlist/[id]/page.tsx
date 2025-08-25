@@ -76,7 +76,7 @@ export default function PlaylistDetailPage() {
   const searchParams = useSearchParams();
   const playlistId = params.id as string;
   const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
-  const { isLiked, toggleLike } = useLike();
+  const { toggleLike } = useLike();
   
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [loading, setLoading] = useState(true);

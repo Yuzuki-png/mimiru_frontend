@@ -69,7 +69,7 @@ interface Playlist {
 export default function DiscoverPage() {
   const { user } = useAuth();
   const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
-  const { isLiked, toggleLike } = useLike();
+  const { toggleLike } = useLike();
   const [audioContents, setAudioContents] = useState<AudioContent[]>([]);
   const [trendingContents, setTrendingContents] = useState<AudioContent[]>([]);
   const [newContents, setNewContents] = useState<AudioContent[]>([]);
