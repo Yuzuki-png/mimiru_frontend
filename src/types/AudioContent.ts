@@ -1,3 +1,8 @@
+/**
+ * 音声コンテンツ関連の型定義
+ */
+
+// 基本音声コンテンツ型
 export interface AudioContent {
   id: number;
   title: string;
@@ -6,8 +11,10 @@ export interface AudioContent {
   audioUrl: string;
   createdAt: string;
   updatedAt: string;
+  userId: string;
+  categoryId: number;
   author: {
-    id: number;
+    id: string;
     name: string;
     email: string;
   };
@@ -21,10 +28,18 @@ export interface AudioContent {
   isLiked: boolean;
 }
 
-export interface PaginatedResult<T> {
-  data: T[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+// カテゴリ型
+export interface Category {
+  id: number;
+  name: string;
+  description?: string;
+  createdAt: string;
+}
+
+// 音声コンテンツ作成用型
+export interface CreateAudioContentData {
+  title: string;
+  description: string;
+  categoryId: number;
+  duration: number;
 }
