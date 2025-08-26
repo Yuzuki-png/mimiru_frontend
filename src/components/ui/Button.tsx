@@ -11,7 +11,7 @@ type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface BaseButtonProps {
-  children: ReactNode;
+  children?: ReactNode;
   variant?: ButtonVariant;
   size?: ButtonSize;
   className?: string;
@@ -148,7 +148,11 @@ const Button: React.FC<ButtonProps> = ({
         whileTap={disabled ? undefined : "tap"}
         className={combinedClassName}
         disabled={disabled || loading}
-        {...buttonProps}
+        {...(Object.fromEntries(
+          Object.entries(buttonProps).filter(([key]) => 
+            !['onDrag', 'onDragStart', 'onDragEnd', 'onAnimationStart', 'onAnimationEnd', 'onTransitionEnd'].includes(key)
+          )
+        ) as Record<string, unknown>)}
       >
         {content}
       </motion.button>

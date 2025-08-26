@@ -5,7 +5,7 @@
 import { apiClient } from './base';
 import { AudioContent, CreateAudioContentData, PaginatedResult, ApiResponse } from '../../types';
 
-interface GetAudioContentsParams {
+interface GetAudioContentsParams extends Record<string, unknown> {
   page?: number;
   limit?: number;
   category?: string;

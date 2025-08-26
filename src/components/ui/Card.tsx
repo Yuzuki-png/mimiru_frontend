@@ -86,7 +86,11 @@ const Card: React.FC<CardProps> & {
         whileHover={hoverable ? "hover" : undefined}
         whileTap={hoverable ? "tap" : undefined}
         className={combinedClassName}
-        {...props}
+        {...(Object.fromEntries(
+          Object.entries(props).filter(([key]) => 
+            !['onDrag', 'onDragStart', 'onDragEnd', 'onAnimationStart', 'onAnimationEnd', 'onTransitionEnd'].includes(key)
+          )
+        ) as Record<string, unknown>)}
       >
         {children}
       </motion.div>

@@ -81,13 +81,13 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, FormInputProps>
     <textarea
       ref={ref as React.ForwardedRef<HTMLTextAreaElement>}
       className={inputClassName}
-      {...(props as TextareaProps)}
+      {...(props as TextareaHTMLAttributes<HTMLTextAreaElement>)}
     />
   ) : (
     <input
       ref={ref as React.ForwardedRef<HTMLInputElement>}
       className={inputClassName}
-      {...(props as InputProps)}
+      {...(props as InputHTMLAttributes<HTMLInputElement>)}
     />
   );
 

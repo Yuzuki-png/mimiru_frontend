@@ -64,7 +64,8 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
   onRemoveFromPlaylist,
   onAddToPlaylist,
 }) => {
-  const { currentAudio, isPlaying, playAudio, pauseAudio } = useAudioPlayer();
+  const { state, playAudio, pauseAudio } = useAudioPlayer();
+  const { currentAudio, isPlaying } = state;
   const { toggleLike } = useLike();
   const { showSuccess, showError } = useToastContext();
   const [isLikeLoading, setIsLikeLoading] = useState(false);
@@ -79,11 +80,9 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
       playAudio({
         id: content.id.toString(),
         title: content.title,
+        description: content.description,
         audioUrl: content.audioUrl,
-        user: {
-          id: content.author.id,
-          name: content.author.name,
-        },
+        duration: content.duration,
       });
     }
   };

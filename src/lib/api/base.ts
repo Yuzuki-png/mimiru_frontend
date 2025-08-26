@@ -68,9 +68,9 @@ export class ApiClient {
         case 400:
           return {
             code: 'BAD_REQUEST',
-            message: data?.message || 'Bad request',
-            userMessage: data?.message || 'リクエストに問題があります。',
-            details: data?.errors || {}
+            message: (data?.message as string) || 'Bad request',
+            userMessage: (data?.message as string) || 'リクエストに問題があります。',
+            details: (data?.errors as Record<string, unknown>) || {}
           };
         case 401:
           return {
@@ -96,9 +96,9 @@ export class ApiClient {
         case 422:
           return {
             code: 'VALIDATION_ERROR',
-            message: data?.message || 'Validation failed',
+            message: (data?.message as string) || 'Validation failed',
             userMessage: '入力データに問題があります。',
-            details: data?.errors || {}
+            details: (data?.errors as Record<string, unknown>) || {}
           };
         case 500:
           return {
@@ -110,7 +110,7 @@ export class ApiClient {
         default:
           return {
             code: 'UNKNOWN_ERROR',
-            message: data?.message || `HTTP ${status}`,
+            message: (data?.message as string) || `HTTP ${status}`,
             userMessage: '予期しないエラーが発生しました。',
             details: { status, data }
           };

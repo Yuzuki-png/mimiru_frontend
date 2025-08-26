@@ -28,8 +28,10 @@ export interface ProfileUser extends BaseUser {
 }
 
 // プロファイル編集用ユーザー型
-export interface UserProfile extends BaseUser {
+export interface UserProfile {
   id: number; // バックエンドでnumber型の場合
+  email: string;
+  name: string;
   profile?: {
     bio?: string;
     location?: string;
