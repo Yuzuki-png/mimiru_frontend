@@ -13,12 +13,18 @@ export class ErrorHandler {
       // カスタムAppErrorの場合
       if ('code' in error && 'userMessage' in error) {
         const appError = error as AppError;
-        console.error(`[${appError.code}] ${appError.message}`, appError.details);
+        if (process.env.NODE_ENV === 'development') {
+          // eslint-disable-next-line no-console
+          console.error(`[${appError.code}] ${appError.message}`, appError.details);
+        }
         return appError;
       }
 
       // 一般的なErrorの場合
-      console.error('予期しないエラー:', error);
+      if (process.env.NODE_ENV === 'development') {
+        // eslint-disable-next-line no-console
+        console.error('予期しないエラー:', error);
+      }
       return {
         code: 'UNKNOWN_ERROR',
         message: error.message,
@@ -28,7 +34,10 @@ export class ErrorHandler {
     }
 
     // unknown型のエラー
-    console.error('不明なエラー:', error);
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.error('不明なエラー:', error);
+    }
     return {
       code: 'UNKNOWN_ERROR',
       message: 'Unknown error occurred',
