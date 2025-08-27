@@ -5,7 +5,7 @@
 /* eslint-disable no-console */
 
 const STORAGE_KEYS = {
-  AUTH_TOKEN: 'access_token',
+  AUTH_TOKEN: 'token',
   REFRESH_TOKEN: 'refresh_token',
   USER_PREFERENCES: 'user_preferences',
   THEME: 'theme',

@@ -8,6 +8,7 @@ import { SidebarProvider } from "../contexts/SidebarContext";
 import { LikeProvider } from "../contexts/LikeContext";
 import { FollowProvider } from "../contexts/FollowContext";
 import { NotificationProvider } from "../contexts/NotificationContext";
+import { ToastProvider } from "../contexts/ToastContext";
 import { ThemeProvider } from "../components/ThemeProvider";
 import ConditionalHeader from "../components/ConditionalHeader";
 import ConditionalMain from "../components/ConditionalMain";
@@ -44,14 +45,16 @@ export default function RootLayout({
               <LikeProvider>
                 <FollowProvider>
                   <NotificationProvider>
-                    <ThemeProvider>
-                    <ConditionalHeader />
-                    <ConditionalMain>
-                      {children}
-                    </ConditionalMain>
-                    <ConditionalFooter />
-                    <GlobalAudioPlayer />
-                    </ThemeProvider>
+                    <ToastProvider>
+                      <ThemeProvider>
+                      <ConditionalHeader />
+                      <ConditionalMain>
+                        {children}
+                      </ConditionalMain>
+                      <ConditionalFooter />
+                      <GlobalAudioPlayer />
+                      </ThemeProvider>
+                    </ToastProvider>
                   </NotificationProvider>
                 </FollowProvider>
               </LikeProvider>

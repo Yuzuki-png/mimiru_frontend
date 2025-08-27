@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { audioContentApi } from "../../../lib/api";
+import { useAudioContent } from "../../../hooks/api";
 import { useAudioPlayer } from "../../../contexts/AudioPlayerContext";
+import { AudioContent } from "../../../types";
 import {
   PlayIcon,
   PauseIcon,
@@ -16,63 +17,15 @@ import {
   TagIcon,
 } from "@heroicons/react/24/outline";
 
-interface AudioContent {
-  id: number;
-  title: string;
-  description: string;
-  duration: number;
-  audioUrl: string;
-  createdAt: string;
-  updatedAt: string;
-  author: {
-    id: number;
-    name: string;
-    email: string;
-  };
-  category: {
-    id: number;
-    name: string;
-  };
-  _count: {
-    likes: number;
-  };
-  isLiked: boolean;
-}
 
 export default function ContentPage() {
   const params = useParams();
   const router = useRouter();
   const { state: audioPlayerState, playAudio, pauseAudio } = useAudioPlayer();
-  const [content, setContent] = useState<AudioContent | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
 
   const contentId = params.id as string;
-
-  useEffect(() => {
-    const fetchContent = async () => {
-      try {
-        setLoading(true);
-        const result = await audioContentApi.getById(contentId);
-        setContent(result);
-        setError(null);
-      } catch (error) {
-        if (error instanceof Error) {
-          setError(`コンテンツの取得に失敗しました: ${error.message}`);
-        } else {
-          setError("コンテンツの取得に失敗しました");
-        }
-        setContent(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (contentId) {
-      fetchContent();
-    }
-  }, [contentId]);
+  const { data: content, error, isLoading: loading } = useAudioContent(contentId);
 
   const togglePlay = useCallback(
     async (content: AudioContent) => {

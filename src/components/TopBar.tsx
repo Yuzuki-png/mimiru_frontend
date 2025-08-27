@@ -77,26 +77,26 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
 
   return (
     <header
-      className={`fixed top-0 ${isCollapsed ? 'lg:left-20' : 'lg:left-64'} right-0 z-30 h-16 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 transition-all duration-300`}
+      className={`fixed top-0 left-0 ${isCollapsed ? 'lg:left-20' : 'lg:left-64'} right-0 z-30 h-16 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 transition-all duration-300`}
     >
       <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-3 h-full">
-        <div className="flex-1 min-w-0">
-          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white truncate">{title}</h1>
+        <div className="flex-shrink-0">
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>
           {subtitle && (
-            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 truncate hidden sm:block">{subtitle}</p>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 hidden sm:block">{subtitle}</p>
           )}
         </div>
 
-        <div className="flex items-center space-x-2 sm:space-x-4">
+        <div className="flex items-center space-x-2 lg:space-x-4">
           {/* 統合された通知システム */}
           <div className="relative">
             <button
               onClick={() => setShowNotificationDropdown(!showNotificationDropdown)}
               className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
             >
-              <BellIcon className="h-6 w-6" />
+              <BellIcon className="h-5 w-5 lg:h-6 lg:w-6" />
               {totalUnreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 text-white text-xs font-medium rounded-full flex items-center justify-center px-1">
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] lg:min-w-[18px] lg:h-[18px] bg-red-500 text-white text-xs font-medium rounded-full flex items-center justify-center px-1">
                   {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
                 </span>
               )}
@@ -227,16 +227,18 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center space-x-3 p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="flex items-center space-x-1 lg:space-x-3 p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
             >
               <div className="flex items-center space-x-2">
-                <UserCircleIcon className="h-8 w-8" />
-                <div className="text-left hidden sm:block">
-                  <p className="text-sm font-medium">{user?.name || user?.email}</p>
+                <UserCircleIcon className="h-7 w-7 lg:h-8 lg:w-8" />
+                <div className="text-left hidden md:block">
+                  <p className="text-sm font-medium truncate max-w-[120px] lg:max-w-[160px]">
+                    {user?.name || user?.email}
+                  </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">オンライン</p>
                 </div>
               </div>
-              <ChevronDownIcon className="h-4 w-4" />
+              <ChevronDownIcon className="h-3 w-3 lg:h-4 lg:w-4" />
             </button>
 
             {showUserMenu && (

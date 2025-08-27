@@ -98,38 +98,16 @@ export default function LibraryPage() {
     "テクノロジー",
   ];
 
-  // モックデータ（バックエンド実装までの間）
-  // const mockPlaylists: Playlist[] = [
-  //   {
-  //     id: 1,
-  //     name: "お気に入りの学習コンテンツ",
-  //     description: "よく聞く学習コンテンツをまとめました",
-  //     createdAt: "2024-01-01T00:00:00Z",
-  //     updatedAt: "2024-01-01T00:00:00Z",
-  //     _count: { items: 5 },
-  //     items: []
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "通勤用プレイリスト",
-  //     description: "通勤時間に聞くための短めのコンテンツ",
-  //     createdAt: "2024-01-02T00:00:00Z",
-  //     updatedAt: "2024-01-02T00:00:00Z",
-  //     _count: { items: 3 },
-  //     items: []
-  //   }
-  // ];
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const [contentsResult, playlistsResult] = await Promise.all([
           audioContentApi.getAll({}),
-          playlistApi.getAll() // バックエンド実装完了により有効化
+          playlistApi.getAll()
         ]) as [{ data: AudioContent[] }, { data: Playlist[] }];
         setMyContents(contentsResult.data);
-        setPlaylists(playlistsResult.data); // バックエンド実装完了により有効化
+        setPlaylists(playlistsResult.data); 
         setError(null);
       } catch {
         setError("データの取得に失敗しました");
@@ -502,7 +480,7 @@ export default function LibraryPage() {
               <span>プレイリスト作成</span>
             </button>
             <button
-              onClick={() => router.push("/upload")}
+              onClick={() => router.push("/dashboard/upload")}
               className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium"
             >
               <PlusIcon className="h-5 w-5" />
@@ -645,7 +623,7 @@ export default function LibraryPage() {
                   最初のコンテンツを投稿して、あなたの知識を共有しましょう
                 </p>
                 <button
-                  onClick={() => router.push("/upload")}
+                  onClick={() => router.push("/dashboard/upload")}
                   className="inline-flex items-center space-x-2 px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors font-medium"
                 >
                   <PlusIcon className="h-5 w-5" />
