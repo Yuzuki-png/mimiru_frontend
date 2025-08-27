@@ -4,7 +4,6 @@ import useAxios from '../useAxios';
 import { AudioContent, PaginatedResult, CreateAudioContentData } from '../../types';
 import { mutate } from 'swr';
 
-// 音声コンテンツリスト取得
 export function useAudioContents(params?: {
   page?: number;
   limit?: number;
@@ -24,13 +23,11 @@ export function useAudioContents(params?: {
   return useAppSWR<PaginatedResult<AudioContent>>(key);
 }
 
-// 音声コンテンツ詳細取得
 export function useAudioContent(id: number | string | null) {
   const key = id ? `/audio-contents/${id}` : null;
   return useAppSWR<AudioContent>(key);
 }
 
-// 音声コンテンツ作成
 export function useCreateAudioContent() {
   const axiosClient = useAxios();
   
@@ -40,8 +37,8 @@ export function useCreateAudioContent() {
       arg: { data: CreateAudioContentData; file: File } 
     }) => {
       const formData = new FormData();
+
       
-      // データをFormDataに追加
       Object.entries(arg.data).forEach(([key, value]) => {
         formData.append(key, value.toString());
       });
@@ -55,7 +52,6 @@ export function useCreateAudioContent() {
         },
       });
       
-      // 関連データを再検証
       mutate(
         (key) => typeof key === 'string' && key.startsWith('/audio-contents'),
         undefined,
@@ -67,7 +63,6 @@ export function useCreateAudioContent() {
   );
 }
 
-// 音声コンテンツ更新
 export function useUpdateAudioContent() {
   const axiosClient = useAxios();
   
@@ -81,7 +76,6 @@ export function useUpdateAudioContent() {
         data: arg.data,
       });
       
-      // 特定アイテムとリストを再検証
       mutate(`/audio-contents/${arg.id}`);
       mutate((key) => typeof key === 'string' && key.startsWith('/audio-contents?'));
       
@@ -90,7 +84,6 @@ export function useUpdateAudioContent() {
   );
 }
 
-// いいね機能（トグル）
 export function useLikeAudioContent() {
   const axiosClient = useAxios();
   
@@ -103,10 +96,9 @@ export function useLikeAudioContent() {
         method: 'POST',
       });
       
-      // サーバーからの正確なレスポンスで更新
       const { isLiked, totalLikes } = response.data as { isLiked: boolean; totalLikes: number };
+
       
-      // 楽観的更新
       mutate(
         `/audio-contents/${arg.id}`,
         (current?: AudioContent) => {
@@ -120,10 +112,10 @@ export function useLikeAudioContent() {
             },
           };
         },
-        false // サーバーから再取得しない
+        false
       );
+
       
-      // トレンド・新着・リストも更新
       mutate((key) => typeof key === 'string' && key.includes('/audio-contents'), undefined, { revalidate: true });
       
       return response.data;
@@ -131,7 +123,6 @@ export function useLikeAudioContent() {
   );
 }
 
-// 音声コンテンツ削除
 export function useDeleteAudioContent() {
   const axiosClient = useAxios();
   
@@ -141,8 +132,8 @@ export function useDeleteAudioContent() {
       await axiosClient(`/audio-contents/${arg.id}`, {
         method: 'DELETE',
       });
+
       
-      // 関連データを再検証
       mutate((key) => typeof key === 'string' && key.startsWith('/audio-contents'));
       
       return { success: true };
@@ -150,22 +141,18 @@ export function useDeleteAudioContent() {
   );
 }
 
-// トレンド音声コンテンツ
 export function useTrendingAudioContents(limit = 10) {
   return useAppSWR<PaginatedResult<AudioContent>>(`/audio-contents/trending?limit=${limit}`);
 }
 
-// 新着音声コンテンツ
 export function useLatestAudioContents(limit = 10) {
   return useAppSWR<PaginatedResult<AudioContent>>(`/audio-contents/latest?limit=${limit}`);
 }
 
-// おすすめ音声コンテンツ
 export function useRecommendedAudioContents(limit = 10) {
   return useAppSWR<AudioContent[]>(`/audio-contents/recommended?limit=${limit}`);
 }
 
-// ユーザーの音声コンテンツ取得
 export function useUserAudioContents(userId: string | null, params?: {
   page?: number;
   limit?: number;
@@ -185,7 +172,6 @@ export function useUserAudioContents(userId: string | null, params?: {
   return useAppSWR<PaginatedResult<AudioContent>>(key);
 }
 
-// いいねした音声コンテンツ取得
 export function useLikedAudioContents(params?: {
   page?: number;
   limit?: number;
@@ -201,7 +187,6 @@ export function useLikedAudioContents(params?: {
   return useAppSWR<PaginatedResult<AudioContent>>(key);
 }
 
-// 音声コンテンツ検索
 export function useSearchAudioContents(query: string | null, params?: {
   page?: number;
   limit?: number;
@@ -221,7 +206,6 @@ export function useSearchAudioContents(query: string | null, params?: {
   return useAppSWR<PaginatedResult<AudioContent>>(key);
 }
 
-// 音声コンテンツの再生回数を記録
 export function useRecordPlay() {
   const axiosClient = useAxios();
   
@@ -240,7 +224,6 @@ export function useRecordPlay() {
   );
 }
 
-// 音声コンテンツの統計情報取得
 export function useAudioContentStats(id: number | string | null) {
   const key = id ? `/audio-contents/${id}/stats` : null;
   

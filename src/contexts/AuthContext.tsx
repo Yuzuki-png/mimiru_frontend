@@ -41,7 +41,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
-    // Google認証のコールバックページでは初期化をスキップ
     if (typeof window !== 'undefined' && window.location.pathname.startsWith('/auth/callback')) {
       setLoading(false);
       return;
@@ -50,15 +49,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const token = localStorage.getItem('token');
     if (token) {
       setAuthToken(token);
+
       
-      // 認証が必要なページ（ダッシュボード）でのみプロファイルを読み込み
       const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
       const isAuthPage = pathname === '/login' || pathname === '/signup' || pathname.startsWith('/auth/');
       
       if (!isAuthPage && pathname) {
         loadUserProfile();
       } else {
-        // ダッシュボードページではフォールバックユーザーを設定
         const savedUserEmail = localStorage.getItem('userEmail');
         const savedUserName = localStorage.getItem('userName');
         setUser({
@@ -77,8 +75,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     try {
       const userData = await authApi.getProfile();
+
       
-      // ユーザー情報をlocalStorageにも保存
       localStorage.setItem('userEmail', userData.email);
       if (userData.name) {
         localStorage.setItem('userName', userData.name);
@@ -91,14 +89,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
     } catch (error) {
       if (error instanceof AxiosError && error.response?.status === 401) {
+
         
-        // Google認証の場合は認証情報をリセットしない
         if (!skipAuthReset) {
           setAuthToken('');
           setUser(null);
           return;
         } else {
-          // Google認証時のフォールバック処理
           const token = localStorage.getItem('token');
           if (token) {
             const savedUserEmail = localStorage.getItem('userEmail');
@@ -150,12 +147,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('token', token);
       setAuthToken(token);
       
-      // Google認証の場合、プロファイル取得に失敗してもログインは成功とする
       if (password) {
-        // 通常のログイン
         await loadUserProfile();
       } else {
-        // Google認証の場合、認証情報リセットをスキップ
         await loadUserProfile(true);
       }
       router.push('/dashboard');

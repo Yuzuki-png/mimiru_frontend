@@ -46,7 +46,6 @@ export const useToast = () => {
     setToasts([]);
   }, []);
 
-  // 便利なヘルパー関数
   const showSuccess = useCallback((title: string, message?: string, duration?: number) => {
     return addToast(title, 'success', { message, duration });
   }, [addToast]);

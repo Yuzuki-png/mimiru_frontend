@@ -28,10 +28,8 @@ const DeleteAccountModal = ({ isOpen, onClose }: DeleteAccountModalProps) => {
     try {
       await userApi.deleteAccount();
       
-      // アカウント削除成功時の処理
       alert('アカウントが正常に削除されました。ご利用ありがとうございました。');
       
-      // ログアウト処理とトップページへリダイレクト
       logout();
       window.location.href = '/';
     } catch (error) {

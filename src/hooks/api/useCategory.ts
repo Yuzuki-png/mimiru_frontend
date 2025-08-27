@@ -10,12 +10,10 @@ export interface Category {
   sortOrder: number;
 }
 
-// カテゴリリスト取得
 export function useCategories() {
   return useAppSWR<Category[]>('/categories');
 }
 
-// 有効なカテゴリのみ取得
 export function useActiveCategories() {
   return useAppSWR<Category[]>('/categories?active=true');
 }

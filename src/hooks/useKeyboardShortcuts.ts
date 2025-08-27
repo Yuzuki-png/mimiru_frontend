@@ -8,7 +8,6 @@ export const useKeyboardShortcuts = () => {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      // フォーカスされている要素がinput/textareaの場合はショートカットを無効にする
       const activeElement = document.activeElement;
       const isInputFocused = activeElement && (
         activeElement.tagName === 'INPUT' ||
@@ -25,8 +24,6 @@ export const useKeyboardShortcuts = () => {
             if (state.isPlaying) {
               pauseAudio();
             } else {
-              // 再生は個別の再生ボタンから行う
-              // ここでは一時停止のみ処理
             }
           }
           break;
@@ -40,7 +37,6 @@ export const useKeyboardShortcuts = () => {
         case 'KeyM':
           if (event.ctrlKey || event.metaKey) {
             event.preventDefault();
-            // 音量ミュート処理はGlobalAudioPlayerで処理
           }
           break;
       }

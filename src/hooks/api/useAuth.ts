@@ -5,7 +5,6 @@ import { AuthUser } from '../../types';
 import { StorageManager } from '../../lib/storage';
 import { mutate } from 'swr';
 
-// ユーザープロフィール取得
 export function useProfile() {
   const token = StorageManager.getToken();
   const key = token ? '/auth/profile' : null;
@@ -13,7 +12,6 @@ export function useProfile() {
   return useAppSWR<AuthUser>(key);
 }
 
-// ログイン
 export function useLogin() {
   const axiosClient = useAxios();
   
@@ -33,14 +31,12 @@ export function useLogin() {
       
       const result = response.data;
       
-      // トークン保存
       if (result.access_token) {
         StorageManager.setToken(result.access_token);
         if (result.refresh_token) {
           StorageManager.setRefreshToken(result.refresh_token);
         }
         
-        // ユーザー情報をキャッシュ
         mutate('/auth/profile', result.user, false);
       }
       
@@ -49,7 +45,6 @@ export function useLogin() {
   );
 }
 
-// ユーザー登録
 export function useRegister() {
   const axiosClient = useAxios();
   
@@ -69,14 +64,12 @@ export function useRegister() {
       
       const result = response.data;
       
-      // トークン保存
       if (result.access_token) {
         StorageManager.setToken(result.access_token);
         if (result.refresh_token) {
           StorageManager.setRefreshToken(result.refresh_token);
         }
         
-        // ユーザー情報をキャッシュ
         mutate('/auth/profile', result.user, false);
       }
       
@@ -85,7 +78,6 @@ export function useRegister() {
   );
 }
 
-// プロフィール更新
 export function useUpdateProfile() {
   const axiosClient = useAxios();
   
@@ -99,7 +91,6 @@ export function useUpdateProfile() {
         data: arg,
       });
       
-      // プロフィール情報を更新
       mutate('/auth/profile', response.data, false);
       
       return response.data;
@@ -107,7 +98,6 @@ export function useUpdateProfile() {
   );
 }
 
-// ログアウト
 export function useLogout() {
   const axiosClient = useAxios();
   
@@ -118,14 +108,12 @@ export function useLogout() {
         await axiosClient('/auth/logout', { method: 'POST' });
       } finally {
         StorageManager.clearAuth();
-        // 全キャッシュクリア
         mutate(() => true, undefined, false);
       }
     }
   );
 }
 
-// パスワード変更
 export function useChangePassword() {
   const axiosClient = useAxios();
   
@@ -147,7 +135,6 @@ export function useChangePassword() {
   );
 }
 
-// パスワードリセット要求
 export function useRequestPasswordReset() {
   const axiosClient = useAxios();
   
@@ -164,7 +151,6 @@ export function useRequestPasswordReset() {
   );
 }
 
-// パスワードリセット実行
 export function useResetPassword() {
   const axiosClient = useAxios();
   
@@ -186,7 +172,6 @@ export function useResetPassword() {
   );
 }
 
-// メールアドレス確認
 export function useVerifyEmail() {
   const axiosClient = useAxios();
   
@@ -203,7 +188,6 @@ export function useVerifyEmail() {
   );
 }
 
-// メール確認の再送信
 export function useResendVerificationEmail() {
   const axiosClient = useAxios();
   

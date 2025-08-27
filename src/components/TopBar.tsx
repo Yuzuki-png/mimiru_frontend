@@ -88,7 +88,6 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
         </div>
 
         <div className="flex items-center space-x-2 lg:space-x-4">
-          {/* 統合された通知システム */}
           <div className="relative">
             <button
               onClick={() => setShowNotificationDropdown(!showNotificationDropdown)}
@@ -102,7 +101,6 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
               )}
             </button>
 
-            {/* 統合通知ドロップダウン */}
             <AnimatePresence>
               {showNotificationDropdown && (
                 <motion.div
@@ -144,7 +142,6 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
                   </div>
 
                   <div className="max-h-96 overflow-y-auto">
-                    {/* リアルタイム通知（上部に表示） */}
                     {state.realtimeNotifications.map((notification) => (
                       <div
                         key={`realtime-${notification.id}`}
@@ -180,7 +177,6 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
                       </div>
                     ) : (
                       <>
-                        {/* 区切り線（リアルタイム通知がある場合のみ） */}
                         {state.realtimeNotifications.length > 0 && state.notifications.length > 0 && (
                           <div className="px-4 py-2 bg-gray-50 dark:bg-gray-700">
                             <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
@@ -189,7 +185,6 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
                           </div>
                         )}
                         
-                        {/* API通知（下部に表示、最大5件） */}
                         {state.notifications.slice(0, 5).map((notification) => (
                           <div
                             key={`api-${notification.id}`}
@@ -275,7 +270,6 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
         </div>
       </div>
 
-      {/* 通知ドロップダウン用の背景オーバーレイ */}
       {showNotificationDropdown && (
         <div
           className="fixed inset-0 z-40"
@@ -283,7 +277,6 @@ export default function TopBar({ title, subtitle, isCollapsed }: TopBarProps) {
         />
       )}
       
-      {/* ユーザーメニュー用の背景オーバーレイ */}
       {showUserMenu && (
         <div
           className="fixed inset-0 z-40"

@@ -12,7 +12,7 @@ export interface Notification {
   type: string;
   isRead: boolean;
   createdAt: string;
-  data?: { contentId?: number } | unknown; // バックエンドの実装に合わせて
+  data?: { contentId?: number } | unknown;
 }
 
 interface NotificationState {
@@ -55,7 +55,6 @@ function notificationReducer(state: NotificationState, action: NotificationActio
     case 'SET_REALTIME_NOTIFICATIONS':
       return { ...state, realtimeNotifications: action.payload };
     case 'ADD_REALTIME_NOTIFICATION':
-      // 重複チェック：同じIDの通知がリアルタイム通知にすでに存在しないか確認
       const exists = state.realtimeNotifications.some(n => n.id === action.payload.id);
       if (exists) {
         return state;
@@ -148,7 +147,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   const { user, isAuthenticated: authIsAuthenticated } = useAuth();
 
   const fetchNotifications = useCallback(async () => {
-    // 認証されていない場合は処理をスキップ
     if (!isAuthenticated()) {
       dispatch({ type: 'SET_NOTIFICATIONS', payload: [] });
       dispatch({ type: 'SET_UNREAD_COUNT', payload: 0 });
@@ -161,25 +159,21 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       dispatch({ type: 'SET_ERROR', payload: null });
       
       const result = await notificationApi.getAll({ limit: 50 });
-      
-      // APIレスポンスがメタ情報付きの場合と配列直接の場合を処理
+
       const allNotifications = result.data || result || [];
-      
-      // リアルタイム通知と重複するものを除外
+
       const realtimeIds = state.realtimeNotifications.map(n => n.id);
       const filteredNotifications = allNotifications.filter((n: Notification) => 
         !realtimeIds.includes(n.id)
       );
       
       dispatch({ type: 'SET_NOTIFICATIONS', payload: filteredNotifications });
-      
-      // 未読数を計算（フィルタリング後の通知で）
+
       const unreadCount = filteredNotifications.filter((n: Notification) => !n.isRead).length;
       dispatch({ type: 'SET_UNREAD_COUNT', payload: unreadCount });
     } catch {
       dispatch({ type: 'SET_ERROR', payload: '通知の取得に失敗しました。バックエンドサーバーが起動しているか確認してください。' });
-      
-      // エラー時は空の配列を設定
+
       dispatch({ type: 'SET_NOTIFICATIONS', payload: [] });
       dispatch({ type: 'SET_UNREAD_COUNT', payload: 0 });
     } finally {
@@ -188,7 +182,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   }, [state.realtimeNotifications]);
 
   const fetchUnreadCount = useCallback(async () => {
-    // 認証されていない場合は処理をスキップ
     if (!isAuthenticated()) {
       dispatch({ type: 'SET_UNREAD_COUNT', payload: 0 });
       return;
@@ -198,7 +191,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       const result = await notificationApi.getUnreadCount();
       dispatch({ type: 'SET_UNREAD_COUNT', payload: result.count || 0 });
     } catch {
-      // APIエラーの場合はサイレントに処理し、現在の通知から未読数を計算
       const unreadCount = state.notifications.filter(n => !n.isRead).length;
       dispatch({ type: 'SET_UNREAD_COUNT', payload: unreadCount });
     }
@@ -208,9 +200,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     try {
       await notificationApi.markAsRead(id.toString());
     } catch {
-      // APIエラーはサイレントに処理
     }
-    // UIは常に更新（オフラインでも動作）
     dispatch({ type: 'MARK_AS_READ', payload: id });
   };
 
@@ -218,9 +208,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     try {
       await notificationApi.markAllAsRead();
     } catch {
-      // APIエラーはサイレントに処理
     }
-    // UIは常に更新（オフラインでも動作）
     dispatch({ type: 'MARK_ALL_AS_READ' });
   };
 
@@ -228,13 +216,10 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     try {
       await notificationApi.delete(id.toString());
     } catch {
-      // APIエラーはサイレントに処理
     }
-    // UIは常に更新（オフラインでも動作）
     dispatch({ type: 'DELETE_NOTIFICATION', payload: id });
   };
 
-  // リアルタイム通知用の関数
   const markRealtimeAsRead = useCallback((id: string | number) => {
     dispatch({ type: 'MARK_REALTIME_AS_READ', payload: id });
   }, []);
@@ -259,10 +244,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       await websocketService.connect(token);
       dispatch({ type: 'SET_WEBSOCKET_CONNECTION', payload: true });
 
-      // ユーザールームに参加（数値IDに変換）
       websocketService.joinUserRoom(parseInt(user.id));
 
-      // リアルタイム通知イベントリスナーを設定
       websocketService.on('notification', (notification: Notification) => {
         dispatch({ type: 'ADD_REALTIME_NOTIFICATION', payload: notification });
       });
@@ -315,7 +298,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     }
   }, [authIsAuthenticated, user, state.isWebSocketConnected]);
 
-  // WebSocket切断
   const disconnectWebSocket = useCallback(() => {
     if (user) {
       websocketService.leaveUserRoom(parseInt(user.id));
@@ -325,7 +307,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     dispatch({ type: 'CLEAR_REALTIME_NOTIFICATIONS' });
   }, [user]);
 
-  // 初回読み込みとWebSocket接続
   useEffect(() => {
     fetchNotifications();
     if (authIsAuthenticated && user) {
@@ -337,16 +318,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         disconnectWebSocket();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authIsAuthenticated, user]);
 
-  // 定期的に未読数を更新（30秒ごと）
   useEffect(() => {
     const interval = setInterval(fetchUnreadCount, 30000);
     return () => clearInterval(interval);
   }, [fetchUnreadCount]);
 
-  // テスト用の模擬通知リスナー（開発用）
   useEffect(() => {
     const handleMockNotification = (event: CustomEvent) => {
       const notification = event.detail;

@@ -70,10 +70,8 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
   const { showSuccess, showError } = useToastContext();
   const [isLikeLoading, setIsLikeLoading] = useState(false);
 
-  // LikeContextからの状態を使用
   const contentIsLiked = isLiked(content.id);
 
-  // 再生制御
   const isCurrentlyPlaying = currentAudio?.id === content.id.toString() && isPlaying;
   
   const handleTogglePlay = () => {
@@ -90,7 +88,6 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
     }
   };
 
-  // いいね制御
   const handleToggleLike = async () => {
     if (isLikeLoading) return;
     
@@ -105,7 +102,6 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
     }
   };
 
-  // 共有機能
   const handleShare = async () => {
     const url = `${window.location.origin}/content/${content.id}`;
     await ErrorHandler.handleAsyncOperation(
@@ -117,7 +113,6 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
     showSuccess('URLをコピーしました', 'クリップボードにURLがコピーされました');
   };
 
-  // 再生ボタンのレンダリング
   const renderPlayButton = () => {
     if (playButtonStyle === 'circle') {
       return (
@@ -153,21 +148,18 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
     );
   };
 
-  // カテゴリタグ
   const categoryTag = (
     <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium rounded-full">
       {content.category.name}
     </span>
   );
 
-  // 期間フォーマット
   const formatDuration = (duration: number) => {
     const minutes = Math.floor(duration / 60);
     const seconds = Math.floor(duration % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  // バリアント別レンダリング
   const renderContent = () => {
     switch (variant) {
       case 'compact':

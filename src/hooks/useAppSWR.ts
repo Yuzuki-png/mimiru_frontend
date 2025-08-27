@@ -22,13 +22,12 @@ const useAppSWR = <T>(
   };
 
   const mergedConfig: SWRConfiguration = {
-    // デフォルト設定
-    revalidateOnFocus: false, // フォーカス時の自動再検証を無効
-    revalidateOnReconnect: false, // ネットワーク復旧時の自動再検証を無効
-    shouldRetryOnError: false, // エラー時の自動リトライを無効
-    dedupingInterval: 2000, // 2秒間は同一リクエストを重複実行しない
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+    shouldRetryOnError: false,
+    dedupingInterval: 2000,
+
     
-    // カスタム設定で上書き
     ...config,
   } satisfies SWRConfiguration;
 

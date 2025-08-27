@@ -47,12 +47,10 @@ export const LikeProvider: React.FC<LikeProviderProps> = ({ children }) => {
 
   const refreshLikedContents = useCallback(async () => {
     try {
-      // お気に入りコンテンツを取得してSetを更新
       const result = await audioContentApi.getAll({ isLiked: 'true' });
       const likedIds = result.data.map((content: AudioContent) => content.id);
       setLikedContents(new Set(likedIds));
     } catch {
-      // Silent error handling
     }
   }, []);
 

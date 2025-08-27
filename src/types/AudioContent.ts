@@ -2,7 +2,6 @@
  * 音声コンテンツ関連の型定義
  */
 
-// 基本音声コンテンツ型
 export interface AudioContent {
   id: number;
   title: string;
@@ -28,7 +27,6 @@ export interface AudioContent {
   isLiked: boolean;
 }
 
-// カテゴリ型
 export interface Category {
   id: number;
   name: string;
@@ -36,7 +34,6 @@ export interface Category {
   createdAt: string;
 }
 
-// 音声コンテンツ作成用型
 export interface CreateAudioContentData {
   title: string;
   description: string;

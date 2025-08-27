@@ -2,19 +2,16 @@
  * ユーザー関連の型定義
  */
 
-// 基本ユーザー型
 export interface BaseUser {
   id: string;
   email: string;
   name: string;
 }
 
-// 認証用ユーザー型
 export interface AuthUser extends BaseUser {
   username?: string;
 }
 
-// プロファイル表示用ユーザー型
 export interface ProfileUser extends BaseUser {
   bio?: string;
   location?: string;
@@ -27,9 +24,8 @@ export interface ProfileUser extends BaseUser {
   };
 }
 
-// プロファイル編集用ユーザー型
 export interface UserProfile {
-  id: number; // バックエンドでnumber型の場合
+  id: number;
   email: string;
   name: string;
   profile?: {

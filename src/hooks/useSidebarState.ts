@@ -6,17 +6,15 @@ export const useSidebarState = () => {
   const pathname = usePathname();
   const isDashboard = pathname.startsWith('/dashboard');
 
-  // Responsive behavior: collapse on smaller screens
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1024) { // lg breakpoint
+      if (window.innerWidth < 1024) {
         setIsCollapsed(true);
       } else {
         setIsCollapsed(false);
       }
     };
 
-    // Only apply to dashboard pages
     if (isDashboard) {
       handleResize();
       window.addEventListener('resize', handleResize);

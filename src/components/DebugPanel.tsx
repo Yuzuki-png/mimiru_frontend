@@ -14,7 +14,6 @@ export const DebugPanel: React.FC = () => {
       setConnectionStatus('unknown');
       setApiResponse('テスト中...');
       
-      // まず単純なGETリクエストでテスト
       const response = await api.get('/');
       setConnectionStatus('connected');
       setApiResponse(`成功: ${JSON.stringify(response.data)}`);

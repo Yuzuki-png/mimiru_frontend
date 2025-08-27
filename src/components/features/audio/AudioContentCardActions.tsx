@@ -61,7 +61,6 @@ const AudioContentCardActions: React.FC<AudioContentCardActionsProps> = ({
 
   return (
     <div className="flex items-center space-x-2">
-      {/* いいねボタン */}
       {showActions.like && (
         <motion.button
           onClick={() => onToggleLike?.()}
@@ -108,7 +107,6 @@ const AudioContentCardActions: React.FC<AudioContentCardActionsProps> = ({
         </motion.button>
       )}
 
-      {/* 共有ボタン */}
       {showActions.share && (
         <motion.button
           onClick={onShare}
@@ -127,7 +125,6 @@ const AudioContentCardActions: React.FC<AudioContentCardActionsProps> = ({
         </motion.button>
       )}
 
-      {/* プレイリストに追加ボタン */}
       {showActions.addToPlaylist && (
         <motion.button
           onClick={handleAddToPlaylist}
@@ -146,7 +143,6 @@ const AudioContentCardActions: React.FC<AudioContentCardActionsProps> = ({
         </motion.button>
       )}
 
-      {/* 編集ボタン */}
       {showActions.edit && (
         <Button
           onClick={handleEdit}
@@ -165,7 +161,6 @@ const AudioContentCardActions: React.FC<AudioContentCardActionsProps> = ({
         </Button>
       )}
 
-      {/* 削除ボタン */}
       {showActions.delete && (
         <Button
           onClick={handleDelete}
@@ -184,7 +179,6 @@ const AudioContentCardActions: React.FC<AudioContentCardActionsProps> = ({
         </Button>
       )}
 
-      {/* プレイリストから削除ボタン */}
       {showActions.removeFromPlaylist && (
         <Button
           onClick={handleRemoveFromPlaylist}
