@@ -50,19 +50,14 @@ const UserCard: React.FC<UserCardProps> = ({
 }) => {
   const { getFollowCounts, refreshFollowData } = useFollow();
   
-  // フォロー数を取得（ローカルキャッシュから）
   const localCounts = getFollowCounts(user.id);
   const followersCount = localCounts.followers || user._count.followers;
   const followingCount = localCounts.following || user._count.following;
 
   const handleFollowChange: FollowChangeCallback = () => {
-    // フォロー状態変更時の処理（必要に応じて）
-    
-    // フォローデータを更新
     refreshFollowData(user.id);
   };
 
-  // バリアントに応じたスタイルを取得
   const getCardStyles = () => {
     const baseStyles = 'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200';
     
@@ -88,7 +83,6 @@ const UserCard: React.FC<UserCardProps> = ({
   return (
     <div className={`${cardStyles} ${className}`}>
       <div className="flex items-start space-x-4">
-        {/* ユーザーアイコン */}
         <Link 
           href={`/users/${user.id}`}
           className="flex-shrink-0 group"
@@ -99,7 +93,6 @@ const UserCard: React.FC<UserCardProps> = ({
         </Link>
 
         <div className="flex-1 min-w-0">
-          {/* ユーザー名とフォローボタン */}
           <div className="flex items-center justify-between">
             <div>
               <Link 
@@ -127,14 +120,12 @@ const UserCard: React.FC<UserCardProps> = ({
             )}
           </div>
 
-          {/* バイオ */}
           {showBio && user.bio && variant !== 'compact' && (
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
               {user.bio}
             </p>
           )}
 
-          {/* ユーザー情報 */}
           {variant === 'detailed' && (
             <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
               {user.location && (
@@ -163,7 +154,6 @@ const UserCard: React.FC<UserCardProps> = ({
             </div>
           )}
 
-          {/* 統計情報 */}
           {showStats && (
             <div className={`${variant === 'compact' ? 'mt-2' : 'mt-3'} flex items-center space-x-6 text-sm`}>
               <Link 

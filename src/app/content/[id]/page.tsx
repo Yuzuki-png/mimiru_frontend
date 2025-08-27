@@ -103,7 +103,6 @@ export default function ContentPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* 成功メッセージ */}
       {copySuccess && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -121,7 +120,6 @@ export default function ContentPage() {
       )}
 
       <div className="container mx-auto px-4 py-8">
-        {/* 戻るボタン */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -133,13 +131,11 @@ export default function ContentPage() {
         </motion.button>
 
         <div className="max-w-4xl mx-auto">
-          {/* メインコンテンツカード */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg border border-gray-200 dark:border-gray-700 mb-8"
           >
-            {/* カテゴリバッジ */}
             <div className="flex items-center justify-between mb-6">
               <span className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-sm font-medium rounded-full">
                 <TagIcon className="h-4 w-4 mr-1" />
@@ -154,12 +150,10 @@ export default function ContentPage() {
               </button>
             </div>
 
-            {/* タイトル */}
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
               {content.title}
             </h1>
 
-            {/* メタ情報 */}
             <div className="flex flex-wrap items-center gap-6 mb-6 text-sm text-gray-600 dark:text-gray-400">
               <div className="flex items-center space-x-2">
                 <UserIcon className="h-4 w-4" />
@@ -175,7 +169,6 @@ export default function ContentPage() {
               </div>
             </div>
 
-            {/* 説明 */}
             <div className="mb-8">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
                 説明
@@ -185,7 +178,6 @@ export default function ContentPage() {
               </p>
             </div>
 
-            {/* 再生ボタン */}
             <div className="flex items-center justify-center">
               <button
                 onClick={() => togglePlay(content)}
@@ -211,7 +203,6 @@ export default function ContentPage() {
             </div>
           </motion.div>
 
-          {/* 投稿者情報 */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

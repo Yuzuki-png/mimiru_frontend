@@ -6,7 +6,6 @@ import React, { ButtonHTMLAttributes, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 
-// ボタンのバリアント型
 type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
@@ -35,7 +34,6 @@ interface ButtonAsLinkProps extends BaseButtonProps {
 
 type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
 
-// スタイル定義
 const getVariantStyles = (variant: ButtonVariant): string => {
   const styles = {
     primary: 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700',
@@ -58,7 +56,6 @@ const getSizeStyles = (size: ButtonSize): string => {
 
 const baseStyles = 'inline-flex items-center justify-center rounded-md border font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
-// アニメーションバリアント
 const buttonVariants = {
   initial: { scale: 1 },
   hover: { scale: 1.02 },
@@ -83,7 +80,6 @@ const Button: React.FC<ButtonProps> = ({
   
   const combinedClassName = `${baseStyles} ${variantStyles} ${sizeStyles} ${widthStyle} ${className}`;
 
-  // ローディング表示
   const content = (
     <>
       {loading && (

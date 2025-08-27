@@ -4,7 +4,6 @@
 
 import { AudioContent } from './AudioContent';
 
-// プレイリストアイテム型
 export interface PlaylistItem {
   id: number;
   playlistId: number;
@@ -14,7 +13,6 @@ export interface PlaylistItem {
   audioContent: AudioContent;
 }
 
-// 基本プレイリスト型
 export interface BasePlaylist {
   id: number;
   title: string;
@@ -29,7 +27,6 @@ export interface BasePlaylist {
   };
 }
 
-// アイテムを含むプレイリスト型
 export interface PlaylistWithItems extends BasePlaylist {
   items: PlaylistItem[];
 }

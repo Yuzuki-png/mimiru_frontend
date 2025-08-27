@@ -29,18 +29,15 @@ export interface PlaylistItem {
   };
 }
 
-// プレイリスト一覧取得
 export function usePlaylists() {
   return useAppSWR<{ data: Playlist[] }>('/playlists');
 }
 
-// プレイリスト詳細取得
 export function usePlaylist(id: number | string | null) {
   const key = id ? `/playlists/${id}` : null;
   return useAppSWR<Playlist>(key);
 }
 
-// プレイリスト作成
 export function useCreatePlaylist() {
   const axiosClient = useAxios();
   
@@ -54,7 +51,6 @@ export function useCreatePlaylist() {
         data: arg,
       });
       
-      // プレイリスト一覧を再検証
       mutate('/playlists');
       
       return response.data;
@@ -62,7 +58,6 @@ export function useCreatePlaylist() {
   );
 }
 
-// プレイリスト更新
 export function useUpdatePlaylist() {
   const axiosClient = useAxios();
   
@@ -76,7 +71,6 @@ export function useUpdatePlaylist() {
         data: arg.data,
       });
       
-      // 特定プレイリストとリストを再検証
       mutate(`/playlists/${arg.id}`);
       mutate('/playlists');
       
@@ -85,7 +79,6 @@ export function useUpdatePlaylist() {
   );
 }
 
-// プレイリスト削除
 export function useDeletePlaylist() {
   const axiosClient = useAxios();
   
@@ -96,7 +89,6 @@ export function useDeletePlaylist() {
         method: 'DELETE',
       });
       
-      // プレイリスト一覧を再検証
       mutate('/playlists');
       
       return { success: true };
@@ -104,7 +96,6 @@ export function useDeletePlaylist() {
   );
 }
 
-// プレイリストにアイテム追加
 export function useAddPlaylistItem() {
   const axiosClient = useAxios();
   
@@ -118,7 +109,6 @@ export function useAddPlaylistItem() {
         data: { audioContentId: arg.audioContentId },
       });
       
-      // プレイリスト詳細とアイテム一覧を再検証
       mutate(`/playlists/${arg.playlistId}`);
       mutate(`/playlists/${arg.playlistId}/items`);
       
@@ -127,7 +117,6 @@ export function useAddPlaylistItem() {
   );
 }
 
-// プレイリストからアイテム削除
 export function useRemovePlaylistItem() {
   const axiosClient = useAxios();
   
@@ -140,7 +129,6 @@ export function useRemovePlaylistItem() {
         method: 'DELETE',
       });
       
-      // プレイリスト詳細とアイテム一覧を再検証
       mutate(`/playlists/${arg.playlistId}`);
       mutate(`/playlists/${arg.playlistId}/items`);
       
@@ -149,7 +137,6 @@ export function useRemovePlaylistItem() {
   );
 }
 
-// プレイリストアイテム一覧取得
 export function usePlaylistItems(playlistId: number | string | null) {
   const key = playlistId ? `/playlists/${playlistId}/items` : null;
   return useAppSWR<{ data: PlaylistItem[] }>(key);

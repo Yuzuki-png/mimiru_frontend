@@ -33,24 +33,19 @@ const FollowButton: React.FC<FollowButtonProps> = ({
     try {
       const result = await toggleFollow(userId);
       
-      // 成功時のコールバック
       if (onFollowChange) {
         onFollowChange(result.isFollowing, result.followersCount);
       }
 
-      // 成功メッセージ（オプション）
-
     } catch {
       setError('フォローの切り替えに失敗しました');
       
-      // エラーを3秒後にクリア
       setTimeout(() => setError(null), 3000);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // バリアントに応じたスタイルを取得
   const getVariantStyles = () => {
     const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2';
     
@@ -64,7 +59,6 @@ const FollowButton: React.FC<FollowButtonProps> = ({
     }
   };
 
-  // フォロー状態に応じたスタイルとアイコンを取得
   const getFollowStyles = () => {
     if (following) {
       return {
@@ -107,7 +101,6 @@ const FollowButton: React.FC<FollowButtonProps> = ({
         )}
       </button>
 
-      {/* エラーメッセージ */}
       {error && (
         <div className="absolute top-full left-0 mt-2 p-2 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 text-xs rounded-md shadow-lg z-10 whitespace-nowrap">
           {error}

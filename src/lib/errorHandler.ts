@@ -10,13 +10,11 @@ export class ErrorHandler {
    */
   static handleError(error: unknown): AppError {
     if (error instanceof Error) {
-      // カスタムAppErrorの場合
       if ('code' in error && 'userMessage' in error) {
         const appError = error as AppError;
         return appError;
       }
 
-      // 一般的なErrorの場合
       return {
         code: 'UNKNOWN_ERROR',
         message: error.message,
@@ -25,7 +23,6 @@ export class ErrorHandler {
       };
     }
 
-    // unknown型のエラー
     return {
       code: 'UNKNOWN_ERROR',
       message: 'Unknown error occurred',

@@ -31,7 +31,6 @@ interface CardFooterProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 
-// スタイル定義
 const getVariantStyles = (variant: CardVariant): string => {
   const styles = {
     default: 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm',
@@ -52,7 +51,6 @@ const getPaddingStyles = (padding: CardProps['padding']): string => {
   return styles[padding || 'md'];
 };
 
-// アニメーションバリアント
 const cardVariants = {
   initial: { scale: 1, y: 0 },
   hover: { scale: 1.02, y: -2 },
@@ -104,7 +102,6 @@ const Card: React.FC<CardProps> & {
   );
 };
 
-// サブコンポーネント
 const CardHeader: React.FC<CardHeaderProps> = ({
   children,
   className = '',
@@ -147,7 +144,6 @@ const CardFooter: React.FC<CardFooterProps> = ({
   );
 };
 
-// サブコンポーネントを Card に割り当て
 Card.Header = CardHeader;
 Card.Body = CardBody;
 Card.Footer = CardFooter;

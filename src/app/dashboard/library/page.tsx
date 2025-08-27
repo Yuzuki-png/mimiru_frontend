@@ -137,10 +137,9 @@ export default function LibraryPage() {
       if (isCurrentlyPlaying) {
         await pauseAudio();
       } else {
-        // S3署名付きURLまたはHTTPSのURLを直接使用
         const audioUrl = content.audioUrl;
         if (!audioUrl || !audioUrl.startsWith("http")) {
-          return; // audioUrlがない場合は再生を中止
+          return;
         }
 
         const audioContent = {
@@ -170,7 +169,6 @@ export default function LibraryPage() {
       try {
         const result = await toggleLike(contentId);
         
-        // ローカルstateのいいね数を更新
         const updateContent = (content: AudioContent) =>
           content.id === contentId
             ? {
@@ -210,7 +208,6 @@ export default function LibraryPage() {
     if (!newPlaylistName.trim()) return;
     
     try {
-      // バックエンドAPI実装完了により有効化
       const newPlaylist = await playlistApi.create({
         name: newPlaylistName,
         description: newPlaylistDescription
@@ -228,7 +225,6 @@ export default function LibraryPage() {
   const handleDeletePlaylist = useCallback(async (playlistId: number) => {
     if (window.confirm("このプレイリストを削除しますか？")) {
       try {
-        // バックエンドAPI実装完了により有効化
         await playlistApi.delete(playlistId.toString());
         
         setPlaylists(prev => prev.filter(p => p.id !== playlistId));
@@ -240,10 +236,8 @@ export default function LibraryPage() {
 
   const handleAddToPlaylist = async (playlistId: number, audioContent: AudioContent) => {
     try {
-      // バックエンドAPI実装完了により有効化
       await playlistApi.addItem(playlistId.toString(), audioContent.id);
       
-      // UI更新
       const selectedPlaylist = playlists.find(p => p.id === playlistId);
       setPlaylists(prev => prev.map(playlist => 
         playlist.id === playlistId
@@ -254,7 +248,6 @@ export default function LibraryPage() {
           : playlist
       ));
       
-      // 成功メッセージを表示
       setSuccessMessage(`「${audioContent.title}」を「${selectedPlaylist?.name}」に追加しました！`);
       setTimeout(() => setSuccessMessage(null), 3000);
       
@@ -289,7 +282,6 @@ export default function LibraryPage() {
             >
               <PlusIcon className="h-4 w-4" />
             </button>
-            {/* 投稿者本人のみに編集・削除ボタンを表示 */}
             {user && user.id === content.author.id.toString() && (
               <>
                 <button
@@ -417,7 +409,6 @@ export default function LibraryPage() {
 
   return (
     <div className="space-y-8">
-      {/* 成功メッセージ */}
       {successMessage && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -434,7 +425,6 @@ export default function LibraryPage() {
         </motion.div>
       )}
 
-      {/* エラーメッセージ */}
       {likeError && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -489,7 +479,6 @@ export default function LibraryPage() {
           </div>
         </div>
         
-        {/* タブ切り替え */}
         <div className="flex border-b border-gray-200 dark:border-gray-700">
           <button
             onClick={() => setActiveTab('contents')}
@@ -514,7 +503,6 @@ export default function LibraryPage() {
         </div>
       </motion.div>
 
-      {/* 統計情報 */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -566,7 +554,6 @@ export default function LibraryPage() {
         </motion.div>
       </div>
 
-      {/* カテゴリフィルター（コンテンツタブの場合のみ表示） */}
       {activeTab === 'contents' && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -595,7 +582,6 @@ export default function LibraryPage() {
         </motion.div>
       )}
 
-      {/* メインコンテンツエリア */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -677,7 +663,6 @@ export default function LibraryPage() {
         )}
       </motion.div>
 
-      {/* プレイリスト作成モーダル */}
       {showCreatePlaylist && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md mx-4">
@@ -740,7 +725,6 @@ export default function LibraryPage() {
         </div>
       )}
 
-      {/* プレイリストに追加モーダル */}
       {showAddToPlaylist && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md mx-4">
@@ -792,7 +776,6 @@ export default function LibraryPage() {
   );
 }
 
-// プレイリストカードコンポーネント
 const PlaylistCard = ({ playlist, onDelete }: { playlist: Playlist; onDelete: (id: number) => void }) => {
   const router = useRouter();
   

@@ -23,19 +23,16 @@ export default function useAxios() {
       ...restOptions
     } = options;
 
-    // URLの正規化
     const fullUrl = url.startsWith('http') 
       ? url 
       : `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
 
-    // ヘッダーの構築
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const headers: any = {
       'Content-Type': 'application/json',
       ...customHeaders,
     };
 
-    // 認証ヘッダーの付与
     if (!skipAuth) {
       const token = StorageManager.getToken();
       if (token) {
@@ -55,11 +52,10 @@ export default function useAxios() {
     } catch (error) {
       const axiosError = error as AxiosError;
       
-      // 認証エラーハンドリング
       if (axiosError.response?.status === 401) {
         StorageManager.clearAuth();
+
         
-        // ダッシュボードページからのリクエストでは自動リダイレクトしない
         if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/dashboard')) {
           window.location.href = '/login';
         }
@@ -67,7 +63,6 @@ export default function useAxios() {
         throw new Error('Unauthorized');
       }
 
-      // HTTPエラー
       if (axiosError.response) {
         const errorData = axiosError.response.data as { message?: string };
         const errorMessage = errorData?.message || 
@@ -80,7 +75,6 @@ export default function useAxios() {
         throw new Error(errorMessage);
       }
 
-      // ネットワークエラー
       if (axiosError.code === 'ECONNREFUSED' || axiosError.code === 'ERR_NETWORK') {
         const networkError = 'ネットワーク接続に問題があります。';
         if (showError) {
@@ -89,7 +83,6 @@ export default function useAxios() {
         throw new Error(networkError);
       }
 
-      // タイムアウトエラー
       if (axiosError.code === 'ECONNABORTED') {
         const timeoutError = 'リクエストがタイムアウトしました。';
         if (showError) {

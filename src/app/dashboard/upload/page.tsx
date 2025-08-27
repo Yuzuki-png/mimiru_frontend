@@ -25,7 +25,6 @@ export default function UploadPage() {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // カテゴリマッピング（seedスクリプトの順序に合わせる）
   const categoryMapping: { [key: string]: string } = {
     "ビジネス": "1",
     "教育": "2",
@@ -89,9 +88,7 @@ export default function UploadPage() {
     }
   };
 
-  // 音声ファイルのduration取得関数（Web Audio API使用）
   const getAudioDuration = async (file: File): Promise<number> => {
-    // 方法1: Web Audio API
     try {
       const audioContext = new (window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       const arrayBuffer = await file.arrayBuffer();
@@ -103,10 +100,8 @@ export default function UploadPage() {
         return Math.floor(duration);
       }
     } catch {
-      // Web Audio API failed - continue to fallback
     }
 
-    // 方法2: 従来のHTML Audio Element（改善版）
     return new Promise((resolve, reject) => {
       const audio = new Audio();
       const objectUrl = URL.createObjectURL(file);
@@ -126,22 +121,18 @@ export default function UploadPage() {
         }
       };
       
-      // タイムアウト設定（5秒に短縮）
       const timeout = setTimeout(() => {
         if (!resolved) {
           resolved = true;
           cleanup();
-          // より保守的なデフォルト値（60秒）
           resolve(60);
         }
       }, 5000);
       
-      // durationchangeイベント（最も信頼性が高い）
       audio.addEventListener('durationchange', () => {
         tryResolve(audio.duration);
       });
       
-      // loadedmetadataイベント
       audio.addEventListener('loadedmetadata', () => {
         tryResolve(audio.duration);
       });
@@ -155,12 +146,10 @@ export default function UploadPage() {
         }
       });
       
-      // より積極的な読み込み設定
       audio.preload = 'auto';
       audio.src = objectUrl;
       audio.load();
       
-      // 強制的に少し再生して metadata を確実に読み込む
       setTimeout(() => {
         if (!resolved) {
           audio.currentTime = 0.1;
@@ -196,23 +185,20 @@ export default function UploadPage() {
       } = {
         title,
         description,
-        category,  // バックエンドが期待する日本語カテゴリ名
+        category,
         audioFile,
       };
       
-      // 音声ファイルから実際のdurationを取得
       try {
         const actualDuration = await getAudioDuration(audioFile);
         audioData.duration = actualDuration;
       } catch {
-        // フォールバック1: 録音時間
         if (recordingTime > 0 && isFinite(recordingTime)) {
           const validDuration = Math.max(1, Math.floor(recordingTime));
           audioData.duration = validDuration;
         }
-        // フォールバック2: 保守的なデフォルト値
         else {
-          const defaultDuration = 60; // 1分をデフォルト
+          const defaultDuration = 60;
           audioData.duration = defaultDuration;
         }
       }
@@ -227,7 +213,6 @@ export default function UploadPage() {
       router.push('/dashboard');
     } catch (error) {
       if (error instanceof Error) {
-        // カテゴリエラーの場合は具体的な案内を表示
         if (error.message.includes('カテゴリ') && error.message.includes('見つかりません')) {
           alert(`選択されたカテゴリが無効です。利用可能なカテゴリから選択してください。`);
         } else {

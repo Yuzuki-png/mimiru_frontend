@@ -62,12 +62,10 @@ export const FollowProvider: React.FC<FollowProviderProps> = ({ children }) => {
     error: null,
   });
 
-  // ユーザーをフォローしているかチェック
   const isFollowing = useCallback((userId: string): boolean => {
     return state.followingUsers.has(userId);
   }, [state.followingUsers]);
 
-  // フォロー/アンフォローの切り替え
   const toggleFollow = useCallback(async (userId: string) => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
 
@@ -108,7 +106,6 @@ export const FollowProvider: React.FC<FollowProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // フォロー数を取得
   const getFollowCounts = useCallback((userId: string) => {
     return {
       followers: state.followersCount.get(userId) || 0,
@@ -116,7 +113,6 @@ export const FollowProvider: React.FC<FollowProviderProps> = ({ children }) => {
     };
   }, [state.followersCount, state.followingCount]);
 
-  // フォローデータを更新
   const refreshFollowData = useCallback(async (userId: string) => {
     try {
       const [followingResult, followersResult] = await Promise.all([
@@ -138,11 +134,9 @@ export const FollowProvider: React.FC<FollowProviderProps> = ({ children }) => {
         };
       });
     } catch {
-      // エラーは静かに処理し、UIに影響を与えない
     }
   }, []);
 
-  // ユーザー検索
   const searchUsers = useCallback(async (query: string): Promise<User[]> => {
     try {
       const result = await userApi.search(query);
@@ -152,12 +146,11 @@ export const FollowProvider: React.FC<FollowProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // ユーザー情報を取得
   const getUserById = useCallback(async (userId: string): Promise<User> => {
     try {
       const result = await userApi.getById(userId);
+
       
-      // フォロー数を更新
       if (result._count) {
         setState(prev => {
           const newFollowersCount = new Map(prev.followersCount);
@@ -180,7 +173,6 @@ export const FollowProvider: React.FC<FollowProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // ユーザーのコンテンツを取得
   const getUserContents = useCallback(async (userId: string, params?: { page?: number; limit?: number }) => {
     try {
       const result = await userApi.getContents(userId, params);
@@ -190,7 +182,6 @@ export const FollowProvider: React.FC<FollowProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // フォロー中のユーザー一覧を取得
   const getFollowing = useCallback(async (userId?: string, params?: { page?: number; limit?: number }): Promise<User[]> => {
     try {
       const result = await userApi.getFollowing(userId, params);
@@ -200,7 +191,6 @@ export const FollowProvider: React.FC<FollowProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // フォロワー一覧を取得
   const getFollowers = useCallback(async (userId?: string, params?: { page?: number; limit?: number }): Promise<User[]> => {
     try {
       const result = await userApi.getFollowers(userId, params);

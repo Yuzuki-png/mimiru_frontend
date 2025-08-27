@@ -23,21 +23,19 @@ const GlobalAudioPlayer: React.FC = () => {
   const pathname = usePathname();
   const isDashboard = pathname.startsWith('/dashboard');
   
-  // SidebarContextから状態を直接取得
   const { isCollapsed } = useSidebar();
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // キーボードショートカットを有効化
   useKeyboardShortcuts();
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !state.currentAudio) return;
 
-    let hasEnded = false; // 終了処理の重複を防ぐフラグ
-    let canplayHandled = false; // canplayイベントの重複処理を防ぐフラグ
-    let lastTimeUpdate = 0; // 最後のtime更新時刻
+    let hasEnded = false;
+    let canplayHandled = false;
+    let lastTimeUpdate = 0;
 
     const handleLoadedMetadata = () => {
       if (audio && isFinite(audio.duration) && audio.duration > 0) {
@@ -166,25 +164,23 @@ const GlobalAudioPlayer: React.FC = () => {
       audio.removeEventListener("error", handleError);
       audio.removeEventListener("loadstart", handleLoadStart);
     };
-  }, [state.currentAudio]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [state.currentAudio]);
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
     if (state.isPlaying) {
-      // 他の音声を停止（重複再生を防ぐ）
       const allAudioElements = document.querySelectorAll('audio');
       allAudioElements.forEach(otherAudio => {
         if (otherAudio !== audio && !otherAudio.paused) {
           otherAudio.pause();
         }
       });
+
       
-      // 再生を試行
       audio.play().catch((error) => {
         if (error.name !== 'AbortError') {
-          // Play error - サイレントに処理
         }
       });
     } else {
@@ -202,11 +198,8 @@ const GlobalAudioPlayer: React.FC = () => {
     const newTime = parseFloat(e.target.value);
     const audio = audioRef.current;
     
-    // シークが可能かチェック
     if (audio && isFinite(state.duration) && state.duration > 0) {
-      // 直接audioElementの時刻を設定
       audio.currentTime = newTime;
-      // stateも更新
       setCurrentTime(newTime);
     }
   };
@@ -220,12 +213,11 @@ const GlobalAudioPlayer: React.FC = () => {
       const audio = audioRef.current;
       if (audio && state.currentAudio) {
         try {
-          // メタデータが読み込まれていない場合は先に読み込む
           if (audio.readyState < 1) {
             setLoading(true);
             audio.load();
+
             
-            // loadedmetadataイベントを待つ
             await new Promise<void>((resolve, reject) => {
               const timeout = setTimeout(() => {
                 setLoading(false);
@@ -316,7 +308,6 @@ const GlobalAudioPlayer: React.FC = () => {
 
         <div className="px-4 py-3">
           <div className="flex items-center space-x-4">
-            {/* 再生コントロール */}
             <div className="flex items-center space-x-2">
               <button
                 onClick={handlePlayPause}
@@ -342,7 +333,6 @@ const GlobalAudioPlayer: React.FC = () => {
               </button>
             </div>
 
-            {/* トラック情報 */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1">
                 <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">
@@ -359,7 +349,6 @@ const GlobalAudioPlayer: React.FC = () => {
                 </div>
               </div>
 
-              {/* シークバー */}
               <input
                 type="range"
                 min="0"
@@ -375,7 +364,6 @@ const GlobalAudioPlayer: React.FC = () => {
             </div>
 
 
-            {/* 閉じるボタン */}
             <button
               onClick={stopAudio}
               className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 p-1"

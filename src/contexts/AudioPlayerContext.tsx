@@ -8,7 +8,7 @@ interface AudioContent {
   description: string;
   audioUrl: string;
   duration?: number;
-  startTime?: number; // 視聴履歴から開始する際の時間
+  startTime?: number;
 }
 
 interface PlaybackState {
@@ -56,14 +56,14 @@ function audioPlayerReducer(state: PlaybackState, action: AudioPlayerAction): Pl
         ...state, 
         isPlaying: action.payload, 
         isPaused: !action.payload,
-        isLoading: action.payload ? false : state.isLoading // 再生開始時はローディング解除
+        isLoading: action.payload ? false : state.isLoading
       };
     case 'SET_PAUSED':
       return { 
         ...state, 
         isPaused: action.payload, 
         isPlaying: !action.payload,
-        isLoading: action.payload ? false : state.isLoading // 一時停止時はローディング解除
+        isLoading: action.payload ? false : state.isLoading
       };
     case 'SET_CURRENT_TIME':
       return { ...state, currentTime: action.payload };
@@ -119,12 +119,11 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       dispatch({ type: 'SET_ERROR', payload: null });
+
       
-      // ローカル実装: フロントエンドで直接音声を設定
       dispatch({ type: 'SET_CURRENT_AUDIO', payload: audioContent });
       dispatch({ type: 'SET_PLAYING', payload: true });
 
-      // 履歴から開始時間が指定されている場合はシークする
       if (audioContent.startTime && audioContent.startTime > 0) {
         await seekTo(audioContent.startTime);
       }
@@ -137,22 +136,18 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
   };
 
   const pauseAudio = async () => {
-    // ローカル実装: フロントエンドで直接停止状態を設定
     dispatch({ type: 'SET_PAUSED', payload: true });
   };
 
   const stopAudio = async () => {
-    // ローカル実装: フロントエンドで直接プレーヤーをリセット
     dispatch({ type: 'RESET_PLAYER' });
   };
 
   const seekTo = async (time: number) => {
-    // ローカル実装: フロントエンドで直接時間を設定
     dispatch({ type: 'SET_CURRENT_TIME', payload: time });
   };
 
   const setVolume = async (volume: number) => {
-    // ローカル実装: フロントエンドで直接音量を設定
     dispatch({ type: 'SET_VOLUME', payload: volume });
   };
 

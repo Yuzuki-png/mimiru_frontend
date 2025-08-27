@@ -18,10 +18,8 @@ export default function AuthCallbackTokenPage() {
       const token = tokenFromParams || tokenFromQuery;
 
       if (token) {
-        // トークンを直接保存
         StorageManager.setToken(token);
         
-        // ユーザー情報を取得してlocalStorageに保存
         try {
           const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003'}/auth/me`, {
             headers: {
@@ -40,10 +38,8 @@ export default function AuthCallbackTokenPage() {
             }
           }
         } catch {
-          // ユーザー情報の取得に失敗した場合も認証は継続
         }
         
-        // 少し待ってからリダイレクト
         setTimeout(() => {
           window.location.href = '/dashboard';
         }, 500);
@@ -56,7 +52,6 @@ export default function AuthCallbackTokenPage() {
     };
 
     handleCallback();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params, searchParams]);
 
   return (
