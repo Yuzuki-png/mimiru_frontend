@@ -66,9 +66,12 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
 }) => {
   const { state, playAudio, pauseAudio } = useAudioPlayer();
   const { currentAudio, isPlaying } = state;
-  const { toggleLike } = useLike();
+  const { toggleLike, isLiked } = useLike();
   const { showSuccess, showError } = useToastContext();
   const [isLikeLoading, setIsLikeLoading] = useState(false);
+
+  // LikeContextからの状態を使用
+  const contentIsLiked = isLiked(content.id);
 
   // 再生制御
   const isCurrentlyPlaying = currentAudio?.id === content.id.toString() && isPlaying;
@@ -92,13 +95,14 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
     if (isLikeLoading) return;
     
     setIsLikeLoading(true);
-    await ErrorHandler.handleAsyncOperation(
-      () => toggleLike(content.id),
-      {
-        onError: (error) => showError('いいね処理に失敗しました', error.userMessage),
-      }
-    );
-    setIsLikeLoading(false);
+    try {
+      const result = await toggleLike(content.id);
+      showSuccess(result.isLiked ? 'いいねしました' : 'いいねを解除しました');
+    } catch (error) {
+      showError('いいね処理に失敗しました', error instanceof Error ? error.message : '不明なエラー');
+    } finally {
+      setIsLikeLoading(false);
+    }
   };
 
   // 共有機能
@@ -187,7 +191,7 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
             <div className="flex items-center space-x-2">
               {showActions.play && renderPlayButton()}
               <AudioContentCardActions
-                content={content}
+                content={{ ...content, isLiked: contentIsLiked }}
                 showActions={showActions}
                 onEdit={onEdit}
                 onDelete={onDelete}
@@ -230,7 +234,7 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
             <div className="flex items-center space-x-2">
               {showActions.play && renderPlayButton()}
               <AudioContentCardActions
-                content={content}
+                content={{ ...content, isLiked: contentIsLiked }}
                 showActions={showActions}
                 onEdit={onEdit}
                 onDelete={onDelete}
@@ -250,7 +254,7 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
             <div className="flex justify-between items-start">
               {categoryTag}
               <AudioContentCardActions
-                content={content}
+                content={{ ...content, isLiked: contentIsLiked }}
                 showActions={showActions}
                 onEdit={onEdit}
                 onDelete={onDelete}
@@ -291,7 +295,7 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
               {categoryTag}
               <div className="flex items-center space-x-1">
                 <AudioContentCardActions
-                  content={content}
+                  content={{ ...content, isLiked: contentIsLiked }}
                   showActions={showActions}
                   onEdit={onEdit}
                   onDelete={onDelete}

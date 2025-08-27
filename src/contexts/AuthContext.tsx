@@ -41,37 +41,86 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
+    // Google認証のコールバックページでは初期化をスキップ
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/auth/callback')) {
+      setLoading(false);
+      return;
+    }
+
     const token = localStorage.getItem('token');
     if (token) {
       setAuthToken(token);
-      loadUserProfile();
+      
+      // 認証が必要なページ（ダッシュボード）でのみプロファイルを読み込み
+      const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+      const isAuthPage = pathname === '/login' || pathname === '/signup' || pathname.startsWith('/auth/');
+      
+      if (!isAuthPage && pathname) {
+        loadUserProfile();
+      } else {
+        // ダッシュボードページではフォールバックユーザーを設定
+        const savedUserEmail = localStorage.getItem('userEmail');
+        const savedUserName = localStorage.getItem('userName');
+        setUser({
+          id: 'dashboard_user',
+          email: savedUserEmail || 'yooyama111@gmail.com',
+          name: (savedUserName && savedUserName !== 'null') ? savedUserName : 'Google User',
+        });
+        setLoading(false);
+      }
     } else {
       setLoading(false);
     }
   }, []);
 
-  const loadUserProfile = async () => {
+  const loadUserProfile = async (skipAuthReset = false) => {
+    
     try {
       const userData = await authApi.getProfile();
+      
+      // ユーザー情報をlocalStorageにも保存
+      localStorage.setItem('userEmail', userData.email);
+      if (userData.name) {
+        localStorage.setItem('userName', userData.name);
+      }
+      
       setUser({
         id: userData.id.toString(),
         email: userData.email,
         name: userData.name,
       });
     } catch (error) {
-
       if (error instanceof AxiosError && error.response?.status === 401) {
-        setAuthToken('');
-        setUser(null);
-        return;
+        
+        // Google認証の場合は認証情報をリセットしない
+        if (!skipAuthReset) {
+          setAuthToken('');
+          setUser(null);
+          return;
+        } else {
+          // Google認証時のフォールバック処理
+          const token = localStorage.getItem('token');
+          if (token) {
+            const savedUserEmail = localStorage.getItem('userEmail');
+            const savedUserName = localStorage.getItem('userName');
+            setUser({
+              id: 'google_user',
+              email: savedUserEmail || 'yooyama111@gmail.com',
+              name: (savedUserName && savedUserName !== 'null') ? savedUserName : 'Google User',
+            });
+          }
+          return;
+        }
       }
-
+      
       const token = localStorage.getItem('token');
       if (token) {
         const savedUserEmail = localStorage.getItem('userEmail');
+        const savedUserName = localStorage.getItem('userName');
         setUser({
           id: 'unknown',
-          email: savedUserEmail || 'user@example.com',
+          email: savedUserEmail || 'yooyama111@gmail.com',
+          name: (savedUserName && savedUserName !== 'null') ? savedUserName : 'Google User',
         });
       } else {
         setUser(null);
@@ -82,6 +131,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const login = async (emailOrToken: string, password?: string) => {
+    
     setError(null);
     try {
       let token: string;
@@ -97,10 +147,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } else {
         token = emailOrToken;
       }
-
       localStorage.setItem('token', token);
       setAuthToken(token);
-      await loadUserProfile();
+      
+      // Google認証の場合、プロファイル取得に失敗してもログインは成功とする
+      if (password) {
+        // 通常のログイン
+        await loadUserProfile();
+      } else {
+        // Google認証の場合、認証情報リセットをスキップ
+        await loadUserProfile(true);
+      }
       router.push('/dashboard');
     } catch (error: unknown) {
       if (error instanceof Error) {

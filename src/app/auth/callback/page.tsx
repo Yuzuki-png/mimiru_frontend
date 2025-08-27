@@ -1,25 +1,58 @@
 'use client';
 
 import { useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { setAuthToken } from '@/src/lib/api';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { StorageManager } from '@/src/lib/storage';
 
 function AuthCallbackContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    const error = searchParams.get('error');
+    const handleCallback = async () => {
+      const token = searchParams.get('token');
+      const error = searchParams.get('error');
 
-    if (token) {
-      localStorage.setItem('token', token);
-      setAuthToken(token);
-      window.location.href = '/dashboard';
-    } else if (error) {
-      window.location.href = '/login?error=' + error;
-    } else {
-      window.location.href = '/login?error=no_token';
-    }
+      if (token) {
+        // トークンを直接保存
+        StorageManager.setToken(token);
+        
+        // ユーザー情報を取得してlocalStorageに保存
+        try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003'}/auth/me`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (response.ok) {
+            const userData = await response.json();
+            if (userData.email) {
+              localStorage.setItem('userEmail', userData.email);
+            }
+            if (userData.name) {
+              localStorage.setItem('userName', userData.name);
+            }
+          }
+        } catch {
+          // ユーザー情報の取得に失敗した場合も認証は継続
+        }
+        
+        // 少し待ってからリダイレクト
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 500);
+        
+      } else if (error) {
+        router.push(`/login?error=${error}`);
+      } else {
+        router.push('/login?error=no_token');
+      }
+    };
+
+    handleCallback();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   return (

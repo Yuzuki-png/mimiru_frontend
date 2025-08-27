@@ -10,7 +10,7 @@ import { AudioContent } from '../../../types';
 import { Button } from '../../ui';
 
 interface AudioContentCardActionsProps {
-  content: AudioContent;
+  content: AudioContent & { isLiked?: boolean };
   showActions: {
     like?: boolean;
     share?: boolean;
@@ -64,7 +64,7 @@ const AudioContentCardActions: React.FC<AudioContentCardActionsProps> = ({
       {/* いいねボタン */}
       {showActions.like && (
         <motion.button
-          onClick={onToggleLike}
+          onClick={() => onToggleLike?.()}
           disabled={isLikeLoading}
           className={`p-2 rounded-full transition-colors ${
             content.isLiked

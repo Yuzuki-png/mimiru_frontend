@@ -38,7 +38,25 @@ api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
+      // 認証情報をクリア
       localStorage.removeItem('token');
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userId');
+      
+      // ログインページ以外では再ログインを促す
+      if (typeof window !== 'undefined' && 
+          !window.location.pathname.includes('/auth/login')) {
+        
+        // 少し遅延を入れてからリダイレクト（トーストが表示されるように）
+        setTimeout(() => {
+          window.location.href = '/auth/login';
+        }, 2000);
+        
+        // カスタムイベントを発行してトースト表示
+        window.dispatchEvent(new CustomEvent('auth-required', {
+          detail: { message: 'セッションが期限切れです。再ログインが必要です。' }
+        }));
+      }
     }
     return Promise.reject(error);
   }
@@ -109,6 +127,12 @@ export const authApi = {
       const response = await api.get('/auth/me');
       return response.data;
     } catch (error) {
+      if (error instanceof AxiosError) {
+        // ネットワークエラーまたは認証エラーの場合は再スローしない
+        if (error.code === 'ERR_NETWORK' || error.response?.status === 401) {
+          return null;
+        }
+      }
       throw error;
     }
   },
@@ -247,7 +271,22 @@ export const audioContentApi = {
     const formData = new FormData();
     formData.append('title', audioData.title);
     formData.append('description', audioData.description);
+    // カテゴリ（日本語名）とカテゴリID（数値）を送信
     formData.append('category', audioData.category);
+    
+    // カテゴリIDマッピング（seedスクリプトの順序に合わせる）
+    const categoryIdMap: { [key: string]: string } = {
+      "ビジネス": "1",
+      "教育": "2",
+      "エンターテイメント": "3", 
+      "ニュース": "4",
+      "健康": "5",
+      "テクノロジー": "6"
+    };
+    
+    if (categoryIdMap[audioData.category]) {
+      formData.append('categoryId', categoryIdMap[audioData.category]);
+    }
     
     // durationを文字列として送信
     if (audioData.duration !== undefined && audioData.duration > 0) {
@@ -255,6 +294,7 @@ export const audioContentApi = {
     }
     
     formData.append('audioFile', audioData.audioFile);
+
 
     try {
       const response = await api.post('/audio-contents', formData, {
@@ -264,8 +304,10 @@ export const audioContentApi = {
       });
       return response.data;
     } catch (error) {
-      if (error instanceof AxiosError && error.response?.data?.message) {
-        throw new Error(error.response.data.message);
+      if (error instanceof AxiosError) {
+        if (error.response?.data?.message) {
+          throw new Error(error.response.data.message);
+        }
       }
       throw error;
     }

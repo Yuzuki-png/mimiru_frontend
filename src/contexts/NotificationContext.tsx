@@ -245,7 +245,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
 
   // WebSocket接続
   const connectWebSocket = useCallback(async () => {
-    if (!authIsAuthenticated || !user) {
+    // 既に接続済みの場合はスキップ
+    if (state.isWebSocketConnected || !authIsAuthenticated || !user) {
       return;
     }
 
@@ -306,10 +307,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         dispatch({ type: 'ADD_REALTIME_NOTIFICATION', payload: notification });
       });
 
-    } catch {
-      dispatch({ type: 'SET_WEBSOCKET_CONNECTION', payload: false });
+    } catch (error) {
+      // Already connectingエラーの場合は無視
+      if (error instanceof Error && error.message !== 'Already connecting') {
+        dispatch({ type: 'SET_WEBSOCKET_CONNECTION', payload: false });
+      }
     }
-  }, [authIsAuthenticated, user]);
+  }, [authIsAuthenticated, user, state.isWebSocketConnected]);
 
   // WebSocket切断
   const disconnectWebSocket = useCallback(() => {

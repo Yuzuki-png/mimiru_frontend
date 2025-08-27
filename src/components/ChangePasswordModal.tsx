@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { XMarkIcon, EyeIcon, EyeSlashIcon } from "@heroicons/react/24/outline";
-import { userApi } from "../lib/api";
+import { useChangePassword } from "../hooks/api";
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -17,9 +17,10 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  const { trigger: changePassword, isMutating: isLoading } = useChangePassword();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,10 +36,8 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
       return;
     }
 
-    setIsLoading(true);
-
     try {
-      await userApi.changePassword({
+      await changePassword({
         currentPassword,
         newPassword,
       });
@@ -53,8 +52,6 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
       } else {
         setError("パスワード変更に失敗しました");
       }
-    } finally {
-      setIsLoading(false);
     }
   };
 
