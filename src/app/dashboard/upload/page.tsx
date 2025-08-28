@@ -12,10 +12,12 @@ import {
 } from "@heroicons/react/24/outline";
 import { audioContentApi } from "../../../lib/api";
 import { useAuth } from "../../../contexts/AuthContext";
+import { useToast } from "../../../hooks/useToast";
 
 export default function UploadPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const { showError } = useToast();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -84,6 +86,19 @@ export default function UploadPage() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const maxSize = 50 * 1024 * 1024; // 50MB
+      const allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/m4a', 'audio/mp3', 'audio/flac'];
+      
+      if (file.size > maxSize) {
+        showError('ファイルサイズは50MB以下にしてください');
+        return;
+      }
+      
+      if (!allowedTypes.includes(file.type)) {
+        showError('サポートされていないファイル形式です');
+        return;
+      }
+      
       setAudioFile(file);
     }
   };
@@ -356,7 +371,7 @@ export default function UploadPage() {
                       <CloudArrowUpIcon className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
                       <input
                         type="file"
-                        accept="audio/*"
+                        accept="audio/mpeg,audio/wav,audio/ogg,audio/m4a,audio/mp3,audio/flac"
                         onChange={handleFileUpload}
                         className="hidden"
                         id="audio-upload"

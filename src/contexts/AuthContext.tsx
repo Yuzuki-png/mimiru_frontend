@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const savedUserName = localStorage.getItem('userName');
         setUser({
           id: 'dashboard_user',
-          email: savedUserEmail || 'yooyama111@gmail.com',
+          email: savedUserEmail || 'user@example.com',
           name: (savedUserName && savedUserName !== 'null') ? savedUserName : 'Google User',
         });
         setLoading(false);
@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const savedUserName = localStorage.getItem('userName');
             setUser({
               id: 'google_user',
-              email: savedUserEmail || 'yooyama111@gmail.com',
+              email: savedUserEmail || 'user@example.com',
               name: (savedUserName && savedUserName !== 'null') ? savedUserName : 'Google User',
             });
           }
@@ -116,7 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const savedUserName = localStorage.getItem('userName');
         setUser({
           id: 'unknown',
-          email: savedUserEmail || 'yooyama111@gmail.com',
+          email: savedUserEmail || 'user@example.com',
           name: (savedUserName && savedUserName !== 'null') ? savedUserName : 'Google User',
         });
       } else {
