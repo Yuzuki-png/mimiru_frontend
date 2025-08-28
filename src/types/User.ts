@@ -6,6 +6,7 @@ export interface BaseUser {
   id: string;
   email: string;
   name: string;
+  avatar?: string | null;
 }
 
 export interface AuthUser extends BaseUser {
@@ -28,6 +29,7 @@ export interface UserProfile {
   id: number;
   email: string;
   name: string;
+  avatar?: string | null;
   profile?: {
     bio?: string;
     location?: string;

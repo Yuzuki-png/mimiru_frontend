@@ -106,7 +106,7 @@ export default function DiscoverPage() {
   const playlists = useMemo(() => playlistsData?.data || [], [playlistsData?.data]);
   const filteredContents = useMemo(() => audioContents, [audioContents]);
   const loading = audioLoading;
-  const error = audioError;
+  const error = audioError ? 'コンテンツの取得に失敗しました' : null;
 
   useEffect(() => {
     const allContents = [...trendingContents, ...newContents, ...audioContents];

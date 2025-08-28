@@ -44,12 +44,9 @@ api.interceptors.response.use(
       
       if (typeof window !== 'undefined' && 
           !window.location.pathname.includes('/auth/login')) {
-
-        
         setTimeout(() => {
           window.location.href = '/auth/login';
         }, 2000);
-
         
         window.dispatchEvent(new CustomEvent('auth-required', {
           detail: { message: 'セッションが期限切れです。再ログインが必要です。' }
@@ -95,7 +92,6 @@ export const authApi = {
       
       return response.data;
     } catch (error) {
-      
       if (error instanceof AxiosError) {
         if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
           throw new Error('サーバーに接続できません。バックエンドが起動していることを確認してください。');
@@ -145,7 +141,7 @@ export const userApi = {
     }
   },
 
-  updateProfile: async (profileData: { name?: string; profile?: string }) => {
+  updateProfile: async (profileData: { name?: string; bio?: string }) => {
     try {
       const response = await api.put('/users/profile', profileData);
       return response.data;
@@ -220,6 +216,37 @@ export const userApi = {
     const response = await api.get(`/users/${userId}/contents`, { params });
     return response.data;
   },
+
+  uploadAvatar: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await api.post('/users/avatar/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error('アバター画像のアップロードに失敗しました');
+    }
+  },
+
+  deleteAvatar: async () => {
+    try {
+      const response = await api.delete('/users/avatar');
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error('アバター画像の削除に失敗しました');
+    }
+  },
 };
 
 export const audioContentApi = {
@@ -269,7 +296,6 @@ export const audioContentApi = {
     formData.append('title', audioData.title);
     formData.append('description', audioData.description);
     formData.append('category', audioData.category);
-
     
     const categoryIdMap: { [key: string]: string } = {
       "ビジネス": "1",
@@ -283,15 +309,13 @@ export const audioContentApi = {
     if (categoryIdMap[audioData.category]) {
       formData.append('categoryId', categoryIdMap[audioData.category]);
     }
-
     
     if (audioData.duration !== undefined && audioData.duration > 0) {
       formData.append('duration', audioData.duration.toString());
     }
     
     formData.append('audioFile', audioData.audioFile);
-
-
+    
     try {
       const response = await api.post('/audio-contents', formData, {
         headers: {
@@ -437,6 +461,5 @@ export const isAuthenticated = (): boolean => {
   if (typeof window === 'undefined') return false;
   return !!localStorage.getItem('token');
 };
-
 
 export default api; 

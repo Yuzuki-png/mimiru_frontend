@@ -82,16 +82,19 @@ const DeleteAccountModal = ({ isOpen, onClose }: DeleteAccountModalProps) => {
             </ul>
           </div>
 
-          <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+          <label htmlFor="delete-confirmation" className="text-sm text-gray-600 dark:text-gray-300 mb-4 block">
             アカウント削除を実行するには、以下に「<strong>削除を実行する</strong>」と入力してください。
-          </p>
+          </label>
 
           <input
+            id="delete-confirmation"
+            name="delete-confirmation"
             type="text"
             value={confirmationText}
             onChange={(e) => setConfirmationText(e.target.value)}
             placeholder="削除を実行する"
             disabled={isDeleting}
+            autoComplete="off"
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
           />
 

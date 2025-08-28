@@ -26,8 +26,6 @@ const useAppSWR = <T>(
     revalidateOnReconnect: false,
     shouldRetryOnError: false,
     dedupingInterval: 2000,
-
-    
     ...config,
   } satisfies SWRConfiguration;
 
