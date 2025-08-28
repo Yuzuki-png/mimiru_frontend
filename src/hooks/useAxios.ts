@@ -27,8 +27,7 @@ export default function useAxios() {
       ? url 
       : `${config.apiBaseUrl}${url.startsWith('/') ? url : `/${url}`}`;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const headers: any = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       ...customHeaders,
     };
@@ -54,7 +53,6 @@ export default function useAxios() {
       
       if (axiosError.response?.status === 401) {
         StorageManager.clearAuth();
-
         
         if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/dashboard')) {
           window.location.href = '/login';

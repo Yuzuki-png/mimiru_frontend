@@ -3,6 +3,7 @@
 import { useAuth } from "../../../contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { 
   UserIcon,
   EnvelopeIcon,
@@ -11,43 +12,48 @@ import {
   PencilIcon,
   CheckIcon,
   XMarkIcon,
-  GlobeAltIcon,
   ShieldCheckIcon,
   TrashIcon
 } from "@heroicons/react/24/outline";
 import DeleteAccountModal from "../../../components/DeleteAccountModal";
 import ChangePasswordModal from "../../../components/ChangePasswordModal";
+import AvatarUploadModal from "../../../components/AvatarUploadModal";
+import UserAvatar from "../../../components/UserAvatar";
 import { userApi } from "../../../lib/api";
 
 interface UserProfile {
   id: number;
   email: string;
   name: string | null;
-  profile: string | null;
+  bio: string | null;
+  avatar: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(user?.name || "");
   const [editedBio, setEditedBio] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     loadUserProfile();
-  }, );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const loadUserProfile = async () => {
     try {
       const profile = await userApi.getProfile();
       setUserProfile(profile);
       setEditedName(profile.name || "");
-      setEditedBio(profile.profile || "");
+      setEditedBio(profile.bio || "");
     } catch {
       // エラーの場合は、既存のユーザー情報をフォールバックとして使用
       if (user) {
@@ -55,7 +61,8 @@ export default function ProfilePage() {
           id: 0,
           email: user.email,
           name: user.name || null,
-          profile: null,
+          avatar: null,
+          bio: null,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         };
@@ -71,11 +78,27 @@ export default function ProfilePage() {
     try {
       await userApi.updateProfile({
         name: editedName,
-        profile: editedBio,
+        bio: editedBio,
       });
+      
+      // 更新後にプロフィールを再読み込み
       await loadUserProfile();
       setIsEditing(false);
-    } catch {
+    } catch (error) {
+      // 認証エラーの場合はログインページにリダイレクト
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 401 || axiosError.response?.status === 403) {
+          // トークンをクリア
+          localStorage.removeItem('token');
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('userId');
+          
+          // ログインページにリダイレクト
+          router.push('/login');
+          return;
+        }
+      }
     } finally {
       setIsLoading(false);
     }
@@ -83,8 +106,15 @@ export default function ProfilePage() {
 
   const handleCancel = () => {
     setEditedName(userProfile?.name || user?.name || "");
-    setEditedBio(userProfile?.profile || "");
+    setEditedBio(userProfile?.bio || "");
     setIsEditing(false);
+  };
+
+  const handleAvatarChange = (newAvatarUrl: string | null) => {
+    setUserProfile(prev => prev ? {
+      ...prev,
+      avatar: newAvatarUrl
+    } : null);
   };
 
 
@@ -145,10 +175,15 @@ export default function ProfilePage() {
 
             <div className="flex items-center space-x-6 mb-6">
               <div className="relative">
-                <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <UserIcon className="h-10 w-10 text-white" />
-                </div>
-                <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-full flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <UserAvatar 
+                  avatar={userProfile?.avatar} 
+                  name={userProfile?.name || user?.name}
+                  size="xl" 
+                />
+                <button 
+                  onClick={() => setShowAvatarModal(true)}
+                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-full flex items-center justify-center hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
                   <CameraIcon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                 </button>
               </div>
@@ -188,20 +223,24 @@ export default function ProfilePage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label htmlFor="bio" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   自己紹介
                 </label>
                 {isEditing ? (
                   <textarea
+                    id="bio"
+                    name="bio"
                     value={editedBio}
                     onChange={(e) => setEditedBio(e.target.value)}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     placeholder="あなたについて教えてください..."
+                    autoComplete="off"
+                    aria-describedby="bio-help"
                   />
                 ) : (
                   <p className="text-gray-900 dark:text-white">
-                    {userProfile?.profile || "自己紹介が設定されていません"}
+                    {userProfile?.bio || "自己紹介が設定されていません"}
                   </p>
                 )}
               </div>
@@ -220,29 +259,6 @@ export default function ProfilePage() {
             </div>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700"
-          >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">アカウント設定</h3>
-            
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <GlobeAltIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-white">言語</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">日本語</p>
-                  </div>
-                </div>
-                <button className="px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors">
-                  変更
-                </button>
-              </div>
-            </div>
-          </motion.div>
         </div>
 
         <div className="space-y-6">
@@ -271,16 +287,6 @@ export default function ProfilePage() {
                 <span className="text-gray-400">›</span>
               </button>
 
-              <button className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors">
-                <div className="flex items-center space-x-3">
-                  <ShieldCheckIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                  <div className="text-left">
-                    <p className="font-medium text-gray-900 dark:text-white">二段階認証</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">セキュリティを強化</p>
-                  </div>
-                </div>
-                <span className="text-gray-400">›</span>
-              </button>
 
               <button 
                 onClick={() => setShowDeleteModal(true)}
@@ -308,6 +314,14 @@ export default function ProfilePage() {
       <ChangePasswordModal 
         isOpen={showPasswordModal}
         onClose={() => setShowPasswordModal(false)}
+      />
+
+      <AvatarUploadModal 
+        isOpen={showAvatarModal}
+        onClose={() => setShowAvatarModal(false)}
+        currentAvatar={userProfile?.avatar}
+        userName={userProfile?.name || user?.name}
+        onAvatarChange={handleAvatarChange}
       />
     </div>
   );

@@ -16,6 +16,7 @@ export interface AudioContent {
     id: string;
     name: string;
     email: string;
+    avatar?: string | null;
   };
   category: {
     id: number;

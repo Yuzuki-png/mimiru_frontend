@@ -37,7 +37,6 @@ export function useCreateAudioContent() {
       arg: { data: CreateAudioContentData; file: File } 
     }) => {
       const formData = new FormData();
-
       
       Object.entries(arg.data).forEach(([key, value]) => {
         formData.append(key, value.toString());
@@ -97,7 +96,6 @@ export function useLikeAudioContent() {
       });
       
       const { isLiked, totalLikes } = response.data as { isLiked: boolean; totalLikes: number };
-
       
       mutate(
         `/audio-contents/${arg.id}`,
@@ -114,7 +112,6 @@ export function useLikeAudioContent() {
         },
         false
       );
-
       
       mutate((key) => typeof key === 'string' && key.includes('/audio-contents'), undefined, { revalidate: true });
       
@@ -132,7 +129,6 @@ export function useDeleteAudioContent() {
       await axiosClient(`/audio-contents/${arg.id}`, {
         method: 'DELETE',
       });
-
       
       mutate((key) => typeof key === 'string' && key.startsWith('/audio-contents'));
       

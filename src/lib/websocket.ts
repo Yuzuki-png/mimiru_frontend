@@ -39,7 +39,6 @@ interface SocketEvents {
   'connect': () => void;
   'disconnect': () => void;
   'error': (error: Error) => void;
-
   'join_user_room': (data: { userId: number }) => void;
 }
 
@@ -87,6 +86,8 @@ class WebSocketService {
         timeout: 5000,
         reconnection: false,
         autoConnect: true,
+        forceNew: false,
+        upgrade: true,
       });
 
       this.socket.on('connect', () => {
@@ -112,7 +113,6 @@ class WebSocketService {
       this.socket.on('disconnect', (reason) => {
         this.isConnected = false;
         this.isConnecting = false;
-
         
         if (reason === 'io server disconnect') {
           this.socket?.removeAllListeners();

@@ -16,6 +16,7 @@ import {
   CalendarIcon,
   TagIcon,
 } from "@heroicons/react/24/outline";
+import UserAvatar from "../../../components/UserAvatar";
 
 
 export default function ContentPage() {
@@ -213,9 +214,11 @@ export default function ContentPage() {
               投稿者について
             </h2>
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <UserIcon className="h-6 w-6 text-white" />
-              </div>
+              <UserAvatar 
+                avatar={content.author.avatar}
+                name={content.author.name}
+                size="md"
+              />
               <div>
                 <h3 className="font-medium text-gray-900 dark:text-white">
                   {content.author.name}

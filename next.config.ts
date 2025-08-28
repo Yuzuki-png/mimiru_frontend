@@ -1,6 +1,22 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'mimiru-audio-storage.s3.ap-northeast-1.amazonaws.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.cloudfront.net',
+        port: '',
+        pathname: '/**',
+      }
+    ],
+  },
   async headers() {
     return [
       {

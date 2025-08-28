@@ -134,16 +134,19 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="current-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     現在のパスワード
                   </label>
                   <div className="relative">
                     <input
+                      id="current-password"
+                      name="current-password"
                       type={showCurrentPassword ? "text" : "password"}
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       required
                       disabled={isLoading}
+                      autoComplete="current-password"
                       className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
                     />
                     <button
@@ -161,17 +164,20 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="new-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     新しいパスワード
                   </label>
                   <div className="relative">
                     <input
+                      id="new-password"
+                      name="new-password"
                       type={showNewPassword ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       required
                       disabled={isLoading}
                       minLength={6}
+                      autoComplete="new-password"
                       className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
                     />
                     <button
@@ -192,16 +198,19 @@ export default function ChangePasswordModal({ isOpen, onClose }: ChangePasswordM
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     新しいパスワード（確認）
                   </label>
                   <div className="relative">
                     <input
+                      id="confirm-password"
+                      name="confirm-password"
                       type={showConfirmPassword ? "text" : "password"}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       required
                       disabled={isLoading}
+                      autoComplete="new-password"
                       className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50"
                     />
                     <button
