@@ -29,8 +29,16 @@ export default function useAxios() {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...customHeaders,
     };
+
+    // customHeaders を手動でマージ（null値をスキップ）
+    if (customHeaders) {
+      for (const [key, value] of Object.entries(customHeaders)) {
+        if (value !== null && value !== undefined) {
+          headers[key] = String(value);
+        }
+      }
+    }
 
     if (!skipAuth) {
       const token = StorageManager.getToken();
