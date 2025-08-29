@@ -52,7 +52,7 @@ export default function AuthCallbackTokenPage() {
     };
 
     handleCallback();
-  }, [params, searchParams]);
+  }, [params, router, searchParams]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">

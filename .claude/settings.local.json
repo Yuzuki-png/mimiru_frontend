@@ -67,7 +67,8 @@
       "mcp__serena__think_about_task_adherence",
       "mcp__serena__think_about_whether_you_are_done",
       "Bash(npm outdated)",
-      "mcp__serena__onboarding"
+      "mcp__serena__onboarding",
+      "Bash(npm run lint:*)"
     ],
     "deny": []
   },

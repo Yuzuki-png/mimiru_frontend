@@ -7,6 +7,7 @@ import {
   useLatestAudioContents
 } from "../../../hooks/api/useAudioContent";
 import { usePlaylists, useAddPlaylistItem } from "../../../hooks/api/usePlaylist";
+import { useSuggestedUsers } from "../../../hooks/api/useUser";
 import { useToast } from "../../../hooks/useToast";
 import { useAudioPlayer } from "../../../contexts/AudioPlayerContext";
 import { useLike } from "../../../contexts/LikeContext";
@@ -45,6 +46,7 @@ export default function DiscoverPage() {
   const { data: trendingData } = useTrendingAudioContents(5);
   const { data: latestData } = useLatestAudioContents(6);
   const { data: playlistsData } = usePlaylists();
+  const { data: suggestedUsersData } = useSuggestedUsers(3);
   
   const { trigger: addToPlaylistTrigger } = useAddPlaylistItem();
 
@@ -58,52 +60,12 @@ export default function DiscoverPage() {
     "テクノロジー",
   ];
 
-  const suggestedUsers = [
-    {
-      id: "2",
-      name: "田中太郎",
-      email: "tanaka@example.com",
-      bio: "教育系コンテンツを中心に投稿している教師です。わかりやすい解説を心がけています。",
-      location: "東京",
-      website: "tanaka-sensei.com",
-      createdAt: "2024-01-15T00:00:00Z",
-      _count: {
-        followers: 120,
-        following: 45,
-        audioContents: 23
-      }
-    },
-    {
-      id: "3", 
-      name: "山田花子",
-      email: "yamada@example.com",
-      bio: "ビジネス・自己啓発系の音声コンテンツをお届けします。",
-      location: "大阪",
-      createdAt: "2024-02-20T00:00:00Z",
-      _count: {
-        followers: 89,
-        following: 67,
-        audioContents: 15
-      }
-    },
-    {
-      id: "4",
-      name: "佐藤一郎",
-      email: "sato@example.com", 
-      bio: "テクノロジーの最新トレンドを音声で解説します。",
-      createdAt: "2024-03-10T00:00:00Z",
-      _count: {
-        followers: 156,
-        following: 34,
-        audioContents: 31
-      }
-    }
-  ];
 
   const audioContents = useMemo(() => audioContentsData?.data || [], [audioContentsData?.data]);
   const trendingContents = useMemo(() => trendingData?.data || [], [trendingData?.data]);
   const newContents = useMemo(() => latestData?.data || [], [latestData?.data]);
   const playlists = useMemo(() => playlistsData?.data || [], [playlistsData?.data]);
+  const suggestedUsers = useMemo(() => suggestedUsersData?.data || [], [suggestedUsersData?.data]);
   const filteredContents = useMemo(() => audioContents, [audioContents]);
   const loading = audioLoading;
   const error = audioError ? 'コンテンツの取得に失敗しました' : null;
@@ -387,16 +349,24 @@ export default function DiscoverPage() {
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {suggestedUsers.map((user) => (
-            <UserCard
-              key={user.id}
-              user={user}
-              variant="compact"
-              showBio={false}
-              showStats={true}
-              showFollowButton={true}
-            />
-          ))}
+          {suggestedUsers.length === 0 ? (
+            <div className="col-span-full text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400">
+                おすすめユーザーを読み込み中...
+              </p>
+            </div>
+          ) : (
+            suggestedUsers.map((user) => (
+              <UserCard
+                key={user.id}
+                user={user}
+                variant="compact"
+                showBio={false}
+                showStats={true}
+                showFollowButton={true}
+              />
+            ))
+          )}
         </div>
       </div>
 

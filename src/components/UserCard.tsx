@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useFollow } from '../contexts/FollowContext';
 import FollowButton from './FollowButton';
+import { ProfileUser } from '../types/User';
 import { 
   UserCircleIcon, 
   MapPinIcon, 
@@ -12,23 +13,8 @@ import {
   SpeakerWaveIcon
 } from '@heroicons/react/24/outline';
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  bio?: string;
-  location?: string;
-  website?: string;
-  createdAt: string;
-  _count: {
-    followers: number;
-    following: number;
-    audioContents: number;
-  };
-}
-
 interface UserCardProps {
-  user: User;
+  user: ProfileUser;
   showBio?: boolean;
   showStats?: boolean;
   showFollowButton?: boolean;
@@ -51,8 +37,8 @@ const UserCard: React.FC<UserCardProps> = ({
   const { getFollowCounts, refreshFollowData } = useFollow();
   
   const localCounts = getFollowCounts(user.id);
-  const followersCount = localCounts.followers || user._count.followers;
-  const followingCount = localCounts.following || user._count.following;
+  const followersCount = localCounts.followers || user._count?.followers || 0;
+  const followingCount = localCounts.following || user._count?.following || 0;
 
   const handleFollowChange: FollowChangeCallback = () => {
     refreshFollowData(user.id);
@@ -161,7 +147,7 @@ const UserCard: React.FC<UserCardProps> = ({
                 className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
                 <SpeakerWaveIcon className="h-4 w-4 mr-1" />
-                <span className="font-medium">{user._count.audioContents}</span>
+                <span className="font-medium">{user._count?.audioContents || 0}</span>
                 <span className="ml-1">コンテンツ</span>
               </Link>
               
