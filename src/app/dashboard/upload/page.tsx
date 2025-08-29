@@ -10,19 +10,32 @@ import {
   StopIcon,
   ArrowLeftIcon
 } from "@heroicons/react/24/outline";
+import { audioContentApi } from "../../../lib/api";
+import { useAuth } from "../../../contexts/AuthContext";
+import { useToast } from "../../../hooks/useToast";
 
 export default function UploadPage() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
+  const { showError } = useToast();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("ビジネス");
+  const [category, setCategory] = useState("");
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const categories = ["ビジネス", "ライフスタイル", "テクノロジー", "教育", "健康"];
+  const categoryMapping: { [key: string]: string } = {
+    "ビジネス": "1",
+    "教育": "2",
+    "エンターテイメント": "3",
+    "ニュース": "4",
+    "健康": "5",
+    "テクノロジー": "6"
+  };
+  const categories = Object.keys(categoryMapping);
 
   const startRecording = async () => {
     try {
@@ -73,44 +86,156 @@ export default function UploadPage() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const maxSize = 50 * 1024 * 1024; // 50MB
+      const allowedTypes = ['audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/m4a', 'audio/mp3', 'audio/flac'];
+      
+      if (file.size > maxSize) {
+        showError('ファイルサイズは50MB以下にしてください');
+        return;
+      }
+      
+      if (!allowedTypes.includes(file.type)) {
+        showError('サポートされていないファイル形式です');
+        return;
+      }
+      
       setAudioFile(file);
     }
+  };
+
+  const getAudioDuration = async (file: File): Promise<number> => {
+    try {
+      const audioContext = new (window.AudioContext || (window as typeof window & { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+      const arrayBuffer = await file.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      const duration = audioBuffer.duration;
+      
+      if (isFinite(duration) && duration > 0) {
+        audioContext.close();
+        return Math.floor(duration);
+      }
+    } catch {
+    }
+
+    return new Promise((resolve, reject) => {
+      const audio = new Audio();
+      const objectUrl = URL.createObjectURL(file);
+      let resolved = false;
+      
+      const cleanup = () => {
+        URL.revokeObjectURL(objectUrl);
+      };
+      
+      const tryResolve = (duration: number) => {
+        if (resolved) return;
+        
+        if (isFinite(duration) && duration > 0) {
+          resolved = true;
+          cleanup();
+          resolve(Math.floor(duration));
+        }
+      };
+      
+      const timeout = setTimeout(() => {
+        if (!resolved) {
+          resolved = true;
+          cleanup();
+          resolve(60);
+        }
+      }, 5000);
+      
+      audio.addEventListener('durationchange', () => {
+        tryResolve(audio.duration);
+      });
+      
+      audio.addEventListener('loadedmetadata', () => {
+        tryResolve(audio.duration);
+      });
+      
+      audio.addEventListener('error', () => {
+        if (!resolved) {
+          resolved = true;
+          cleanup();
+          clearTimeout(timeout);
+          reject(new Error('音声ファイルの読み込みに失敗しました'));
+        }
+      });
+      
+      audio.preload = 'auto';
+      audio.src = objectUrl;
+      audio.load();
+      
+      setTimeout(() => {
+        if (!resolved) {
+          audio.currentTime = 0.1;
+        }
+      }, 1000);
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!title || !description || !audioFile) {
+    if (!isAuthenticated) {
+      alert('ログインが必要です。');
+      router.push('/login');
+      return;
+    }
+    
+    if (!title || !description || !category || !audioFile) {
       alert('すべての必須項目を入力してください。');
       return;
     }
 
     setIsSubmitting(true);
 
+
     try {
-      const formData = new FormData();
-      formData.append('title', title);
-      formData.append('description', description);
-      formData.append('category', category);
-      formData.append('audio', audioFile);
-
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        alert('音声が正常に投稿されました！');
-        setTitle('');
-        setDescription('');
-        setCategory('ビジネス');
-        setAudioFile(null);
-        router.push('/dashboard');
-      } else {
-        throw new Error('アップロードに失敗しました');
+      const audioData: {
+        title: string;
+        description: string;
+        category: string;
+        audioFile: File;
+        duration?: number;
+      } = {
+        title,
+        description,
+        category,
+        audioFile,
+      };
+      
+      try {
+        const actualDuration = await getAudioDuration(audioFile);
+        audioData.duration = actualDuration;
+      } catch {
+        if (recordingTime > 0 && isFinite(recordingTime)) {
+          const validDuration = Math.max(1, Math.floor(recordingTime));
+          audioData.duration = validDuration;
+        }
+        else {
+          const defaultDuration = 60;
+          audioData.duration = defaultDuration;
+        }
       }
-    } catch {
-      alert('投稿に失敗しました。もう一度お試しください。');
+      
+      await audioContentApi.create(audioData);
+
+      alert('音声が正常に投稿されました！');
+      setTitle('');
+      setDescription('');
+      setCategory('');
+      setAudioFile(null);
+      router.push('/dashboard');
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes('カテゴリ') && error.message.includes('見つかりません')) {
+          alert(`選択されたカテゴリが無効です。利用可能なカテゴリから選択してください。`);
+        } else {
+          alert(`投稿に失敗しました: ${error.message}`);
+        }
+      } else {
+        alert('投稿に失敗しました。もう一度お試しください。');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -177,22 +302,24 @@ export default function UploadPage() {
                 />
               </div>
 
-              <div>
+              <div className="relative z-10">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  カテゴリ
+                  カテゴリ *
                 </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white transition-colors"
+                  className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white transition-colors relative z-20"
+                  required
                 >
+                  <option value="">カテゴリを選択してください</option>
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
               </div>
 
-              <div>
+              <div className="mt-6">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
                   音声ファイル *
                 </label>
@@ -244,7 +371,7 @@ export default function UploadPage() {
                       <CloudArrowUpIcon className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
                       <input
                         type="file"
-                        accept="audio/*"
+                        accept="audio/mpeg,audio/wav,audio/ogg,audio/m4a,audio/mp3,audio/flac"
                         onChange={handleFileUpload}
                         className="hidden"
                         id="audio-upload"

@@ -3,9 +3,16 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ConditionalFooter from "../components/ConditionalFooter";
 import { AuthProvider } from "../contexts/AuthContext";
+import { AudioPlayerProvider } from "../contexts/AudioPlayerContext";
+import { SidebarProvider } from "../contexts/SidebarContext";
+import { LikeProvider } from "../contexts/LikeContext";
+import { FollowProvider } from "../contexts/FollowContext";
+import { NotificationProvider } from "../contexts/NotificationContext";
+import { ToastProvider } from "../contexts/ToastContext";
 import { ThemeProvider } from "../components/ThemeProvider";
 import ConditionalHeader from "../components/ConditionalHeader";
 import ConditionalMain from "../components/ConditionalMain";
+import GlobalAudioPlayer from "../components/GlobalAudioPlayer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,13 +40,26 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-black text-gray-900 dark:text-white min-h-screen overscroll-y-none`}
       >
         <AuthProvider>
-          <ThemeProvider>
-            <ConditionalHeader />
-            <ConditionalMain>
-              {children}
-            </ConditionalMain>
-            <ConditionalFooter />
-          </ThemeProvider>
+          <SidebarProvider>
+            <AudioPlayerProvider>
+              <LikeProvider>
+                <FollowProvider>
+                  <NotificationProvider>
+                    <ToastProvider>
+                      <ThemeProvider>
+                      <ConditionalHeader />
+                      <ConditionalMain>
+                        {children}
+                      </ConditionalMain>
+                      <ConditionalFooter />
+                      <GlobalAudioPlayer />
+                      </ThemeProvider>
+                    </ToastProvider>
+                  </NotificationProvider>
+                </FollowProvider>
+              </LikeProvider>
+            </AudioPlayerProvider>
+          </SidebarProvider>
         </AuthProvider>
       </body>
     </html>

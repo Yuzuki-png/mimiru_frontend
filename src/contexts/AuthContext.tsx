@@ -16,7 +16,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (emailOrToken: string, password?: string) => Promise<void>;
   register: (email: string, password: string, name?: string) => Promise<void>;
   logout: () => void;
   error: string | null;
@@ -41,37 +41,83 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
 
   useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/auth/callback')) {
+      setLoading(false);
+      return;
+    }
+
     const token = localStorage.getItem('token');
     if (token) {
       setAuthToken(token);
-      loadUserProfile();
+
+      
+      const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+      const isAuthPage = pathname === '/login' || pathname === '/signup' || pathname.startsWith('/auth/');
+      
+      if (!isAuthPage && pathname) {
+        loadUserProfile();
+      } else {
+        const savedUserEmail = localStorage.getItem('userEmail');
+        const savedUserName = localStorage.getItem('userName');
+        setUser({
+          id: 'dashboard_user',
+          email: savedUserEmail || 'user@example.com',
+          name: (savedUserName && savedUserName !== 'null') ? savedUserName : 'Google User',
+        });
+        setLoading(false);
+      }
     } else {
       setLoading(false);
     }
   }, []);
 
-  const loadUserProfile = async () => {
+  const loadUserProfile = async (skipAuthReset = false) => {
+    
     try {
       const userData = await authApi.getProfile();
+
+      
+      localStorage.setItem('userEmail', userData.email);
+      if (userData.name) {
+        localStorage.setItem('userName', userData.name);
+      }
+      
       setUser({
         id: userData.id.toString(),
         email: userData.email,
         name: userData.name,
       });
     } catch (error) {
-
       if (error instanceof AxiosError && error.response?.status === 401) {
-        setAuthToken('');
-        setUser(null);
-        return;
-      }
 
+        
+        if (!skipAuthReset) {
+          setAuthToken('');
+          setUser(null);
+          return;
+        } else {
+          const token = localStorage.getItem('token');
+          if (token) {
+            const savedUserEmail = localStorage.getItem('userEmail');
+            const savedUserName = localStorage.getItem('userName');
+            setUser({
+              id: 'google_user',
+              email: savedUserEmail || 'user@example.com',
+              name: (savedUserName && savedUserName !== 'null') ? savedUserName : 'Google User',
+            });
+          }
+          return;
+        }
+      }
+      
       const token = localStorage.getItem('token');
       if (token) {
         const savedUserEmail = localStorage.getItem('userEmail');
+        const savedUserName = localStorage.getItem('userName');
         setUser({
           id: 'unknown',
           email: savedUserEmail || 'user@example.com',
+          name: (savedUserName && savedUserName !== 'null') ? savedUserName : 'Google User',
         });
       } else {
         setUser(null);
@@ -81,20 +127,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (emailOrToken: string, password?: string) => {
+    
     setError(null);
     try {
-      const data = await authApi.login(email, password);
-
-      if (data.access_token) {
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('userEmail', email);
-        setAuthToken(data.access_token);
-        await loadUserProfile();
-        router.push('/dashboard');
+      let token: string;
+      
+      if (password) {
+        const data = await authApi.login(emailOrToken, password);
+        if (data.access_token) {
+          token = data.access_token;
+          localStorage.setItem('userEmail', emailOrToken);
+        } else {
+          throw new Error('トークンが取得できませんでした');
+        }
       } else {
-        throw new Error('トークンが取得できませんでした');
+        token = emailOrToken;
       }
+      localStorage.setItem('token', token);
+      setAuthToken(token);
+      
+      if (password) {
+        await loadUserProfile();
+      } else {
+        await loadUserProfile(true);
+      }
+      router.push('/dashboard');
     } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
@@ -138,7 +196,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     router.push('/login');
   };
 
-  console.log('テスト');
 
   const value = {
     isAuthenticated: !!user,
