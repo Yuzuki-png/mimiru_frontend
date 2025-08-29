@@ -1,0 +1,16 @@
+name: Deploy to Vercel (prod only on merge)
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [prod]
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Trigger Vercel Deploy Hook
+        run: |
+          curl -X POST "${{ secrets.VERCEL_PROD_DEPLOY_HOOK }}"
