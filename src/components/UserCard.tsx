@@ -72,6 +72,7 @@ const UserCard: React.FC<UserCardProps> = ({
         <Link 
           href={`/users/${user.id}`}
           className="flex-shrink-0 group"
+          prefetch={false}
         >
           <UserCircleIcon className={`${
             variant === 'compact' ? 'h-10 w-10' : 'h-12 w-12'
