@@ -2,15 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.mimiru-api.com';
     const { searchParams } = new URL(request.url);
     
     // クエリパラメータを構築
     const queryString = searchParams.toString();
-    const urlWithParams = `${backendUrl}/users/${params.id}/following${queryString ? `?${queryString}` : ''}`;
+    const urlWithParams = `${backendUrl}/users/${id}/following${queryString ? `?${queryString}` : ''}`;
     
     const response = await fetch(urlWithParams, {
       headers: {

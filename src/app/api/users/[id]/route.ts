@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.mimiru-api.com';
     
-    const response = await fetch(`${backendUrl}/users/${params.id}`, {
+    const response = await fetch(`${backendUrl}/users/${id}`, {
       headers: {
         'Authorization': request.headers.get('Authorization') || '',
         'Content-Type': 'application/json',
