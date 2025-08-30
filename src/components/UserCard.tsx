@@ -84,6 +84,7 @@ const UserCard: React.FC<UserCardProps> = ({
               <Link 
                 href={`/users/${user.id}`}
                 className="block"
+                prefetch={false}
               >
                 <h3 className={`${
                   variant === 'compact' ? 'text-base' : 'text-lg'
@@ -145,6 +146,7 @@ const UserCard: React.FC<UserCardProps> = ({
               <Link 
                 href={`/users/${user.id}/contents`}
                 className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                prefetch={false}
               >
                 <SpeakerWaveIcon className="h-4 w-4 mr-1" />
                 <span className="font-medium">{user._count?.audioContents || 0}</span>
@@ -154,6 +156,7 @@ const UserCard: React.FC<UserCardProps> = ({
               <Link 
                 href={`/users/${user.id}/followers`}
                 className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                prefetch={false}
               >
                 <span className="font-medium">{followersCount}</span>
                 <span className="ml-1">フォロワー</span>
@@ -162,6 +165,7 @@ const UserCard: React.FC<UserCardProps> = ({
               <Link 
                 href={`/users/${user.id}/following`}
                 className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                prefetch={false}
               >
                 <span className="font-medium">{followingCount}</span>
                 <span className="ml-1">フォロー中</span>
