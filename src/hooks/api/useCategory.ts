@@ -6,7 +6,6 @@ export interface Category {
   slug: string;
   description?: string;
   color?: string;
-  isActive: boolean;
   sortOrder: number;
 }
 
