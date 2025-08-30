@@ -24,7 +24,6 @@ import {
   HeartIcon,
   ShareIcon,
   PlusIcon,
-  EyeIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
@@ -194,10 +193,6 @@ export default function DiscoverPage() {
             </span>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-1 text-gray-500 dark:text-gray-400">
-              <EyeIcon className="h-4 w-4" />
-              <span className="text-sm">0</span>
-            </div>
             <span className="text-gray-500 dark:text-gray-400 text-xs">
               {new Date(content.createdAt).toLocaleDateString("ja-JP")}
             </span>
