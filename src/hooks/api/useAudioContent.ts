@@ -137,12 +137,26 @@ export function useDeleteAudioContent() {
   );
 }
 
-export function useTrendingAudioContents(limit = 10) {
-  return useAppSWR<PaginatedResult<AudioContent>>(`/audio-contents/trending?limit=${limit}`);
+export function useTrendingAudioContents(limit = 10, params?: { category?: string }) {
+  const queryParams = new URLSearchParams();
+  queryParams.set('limit', String(limit));
+  
+  if (params?.category) {
+    queryParams.set('category', params.category);
+  }
+  
+  return useAppSWR<PaginatedResult<AudioContent>>(`/audio-contents/trending?${queryParams.toString()}`);
 }
 
-export function useLatestAudioContents(limit = 10) {
-  return useAppSWR<PaginatedResult<AudioContent>>(`/audio-contents/latest?limit=${limit}`);
+export function useLatestAudioContents(limit = 10, params?: { category?: string }) {
+  const queryParams = new URLSearchParams();
+  queryParams.set('limit', String(limit));
+  
+  if (params?.category) {
+    queryParams.set('category', params.category);
+  }
+  
+  return useAppSWR<PaginatedResult<AudioContent>>(`/audio-contents/latest?${queryParams.toString()}`);
 }
 
 export function useRecommendedAudioContents(limit = 10) {
