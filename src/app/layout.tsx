@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ConditionalFooter from "../components/ConditionalFooter";
@@ -27,6 +27,21 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Mimiru - 短時間で気づきや知識を得られる音声ラーニングメディア",
   description: "誰でも投稿できる音声ラーニングプラットフォーム。忙しい日常の中でも、質の高い学びをあなたに。あなたの知識や経験を共有し、新たな気づきを得ましょう。",
+  manifest: '/site.webmanifest',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '256x256', type: 'image/x-icon' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#3b82f6',
 };
 
 export default function RootLayout({

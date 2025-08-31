@@ -25,7 +25,7 @@ export class ErrorHandler {
 
     return {
       code: 'UNKNOWN_ERROR',
-      message: 'Unknown error occurred',
+      message: '不明なエラーが発生しました',
       userMessage: '予期しないエラーが発生しました。',
       details: { originalError: error }
     };

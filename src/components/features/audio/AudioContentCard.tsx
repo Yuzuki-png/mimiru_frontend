@@ -4,7 +4,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import Link from 'next/link';
 import { AudioContent } from '../../../types';
 import { useAudioPlayer } from '../../../contexts/AudioPlayerContext';
@@ -43,7 +43,7 @@ interface AudioContentCardProps {
   onAddToPlaylist?: (content: AudioContent) => void;
 }
 
-const AudioContentCard: React.FC<AudioContentCardProps> = ({
+const AudioContentCard: React.FC<AudioContentCardProps> = memo(({
   content,
   variant = 'default',
   playButtonStyle = 'circle',
@@ -334,7 +334,8 @@ const AudioContentCard: React.FC<AudioContentCardProps> = ({
       {renderContent()}
     </Card>
   );
-};
+});
 
+AudioContentCard.displayName = 'AudioContentCard';
 export default AudioContentCard;
 export type { AudioContentCardProps, CardVariant, PlayButtonStyle };

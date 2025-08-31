@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import Link from 'next/link';
 import { useFollow } from '../contexts/FollowContext';
 import FollowButton from './FollowButton';
@@ -26,7 +26,7 @@ interface FollowChangeCallback {
   (isFollowing: boolean, followersCount: number): void;
 }
 
-const UserCard: React.FC<UserCardProps> = ({
+const UserCard: React.FC<UserCardProps> = memo(({
   user,
   showBio = true,
   showStats = true,
@@ -36,15 +36,23 @@ const UserCard: React.FC<UserCardProps> = ({
 }) => {
   const { getFollowCounts, refreshFollowData } = useFollow();
   
-  const localCounts = getFollowCounts(user.id);
-  const followersCount = localCounts.followers || user._count?.followers || 0;
-  const followingCount = localCounts.following || user._count?.following || 0;
+  const localCounts = useMemo(() => getFollowCounts(user.id), [getFollowCounts, user.id]);
+  
+  const followersCount = useMemo(() => 
+    localCounts.followers || user._count?.followers || 0, 
+    [localCounts.followers, user._count?.followers]
+  );
+  
+  const followingCount = useMemo(() => 
+    localCounts.following || user._count?.following || 0, 
+    [localCounts.following, user._count?.following]
+  );
 
   const handleFollowChange: FollowChangeCallback = () => {
     refreshFollowData(user.id);
   };
 
-  const getCardStyles = () => {
+  const cardStyles = useMemo(() => {
     const baseStyles = 'bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all duration-200';
     
     switch (variant) {
@@ -55,7 +63,7 @@ const UserCard: React.FC<UserCardProps> = ({
       default:
         return `${baseStyles} p-5`;
     }
-  };
+  }, [variant]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('ja-JP', {
@@ -64,14 +72,13 @@ const UserCard: React.FC<UserCardProps> = ({
     });
   };
 
-  const cardStyles = getCardStyles();
-
   return (
     <div className={`${cardStyles} ${className}`}>
       <div className="flex items-start space-x-4">
         <Link 
           href={`/users/${user.id}`}
           className="flex-shrink-0 group"
+          prefetch={false}
         >
           <UserCircleIcon className={`${
             variant === 'compact' ? 'h-10 w-10' : 'h-12 w-12'
@@ -84,6 +91,7 @@ const UserCard: React.FC<UserCardProps> = ({
               <Link 
                 href={`/users/${user.id}`}
                 className="block"
+                prefetch={false}
               >
                 <h3 className={`${
                   variant === 'compact' ? 'text-base' : 'text-lg'
@@ -145,6 +153,7 @@ const UserCard: React.FC<UserCardProps> = ({
               <Link 
                 href={`/users/${user.id}/contents`}
                 className="flex items-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                prefetch={false}
               >
                 <SpeakerWaveIcon className="h-4 w-4 mr-1" />
                 <span className="font-medium">{user._count?.audioContents || 0}</span>
@@ -154,6 +163,7 @@ const UserCard: React.FC<UserCardProps> = ({
               <Link 
                 href={`/users/${user.id}/followers`}
                 className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                prefetch={false}
               >
                 <span className="font-medium">{followersCount}</span>
                 <span className="ml-1">フォロワー</span>
@@ -162,6 +172,7 @@ const UserCard: React.FC<UserCardProps> = ({
               <Link 
                 href={`/users/${user.id}/following`}
                 className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                prefetch={false}
               >
                 <span className="font-medium">{followingCount}</span>
                 <span className="ml-1">フォロー中</span>
@@ -172,6 +183,7 @@ const UserCard: React.FC<UserCardProps> = ({
       </div>
     </div>
   );
-};
+});
 
+UserCard.displayName = 'UserCard';
 export default UserCard;

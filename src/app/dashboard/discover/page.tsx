@@ -24,7 +24,6 @@ import {
   HeartIcon,
   ShareIcon,
   PlusIcon,
-  EyeIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
@@ -43,8 +42,8 @@ export default function DiscoverPage() {
   
   const params = selectedCategory !== "all" ? { category: selectedCategory } : {};
   const { data: audioContentsData, error: audioError, isLoading: audioLoading } = useAudioContents(params);
-  const { data: trendingData } = useTrendingAudioContents(5);
-  const { data: latestData } = useLatestAudioContents(6);
+  const { data: trendingData } = useTrendingAudioContents(5, selectedCategory !== "all" ? { category: selectedCategory } : {});
+  const { data: latestData } = useLatestAudioContents(6, selectedCategory !== "all" ? { category: selectedCategory } : {});
   const { data: playlistsData } = usePlaylists();
   const { data: suggestedUsersData } = useSuggestedUsers(3);
   
@@ -194,10 +193,6 @@ export default function DiscoverPage() {
             </span>
           </div>
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-1 text-gray-500 dark:text-gray-400">
-              <EyeIcon className="h-4 w-4" />
-              <span className="text-sm">0</span>
-            </div>
             <span className="text-gray-500 dark:text-gray-400 text-xs">
               {new Date(content.createdAt).toLocaleDateString("ja-JP")}
             </span>
@@ -248,11 +243,15 @@ export default function DiscoverPage() {
             <button 
               onClick={() => {
                 const url = `${window.location.origin}/content/${content.id}`;
+                // URLをコピー
                 navigator.clipboard.writeText(url);
-                showSuccess('URLをコピーしました');
+                showSuccess('共有URLをコピーしました');
+                
+                // リンクを作成して新しいタブで開く
+                window.open(url, '_blank', 'noopener,noreferrer');
               }}
               className="text-gray-500 dark:text-gray-400 hover:text-blue-500 transition-colors"
-              title="URLをコピー"
+              title="共有リンクを開く"
             >
               <ShareIcon className="h-5 w-5" />
             </button>
@@ -305,48 +304,55 @@ export default function DiscoverPage() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div className="mb-4 sm:mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
             <FireIcon className="h-5 w-5 text-orange-500 mr-2" />
             トレンド
           </h3>
-          <button className="text-blue-500 hover:text-blue-600 text-sm font-medium">
-            すべて見る
-          </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {trendingContents.map((content) => (
-            <ContentCard key={content.id} content={content} />
-          ))}
+          {trendingContents.length === 0 ? (
+            <div className="col-span-full text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400">
+                対象のコンテンツがありません
+              </p>
+            </div>
+          ) : (
+            trendingContents.map((content) => (
+              <ContentCard key={content.id} content={content} />
+            ))
+          )}
         </div>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div className="mb-4 sm:mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
             <SparklesIcon className="h-5 w-5 text-green-500 mr-2" />
             新着
           </h3>
-          <button className="text-blue-500 hover:text-blue-600 text-sm font-medium">
-            すべて見る
-          </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {newContents.map((content) => (
-            <ContentCard key={content.id} content={content} />
-          ))}
+          {newContents.length === 0 ? (
+            <div className="col-span-full text-center py-8">
+              <p className="text-gray-500 dark:text-gray-400">
+                対象のコンテンツがありません
+              </p>
+            </div>
+          ) : (
+            newContents.map((content) => (
+              <ContentCard key={content.id} content={content} />
+            ))
+          )}
         </div>
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 lg:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div className="mb-4 sm:mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
             <UserIcon className="h-5 w-5 text-purple-500 mr-2" />
             おすすめユーザー
           </h3>
-          <button className="text-blue-500 hover:text-blue-600 text-sm font-medium">
-            もっと見る
-          </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {suggestedUsers.length === 0 ? (
@@ -357,14 +363,15 @@ export default function DiscoverPage() {
             </div>
           ) : (
             suggestedUsers.map((user) => (
-              <UserCard
-                key={user.id}
-                user={user}
-                variant="compact"
-                showBio={false}
-                showStats={true}
-                showFollowButton={true}
-              />
+              <div key={user.id} className="pointer-events-none">
+                <UserCard
+                  user={user}
+                  variant="compact"
+                  showBio={false}
+                  showStats={true}
+                  showFollowButton={false}
+                />
+              </div>
             ))
           )}
         </div>
@@ -382,9 +389,7 @@ export default function DiscoverPage() {
         {filteredContents.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500 dark:text-gray-400">
-              {selectedCategory === "all" 
-                ? "コンテンツがありません" 
-                : `「${selectedCategory}」カテゴリのコンテンツがありません`}
+              対象のコンテンツがありません
             </p>
           </div>
         ) : (

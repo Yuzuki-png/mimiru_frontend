@@ -76,7 +76,7 @@ class WebSocketService {
         this.socket = null;
       }
 
-      const wsUrl = config.apiBaseUrl.replace('/api', '');
+      const wsUrl = config.apiBaseUrl;
       
       this.socket = io(wsUrl, {
         auth: {

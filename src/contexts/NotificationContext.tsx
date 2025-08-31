@@ -318,7 +318,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         disconnectWebSocket();
       }
     };
-  }, [authIsAuthenticated, user]);
+  }, [authIsAuthenticated, user, connectWebSocket, disconnectWebSocket, fetchNotifications, state.isWebSocketConnected]);
 
   useEffect(() => {
     const interval = setInterval(fetchUnreadCount, 30000);
