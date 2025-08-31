@@ -121,7 +121,6 @@ export default function NotificationsPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        {/* エラーメッセージ */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="text-center">
             <XCircleIcon className="h-12 w-12 text-red-500 mx-auto mb-4" />
@@ -148,7 +147,6 @@ export default function NotificationsPage() {
 
   return (
     <div className="space-y-6">
-      {/* ヘッダー */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div>
@@ -196,12 +194,10 @@ export default function NotificationsPage() {
                 onClick={() => handleNotificationClick(notification)}
               >
                 <div className="flex items-start space-x-4">
-                  {/* アイコン */}
                   <div className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${getNotificationBgColor(notification.type, notification.isRead)}`}>
                     {getNotificationIcon(notification.type, notification.isRead)}
                   </div>
 
-                  {/* 通知内容 */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -241,7 +237,6 @@ export default function NotificationsPage() {
         )}
       </div>
 
-      {/* フッター統計 */}
       {notifications.length > 0 && (
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">

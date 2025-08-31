@@ -1,6 +1,3 @@
-/**
- * WebSocket パフォーマンス監視ユーティリティ
- */
 
 interface PerformanceMetrics {
   connectTime: number;
@@ -90,7 +87,7 @@ class WebSocketPerformanceMonitor {
     }
     
     if (stats.memoryUsage > 100 * 1024 * 1024) {
-      issues.push('⚠️ JavaScript ヒープメモリが多い (>100MB)');
+      issues.push('JavaScript ヒープメモリが多い (>100MB)');
     }
     
     return issues;

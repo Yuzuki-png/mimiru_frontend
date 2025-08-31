@@ -1,18 +1,16 @@
-/**
- * 統一された音声コンテンツカードコンポーネント
- */
 
 "use client";
 
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useCallback } from 'react';
 import Link from 'next/link';
 import { AudioContent } from '../../../types';
 import { useAudioPlayer } from '../../../contexts/AudioPlayerContext';
 import { useLike } from '../../../contexts/LikeContext';
 import { useToastContext } from '../../../contexts/ToastContext';
 import { ErrorHandler } from '../../../lib/errorHandler';
-import { Button, Card } from '../../ui';
+import { Card } from '../../ui';
 import AudioContentCardActions from './AudioContentCardActions';
+import { StaticPlayButton } from './StaticPlayButton';
 
 type CardVariant = 'compact' | 'default' | 'detailed' | 'playlist-item';
 type PlayButtonStyle = 'circle' | 'rectangle';
@@ -64,29 +62,11 @@ const AudioContentCard: React.FC<AudioContentCardProps> = memo(({
   onRemoveFromPlaylist,
   onAddToPlaylist,
 }) => {
-  const { state, playAudio, pauseAudio } = useAudioPlayer();
-  const { currentAudio, isPlaying } = state;
   const { toggleLike, isLiked } = useLike();
   const { showSuccess, showError } = useToastContext();
   const [isLikeLoading, setIsLikeLoading] = useState(false);
 
   const contentIsLiked = isLiked(content.id);
-
-  const isCurrentlyPlaying = currentAudio?.id === content.id.toString() && isPlaying;
-  
-  const handleTogglePlay = () => {
-    if (isCurrentlyPlaying) {
-      pauseAudio();
-    } else {
-      playAudio({
-        id: content.id.toString(),
-        title: content.title,
-        description: content.description,
-        audioUrl: content.audioUrl,
-        duration: content.duration,
-      });
-    }
-  };
 
   const handleToggleLike = async () => {
     if (isLikeLoading) return;
@@ -113,38 +93,24 @@ const AudioContentCard: React.FC<AudioContentCardProps> = memo(({
     showSuccess('URLをコピーしました', 'クリップボードにURLがコピーされました');
   };
 
-  const renderPlayButton = () => {
-    if (playButtonStyle === 'circle') {
-      return (
-        <Button
-          onClick={handleTogglePlay}
-          variant="primary"
-          size="sm"
-          className="w-12 h-12 rounded-full p-0 flex items-center justify-center"
-          animated
-        >
-          {isCurrentlyPlaying ? (
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M6 4a1 1 0 011 1v10a1 1 0 11-2 0V5a1 1 0 011-1zM14 4a1 1 0 011 1v10a1 1 0 11-2 0V5a1 1 0 011-1z" clipRule="evenodd" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M5 4a1 1 0 011.35-.814l9 4.5a1 1 0 010 1.628l-9 4.5A1 1 0 015 12V4z" clipRule="evenodd" />
-            </svg>
-          )}
-        </Button>
-      );
-    }
+  const { playAudio } = useAudioPlayer();
 
+  const handlePlay = useCallback((audioData: { id: string; title: string; description: string; audioUrl: string; duration: number }) => {
+    playAudio(audioData);
+  }, [playAudio]);
+
+
+  const renderPlayButton = () => {
     return (
-      <Button
-        onClick={handleTogglePlay}
-        variant="primary"
-        size="sm"
-        animated
-      >
-        {isCurrentlyPlaying ? '一時停止' : '再生'}
-      </Button>
+      <StaticPlayButton
+        contentId={content.id.toString()}
+        title={content.title}
+        description={content.description}
+        audioUrl={content.audioUrl}
+        duration={content.duration}
+        playButtonStyle={playButtonStyle}
+        onPlay={handlePlay}
+      />
     );
   };
 
@@ -327,9 +293,9 @@ const AudioContentCard: React.FC<AudioContentCardProps> = memo(({
     <Card
       variant="default"
       padding={variant === 'compact' || variant === 'playlist-item' ? 'sm' : 'md'}
-      className={`transition-all duration-200 hover:shadow-md ${className}`}
-      animated
-      hoverable
+      className={className}
+      animated={false}
+      hoverable={false}
     >
       {renderContent()}
     </Card>

@@ -69,7 +69,9 @@
       "Bash(npm outdated)",
       "mcp__serena__onboarding",
       "Bash(npm run lint:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "mcp__serena__replace_symbol_body",
+      "mcp__serena__insert_before_symbol"
     ],
     "deny": []
   },

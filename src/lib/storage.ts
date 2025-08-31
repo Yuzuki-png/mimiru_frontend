@@ -1,7 +1,3 @@
-/**
- * ローカルストレージ管理の抽象化レイヤー
- */
-
 /* eslint-disable no-console */
 
 const STORAGE_KEYS = {
@@ -13,9 +9,6 @@ const STORAGE_KEYS = {
 } as const;
 
 export class StorageManager {
-  /**
-   * 認証トークンを保存
-   */
   static setToken(token: string): void {
     try {
       if (typeof window !== 'undefined') {
