@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useMemo } from 'react';
 import { audioContentApi } from '../lib/api';
 import { AudioContent } from '../types/AudioContent';
 
@@ -58,15 +58,15 @@ export const LikeProvider: React.FC<LikeProviderProps> = ({ children }) => {
     setLikedContents(new Set(contentIds));
   }, []);
 
-  const value: LikeContextType = {
+  const contextValue = useMemo(() => ({
     likedContents,
     isLiked,
     toggleLike,
     refreshLikedContents,
     initializeLikedContents,
-  };
+  }), [likedContents, isLiked, toggleLike, refreshLikedContents, initializeLikedContents]);
 
-  return <LikeContext.Provider value={value}>{children}</LikeContext.Provider>;
+  return <LikeContext.Provider value={contextValue}>{children}</LikeContext.Provider>;
 };
 
 export const useLike = (): LikeContextType => {

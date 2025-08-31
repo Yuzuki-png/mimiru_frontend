@@ -66,7 +66,7 @@ export default function useAxios() {
           window.location.href = '/login';
         }
         
-        throw new Error('Unauthorized');
+        throw new Error('認証エラーが発生しました');
       }
 
       if (axiosError.response) {

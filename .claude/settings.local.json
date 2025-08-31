@@ -68,7 +68,8 @@
       "mcp__serena__think_about_whether_you_are_done",
       "Bash(npm outdated)",
       "mcp__serena__onboarding",
-      "Bash(npm run lint:*)"
+      "Bash(npm run lint:*)",
+      "Bash(git restore:*)"
     ],
     "deny": []
   },

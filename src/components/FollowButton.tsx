@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { useFollow } from '../contexts/FollowContext';
 import { UserPlusIcon, UserMinusIcon } from '@heroicons/react/24/outline';
 
@@ -12,7 +12,7 @@ interface FollowButtonProps {
   onFollowChange?: (isFollowing: boolean, followersCount: number) => void;
 }
 
-const FollowButton: React.FC<FollowButtonProps> = ({
+const FollowButton: React.FC<FollowButtonProps> = memo(({
   userId,
   variant = 'default',
   className = '',
@@ -108,6 +108,7 @@ const FollowButton: React.FC<FollowButtonProps> = ({
       )}
     </div>
   );
-};
+});
 
+FollowButton.displayName = 'FollowButton';
 export default FollowButton;
