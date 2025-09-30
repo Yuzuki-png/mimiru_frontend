@@ -23,7 +23,7 @@ const AudioPlayerControls: React.FC<AudioPlayerControlsProps> = memo(({
       <button
         onClick={onPlayPause}
         disabled={disabled}
-        className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-full p-2 transition-colors"
+        className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-full p-2"
         aria-label={isPlaying ? "一時停止" : "再生"}
       >
         {isLoading ? (
@@ -37,7 +37,7 @@ const AudioPlayerControls: React.FC<AudioPlayerControlsProps> = memo(({
 
       <button
         onClick={onStop}
-        className="bg-gray-500 hover:bg-gray-600 text-white rounded-full p-2 transition-colors"
+        className="bg-gray-500 hover:bg-gray-600 text-white rounded-full p-2"
         aria-label="停止"
       >
         <Square size={20} />

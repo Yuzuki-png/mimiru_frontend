@@ -21,7 +21,7 @@ export default function AuthCallbackTokenPage() {
         StorageManager.setToken(token);
         
         try {
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003'}/auth/me`, {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json',
@@ -40,8 +40,9 @@ export default function AuthCallbackTokenPage() {
         } catch {
         }
         
+        // 直接 /dashboard/discover にリダイレクト
         setTimeout(() => {
-          window.location.href = '/dashboard';
+          window.location.href = '/dashboard/discover';
         }, 500);
         
       } else if (error) {

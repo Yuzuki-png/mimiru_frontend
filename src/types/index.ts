@@ -1,7 +1,3 @@
-/**
- * 型定義のメインエクスポートファイル
- */
-
 export * from './AudioContent';
 
 export * from './User';
