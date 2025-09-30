@@ -50,9 +50,6 @@ export class ErrorHandler {
     }
   }
 
-  /**
-   * リトライ機能付きの非同期操作
-   */
   static async retryAsyncOperation<T>(
     operation: () => Promise<T>,
     retries: number = 3,
