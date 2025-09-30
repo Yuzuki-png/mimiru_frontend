@@ -1,7 +1,3 @@
-/**
- * 統一されたボタンコンポーネント
- */
-
 import React, { ButtonHTMLAttributes, ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
@@ -36,11 +32,11 @@ type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
 
 const getVariantStyles = (variant: ButtonVariant): string => {
   const styles = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700',
-    secondary: 'bg-gray-600 hover:bg-gray-700 text-white border-gray-600 hover:border-gray-700',
-    outline: 'bg-transparent hover:bg-blue-50 text-blue-600 border-blue-600 hover:border-blue-700',
-    ghost: 'bg-transparent hover:bg-gray-100 text-gray-700 border-transparent',
-    danger: 'bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700'
+    primary: 'bg-blue-600 text-white border-blue-600',
+    secondary: 'bg-gray-600 text-white border-gray-600',
+    outline: 'bg-transparent text-blue-600 border-blue-600',
+    ghost: 'bg-transparent text-gray-700 border-transparent',
+    danger: 'bg-red-600 text-white border-red-600'
   };
   return styles[variant];
 };
@@ -54,7 +50,7 @@ const getSizeStyles = (size: ButtonSize): string => {
   return styles[size];
 };
 
-const baseStyles = 'inline-flex items-center justify-center rounded-md border font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+const baseStyles = 'inline-flex items-center justify-center rounded-md border font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
 
 const buttonVariants = {
   initial: { scale: 1 },

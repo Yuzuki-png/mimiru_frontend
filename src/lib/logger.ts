@@ -1,5 +1,5 @@
 /**
- * ロガー - console.log の代替
+ * ロガー - console.log の代替(eslintエラー無視)
  */
 
 /* eslint-disable no-console */

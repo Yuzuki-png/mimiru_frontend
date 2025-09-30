@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useCallback, useRef, useSyncExternalStore } from 'react';
 
 interface AudioContent {
   id: string;
@@ -112,8 +112,55 @@ interface AudioPlayerProviderProps {
   children: ReactNode;
 }
 
+interface PlaybackStateOnly {
+  currentAudioId: string | null;
+  isPlaying: boolean;
+}
+
+type PlaybackStateListener = () => void;
+
+class PlaybackStateStore {
+  private listeners: Set<PlaybackStateListener> = new Set();
+  private state: PlaybackStateOnly = {
+    currentAudioId: null,
+    isPlaying: false,
+  };
+
+  subscribe(listener: PlaybackStateListener): () => void {
+    this.listeners.add(listener);
+    return () => {
+      this.listeners.delete(listener);
+    };
+  }
+
+  getSnapshot(): PlaybackStateOnly {
+    return this.state;
+  }
+
+  updateState(newState: PlaybackStateOnly) {
+    if (
+      this.state.currentAudioId !== newState.currentAudioId ||
+      this.state.isPlaying !== newState.isPlaying
+    ) {
+      this.state = newState;
+      this.listeners.forEach(listener => listener());
+    }
+  }
+}
+
+const playbackStateStore = new PlaybackStateStore();
+
 export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(audioPlayerReducer, initialState);
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  React.useEffect(() => {
+    playbackStateStore.updateState({
+      currentAudioId: state.currentAudio?.id || null,
+      isPlaying: state.isPlaying,
+    });
+  }, [state.currentAudio?.id, state.isPlaying]);
 
   const playAudio = async (audioContent: AudioContent) => {
     try {
@@ -190,6 +237,18 @@ export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ childr
       {children}
     </AudioPlayerContext.Provider>
   );
+};
+
+export const usePlaybackState = (): PlaybackStateOnly => {
+  const subscribe = useCallback((listener: PlaybackStateListener) => {
+    return playbackStateStore.subscribe(listener);
+  }, []);
+
+  const getSnapshot = useCallback(() => {
+    return playbackStateStore.getSnapshot();
+  }, []);
+
+  return useSyncExternalStore(subscribe, getSnapshot);
 };
 
 export default AudioPlayerContext;

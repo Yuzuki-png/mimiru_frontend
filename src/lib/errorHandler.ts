@@ -1,13 +1,7 @@
-/**
- * エラーハンドリングユーティリティ
- */
 
 import { AppError } from '../types';
 
 export class ErrorHandler {
-  /**
-   * エラーをログに記録し、ユーザーフレンドリーなメッセージを返す
-   */
   static handleError(error: unknown): AppError {
     if (error instanceof Error) {
       if ('code' in error && 'userMessage' in error) {
@@ -31,9 +25,6 @@ export class ErrorHandler {
     };
   }
 
-  /**
-   * 非同期操作のエラーハンドリング
-   */
   static async handleAsyncOperation<T>(
     operation: () => Promise<T>,
     options?: {
@@ -59,9 +50,6 @@ export class ErrorHandler {
     }
   }
 
-  /**
-   * リトライ機能付きの非同期操作
-   */
   static async retryAsyncOperation<T>(
     operation: () => Promise<T>,
     retries: number = 3,
