@@ -181,7 +181,7 @@ export default function TermsOfService() {
               以上
             </AnimatedElement>
             <AnimatedElement className="text-gray-400" delay={1.35}>
-              制定日: 2024年5月1日
+              制定日: 2025年9月28日
             </AnimatedElement>
           </AnimatedContainer>
           

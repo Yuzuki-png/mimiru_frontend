@@ -198,7 +198,7 @@ export default function PrivacyPolicy() {
               以上
             </AnimatedElement>
             <AnimatedElement className="text-gray-400" delay={1.25}>
-              制定日: 2024年5月1日
+              制作日: 2025年9月28日
             </AnimatedElement>
           </AnimatedContainer>
           
