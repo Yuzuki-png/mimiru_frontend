@@ -32,10 +32,6 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
     { id: 'profile', label: 'プロフィール', icon: UserIcon },
   ];
 
-  const bottomItems = [
-    { id: 'settings', label: '設定', icon: UserIcon },
-  ];
-
   const legalItems = [
     { id: 'terms', label: '利用規約', icon: DocumentTextIcon, href: '/terms-of-service' },
     { id: 'privacy', label: 'プライバシーポリシー', icon: ShieldCheckIcon, href: '/privacy-policy' },
@@ -124,42 +120,7 @@ export default function Sidebar({ activeTab, onTabChange, isCollapsed, onToggleC
       </nav>
 
       <div className="p-1 sm:p-2 border-t border-gray-200 dark:border-gray-700">
-        <div className={`${isCollapsed ? 'space-y-1' : 'space-y-2'} mb-2`}>
-          {bottomItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            
-            return (
-              <button
-                key={item.id}
-                onClick={() => handleTabClick(item.id)}
-                className={`w-full flex ${isCollapsed ? 'flex-col items-center justify-center py-2 px-1' : 'items-center space-x-3 px-3 py-2.5'} rounded-lg transition-all duration-200 group relative ${
-                  isActive
-                    ? 'bg-blue-500 text-white shadow-lg'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                }`}
-              >
-                <Icon className={`h-5 w-5 sm:h-6 sm:w-6 ${isActive ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`} />
-                {isCollapsed ? (
-                  <span className={`text-xs mt-0.5 font-medium leading-tight text-center ${isActive ? 'text-white' : 'text-gray-600 dark:text-gray-300'}`}>
-                    {item.id === 'analytics' ? 'アナ' : 
-                     item.id === 'settings' ? '設定' : 
-                     item.label.substring(0, 2)}
-                  </span>
-                ) : (
-                  <span className="font-medium text-sm sm:text-base">{item.label}</span>
-                )}
-                {isCollapsed && (
-                  <div className="absolute left-full ml-2 bg-gray-900 dark:bg-gray-700 text-white px-2 py-1 rounded-md text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                    {item.label}
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className={`${isCollapsed ? 'space-y-1' : 'space-y-1'} border-t border-gray-200 dark:border-gray-700 pt-2`}>
+        <div className={`${isCollapsed ? 'space-y-1' : 'space-y-1'} pt-2`}>
           {legalItems.map((item) => {
             const Icon = item.icon;
             

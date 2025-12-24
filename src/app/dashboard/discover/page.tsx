@@ -45,7 +45,7 @@ export default function DiscoverPage() {
   const { data: trendingData } = useTrendingAudioContents(5, selectedCategory !== "all" ? { category: selectedCategory } : {});
   const { data: latestData } = useLatestAudioContents(6, selectedCategory !== "all" ? { category: selectedCategory } : {});
   const { data: playlistsData } = usePlaylists();
-  const { data: suggestedUsersData } = useSuggestedUsers(3);
+  const { data: suggestedUsersData, isLoading: suggestedUsersLoading } = useSuggestedUsers(3);
   
   const { trigger: addToPlaylistTrigger } = useAddPlaylistItem();
 
@@ -355,10 +355,19 @@ export default function DiscoverPage() {
           </h3>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {suggestedUsers.length === 0 ? (
+          {suggestedUsersLoading ? (
+            <div className="col-span-full text-center py-8">
+              <div className="flex justify-center items-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-500"></div>
+                <span className="ml-2 text-gray-500 dark:text-gray-400">
+                  読み込み中...
+                </span>
+              </div>
+            </div>
+          ) : suggestedUsers.length === 0 ? (
             <div className="col-span-full text-center py-8">
               <p className="text-gray-500 dark:text-gray-400">
-                おすすめユーザーを読み込み中...
+                おすすめユーザーがいません
               </p>
             </div>
           ) : (
